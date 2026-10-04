@@ -1,100 +1,211 @@
-import { PrismaClient, UserRole, VehicleStatus } from "@prisma/client";
+import "dotenv/config";
+import { randomBytes, scrypt } from "node:crypto";
+import { PrismaPg } from "@prisma/adapter-pg";
+import {
+  BookingStatus,
+  Prisma,
+  PrismaClient,
+  UserRole,
+  VehicleStatus,
+} from "@prisma/client";
 
-const prisma = new PrismaClient();
+type SeedVehicle = {
+  brand: string;
+  model: string;
+  slug: string;
+  category: string;
+  year: number;
+  seats: number;
+  transmission: string;
+  fuel: string;
+  drive: string;
+  location: string;
+};
 
-const vehicleCatalog = [
-  ["Toyota", "Corolla", "economy-toyota-corolla", "ECONOMY", 2022, 5, "AUTOMATIC", "PETROL", "FWD", "Tbilisi"],
-  ["Hyundai", "Elantra", "economy-hyundai-elantra", "ECONOMY", 2023, 5, "AUTOMATIC", "PETROL", "FWD", "Tbilisi"],
-  ["Kia", "Rio", "economy-kia-rio", "ECONOMY", 2021, 5, "AUTOMATIC", "PETROL", "FWD", "Batumi"],
-  ["Toyota", "Yaris", "compact-toyota-yaris", "COMPACT", 2022, 5, "AUTOMATIC", "HYBRID", "FWD", "Tbilisi"],
-  ["Volkswagen", "Golf", "compact-volkswagen-golf", "COMPACT", 2021, 5, "AUTOMATIC", "PETROL", "FWD", "Kutaisi"],
-  ["Honda", "Civic", "compact-honda-civic", "COMPACT", 2023, 5, "AUTOMATIC", "PETROL", "FWD", "Batumi"],
-  ["Toyota", "RAV4", "suv-toyota-rav4", "SUV", 2023, 5, "AUTOMATIC", "HYBRID", "AWD", "Tbilisi"],
-  ["Hyundai", "Tucson", "suv-hyundai-tucson", "SUV", 2022, 5, "AUTOMATIC", "PETROL", "AWD", "Tbilisi"],
-  ["Kia", "Sportage", "suv-kia-sportage", "SUV", 2024, 5, "AUTOMATIC", "PETROL", "AWD", "Batumi"],
-  ["Ford", "Transit", "van-ford-transit", "VAN", 2020, 9, "MANUAL", "DIESEL", "RWD", "Tbilisi"],
-  ["Mercedes-Benz", "Vito", "van-mercedes-vito", "VAN", 2021, 8, "AUTOMATIC", "DIESEL", "RWD", "Kutaisi"],
-  ["Toyota", "Land Cruiser", "premium-toyota-land-cruiser", "PREMIUM", 2023, 7, "AUTOMATIC", "PETROL", "4WD", "Tbilisi"],
+const vehicles: SeedVehicle[] = [
+  { brand: "Toyota", model: "Corolla", slug: "economy-toyota-corolla", category: "ECONOMY", year: 2022, seats: 5, transmission: "AUTOMATIC", fuel: "PETROL", drive: "FWD", location: "Tbilisi" },
+  { brand: "Hyundai", model: "Elantra", slug: "economy-hyundai-elantra", category: "ECONOMY", year: 2023, seats: 5, transmission: "AUTOMATIC", fuel: "PETROL", drive: "FWD", location: "Tbilisi" },
+  { brand: "Kia", model: "Rio", slug: "economy-kia-rio", category: "ECONOMY", year: 2021, seats: 5, transmission: "AUTOMATIC", fuel: "PETROL", drive: "FWD", location: "Batumi" },
+  { brand: "Toyota", model: "Yaris", slug: "compact-toyota-yaris", category: "COMPACT", year: 2022, seats: 5, transmission: "AUTOMATIC", fuel: "HYBRID", drive: "FWD", location: "Tbilisi" },
+  { brand: "Volkswagen", model: "Golf", slug: "compact-volkswagen-golf", category: "COMPACT", year: 2021, seats: 5, transmission: "AUTOMATIC", fuel: "PETROL", drive: "FWD", location: "Kutaisi" },
+  { brand: "Honda", model: "Civic", slug: "compact-honda-civic", category: "COMPACT", year: 2023, seats: 5, transmission: "AUTOMATIC", fuel: "PETROL", drive: "FWD", location: "Batumi" },
+  { brand: "Toyota", model: "RAV4", slug: "suv-toyota-rav4", category: "SUV", year: 2023, seats: 5, transmission: "AUTOMATIC", fuel: "HYBRID", drive: "AWD", location: "Tbilisi" },
+  { brand: "Hyundai", model: "Tucson", slug: "suv-hyundai-tucson", category: "SUV", year: 2022, seats: 5, transmission: "AUTOMATIC", fuel: "PETROL", drive: "AWD", location: "Tbilisi" },
+  { brand: "Kia", model: "Sportage", slug: "suv-kia-sportage", category: "SUV", year: 2024, seats: 5, transmission: "AUTOMATIC", fuel: "PETROL", drive: "AWD", location: "Batumi" },
+  { brand: "Ford", model: "Transit", slug: "van-ford-transit", category: "VAN", year: 2020, seats: 9, transmission: "MANUAL", fuel: "DIESEL", drive: "RWD", location: "Tbilisi" },
+  { brand: "Mercedes-Benz", model: "Vito", slug: "van-mercedes-vito", category: "VAN", year: 2021, seats: 8, transmission: "AUTOMATIC", fuel: "DIESEL", drive: "RWD", location: "Kutaisi" },
+  { brand: "Toyota", model: "Land Cruiser", slug: "premium-toyota-land-cruiser", category: "PREMIUM", year: 2023, seats: 7, transmission: "AUTOMATIC", fuel: "PETROL", drive: "4WD", location: "Tbilisi" },
+];
+
+const dailyPrice: Record<string, string> = {
+  ECONOMY: "90.00",
+  COMPACT: "120.00",
+  SUV: "180.00",
+  VAN: "220.00",
+  PREMIUM: "350.00",
+};
+
+const pricingTiers = [
+  { minDays: 1, maxDays: 2, multiplier: "1.00" },
+  { minDays: 3, maxDays: 6, multiplier: "0.95" },
+  { minDays: 7, maxDays: 14, multiplier: "0.90" },
+  { minDays: 15, maxDays: null, multiplier: "0.85" },
 ] as const;
 
-async function main() {
-  const users = [
-    { email: "admin@example.com", name: "Test Admin", role: UserRole.ADMIN },
-    { email: "manager@example.com", name: "Test Manager", role: UserRole.MANAGER },
-    { email: "customer@example.com", name: "Test Customer", role: UserRole.CUSTOMER },
-  ];
-
-  for (const user of users) {
-    await prisma.user.upsert({
-      where: { email: user.email },
-      update: { name: user.name, role: user.role },
-      create: { ...user, passwordHash: null },
-    });
+function seedDatabaseUrl(): string {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Seed is forbidden when NODE_ENV=production.");
   }
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error("DATABASE_URL is required.");
+  const url = new URL(connectionString);
+  if (
+    !["postgresql:", "postgres:"].includes(url.protocol) ||
+    !["localhost", "127.0.0.1"].includes(url.hostname) ||
+    url.pathname !== "/mvbooking"
+  ) {
+    throw new Error("Seed may only connect to local PostgreSQL database mvbooking.");
+  }
+  return connectionString;
+}
 
-  for (const [brand, model, slug, category, year, seats, transmission, fuel, drive, location] of vehicleCatalog) {
-    const vehicle = await prisma.vehicle.upsert({
-      where: { slug },
-      update: { brand, model, category, year, seats, transmission, fuel, drive, location, status: VehicleStatus.AVAILABLE },
-      create: {
-        slug,
-        brand,
-        model,
-        category,
-        year,
-        seats,
-        transmission,
-        fuel,
-        drive,
-        location,
-        description: `${brand} ${model} for rental in Georgia.`,
-        engine: fuel === "HYBRID" ? "1.8L hybrid" : "2.0L",
-        depositAmount: category === "PREMIUM" ? 800 : category === "VAN" ? 600 : 300,
-        insuranceIncluded: category !== "PREMIUM",
-        status: VehicleStatus.AVAILABLE,
-      },
+function seedPassword(): string {
+  const password = process.env.SEED_PASSWORD;
+  if (!password || password.length < 12) {
+    throw new Error("Set SEED_PASSWORD to at least 12 characters in .env.");
+  }
+  return password;
+}
+
+async function hashPassword(password: string): Promise<string> {
+  const N = 16384;
+  const r = 8;
+  const p = 1;
+  const salt = randomBytes(16);
+  const derived = await new Promise<Buffer>((resolve, reject) => {
+    scrypt(password, salt, 64, { N, r, p, maxmem: 64 * 1024 * 1024 }, (error, key) => {
+      if (error) reject(error);
+      else resolve(key);
     });
+  });
+  return ["scrypt", N, r, p, salt.toString("hex"), derived.toString("hex")].join(":");
+}
 
-    const priceByCategory: Record<string, number> = {
-      ECONOMY: 90,
-      COMPACT: 120,
-      SUV: 180,
-      VAN: 220,
-      PREMIUM: 350,
-    };
-    const basePrice = priceByCategory[category];
+function daysFromNow(days: number): Date {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+}
 
-    for (const rule of [
-      { minDays: 1, maxDays: 2, multiplier: 1 },
-      { minDays: 3, maxDays: 6, multiplier: 0.95 },
-      { minDays: 7, maxDays: 14, multiplier: 0.9 },
-      { minDays: 15, maxDays: null, multiplier: 0.85 },
-    ]) {
-      const existingRule = await prisma.pricingRule.findFirst({
-        where: { vehicleId: vehicle.id, minDays: rule.minDays, maxDays: rule.maxDays },
+async function main(): Promise<void> {
+  const connectionString = seedDatabaseUrl();
+  const passwordHash = await hashPassword(seedPassword());
+  const adapter = new PrismaPg({ connectionString });
+  const prisma = new PrismaClient({ adapter });
+
+  try {
+    const users = [
+      { id: "seed-user-admin", email: "admin@example.com", name: "Test Admin", role: UserRole.ADMIN },
+      { id: "seed-user-manager", email: "manager@example.com", name: "Test Manager", role: UserRole.MANAGER },
+      { id: "seed-user-customer", email: "customer@example.com", name: "Test Customer", role: UserRole.CUSTOMER },
+    ] as const;
+
+    for (const user of users) {
+      await prisma.user.upsert({
+        where: { id: user.id },
+        update: {},
+        create: { ...user, passwordHash },
       });
-      const ruleData = {
-        vehicleId: vehicle.id,
-        minDays: rule.minDays,
-        maxDays: rule.maxDays,
-        pricePerDay: basePrice * rule.multiplier,
-        currency: "GEL",
-      };
+    }
 
-      if (existingRule) {
-        await prisma.pricingRule.update({ where: { id: existingRule.id }, data: ruleData });
-      } else {
-        await prisma.pricingRule.create({ data: ruleData });
+    for (const vehicle of vehicles) {
+      const id = "seed-vehicle-" + vehicle.slug;
+      const depositAmount =
+        vehicle.category === "PREMIUM" ? "800.00" :
+        vehicle.category === "VAN" ? "600.00" : "300.00";
+
+      await prisma.vehicle.upsert({
+        where: { id },
+        update: {},
+        create: {
+          id,
+          ...vehicle,
+          description: vehicle.brand + " " + vehicle.model + " for rental in Georgia.",
+          engine: vehicle.fuel === "HYBRID" ? "1.8L hybrid" : "2.0L",
+          depositAmount: new Prisma.Decimal(depositAmount),
+          currency: "GEL",
+          insuranceIncluded: vehicle.category !== "PREMIUM",
+          status: VehicleStatus.AVAILABLE,
+        },
+      });
+
+      for (const tier of pricingTiers) {
+        const pricePerDay = new Prisma.Decimal(dailyPrice[vehicle.category])
+          .mul(new Prisma.Decimal(tier.multiplier))
+          .toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+
+        await prisma.pricingRule.upsert({
+          where: { id: "seed-price-" + vehicle.slug + "-" + tier.minDays },
+          update: {},
+          create: {
+            id: "seed-price-" + vehicle.slug + "-" + tier.minDays,
+            vehicleId: id,
+            minDays: tier.minDays,
+            maxDays: tier.maxDays,
+            pricePerDay,
+            currency: "GEL",
+          },
+        });
       }
     }
+
+    const exampleBookings = [
+      { id: "seed-booking-corolla", vehicleSlug: vehicles[0].slug, offset: 7, status: BookingStatus.PENDING },
+      { id: "seed-booking-rav4", vehicleSlug: vehicles[6].slug, offset: 9, status: BookingStatus.CONFIRMED },
+    ];
+
+    for (const booking of exampleBookings) {
+      const vehicle = vehicles.find((item) => item.slug === booking.vehicleSlug);
+      if (!vehicle) throw new Error("Seed vehicle missing.");
+      const pricePerDay = new Prisma.Decimal(dailyPrice[vehicle.category])
+        .mul(new Prisma.Decimal("0.95"))
+        .toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+      const totalDays = 3;
+      const startDate = daysFromNow(booking.offset);
+      const endDate = new Date(startDate.getTime() + totalDays * 24 * 60 * 60 * 1000);
+
+      // Existing records remain untouched on subsequent runs, including their dates/status.
+      await prisma.booking.upsert({
+        where: { id: booking.id },
+        update: {},
+        create: {
+          id: booking.id,
+          userId: "seed-user-customer",
+          vehicleId: "seed-vehicle-" + booking.vehicleSlug,
+          startDate,
+          endDate,
+          pickupLocation: vehicle.location,
+          returnLocation: vehicle.location,
+          totalDays,
+          pricePerDay,
+          totalAmount: pricePerDay.mul(totalDays),
+          depositAmount: new Prisma.Decimal(
+            vehicle.category === "PREMIUM" ? "800.00" :
+            vehicle.category === "VAN" ? "600.00" : "300.00",
+          ),
+          currency: "GEL",
+          status: booking.status,
+          idempotencyKey: null,
+          requestHash: null,
+        },
+      });
+    }
+
+    console.log("Seed complete: 3 users, 12 vehicles, 48 pricing rules, 2 bookings.");
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-main()
-  .catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});

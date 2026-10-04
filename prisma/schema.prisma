@@ -63,18 +63,20 @@ enum NotificationStatus {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String
-  email         String         @unique
-  phone         String?
-  passwordHash  String?
-  role          UserRole       @default(CUSTOMER)
-  status        UserStatus     @default(ACTIVE)
-  createdAt     DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt     DateTime       @updatedAt @db.Timestamptz(3)
-  bookings      Booking[]
-  notifications Notification[]
-  auditLogs     AuditLog[]
+  id             String               @id @default(cuid())
+  name           String
+  email          String               @unique
+  phone          String?
+  passwordHash   String?
+  role           UserRole             @default(CUSTOMER)
+  status         UserStatus           @default(ACTIVE)
+  sessionVersion Int                  @default(0)
+  createdAt      DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime             @updatedAt @db.Timestamptz(3)
+  bookings       Booking[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+  resetTokens    PasswordResetToken[]
 
   @@index([role, status])
   @@index([status])
@@ -94,6 +96,7 @@ model Vehicle {
   drive             String
   engine            String?
   depositAmount     Decimal        @db.Decimal(12, 2)
+  currency          String         @default("GEL") @db.VarChar(3)
   insuranceIncluded Boolean        @default(false)
   status            VehicleStatus  @default(AVAILABLE)
   location          String
@@ -128,8 +131,7 @@ model PricingRule {
   currency    String  @default("GEL") @db.VarChar(3)
   vehicle     Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
-  @@unique([vehicleId, minDays, maxDays])
-  @@index([vehicleId, minDays, maxDays])
+  @@unique([vehicleId, minDays])
 }
 
 model Booking {
@@ -147,6 +149,8 @@ model Booking {
   currency        String         @default("GEL") @db.VarChar(3)
   status          BookingStatus  @default(PENDING)
   paymentStatus   PaymentStatus  @default(UNPAID)
+  idempotencyKey  String?
+  requestHash     String?
   customerComment String?        @db.Text
   managerComment  String?        @db.Text
   createdAt       DateTime       @default(now()) @db.Timestamptz(3)
@@ -156,9 +160,11 @@ model Booking {
   payments        Payment[]
   notifications   Notification[]
 
-  // Supports availability lookups; overlap enforcement belongs in the booking transaction.
+  @@unique([userId, idempotencyKey])
+  // A separate SQL migration enforces non-overlap for PENDING/CONFIRMED.
   @@index([vehicleId, status, startDate, endDate], map: "booking_availability_idx")
   @@index([userId, createdAt])
+  @@index([userId, status])
   @@index([status, startDate, endDate])
 }
 
@@ -167,6 +173,7 @@ model Payment {
   bookingId         String
   provider          String
   providerPaymentId String?
+  idempotencyKey    String?       @unique
   amount            Decimal       @db.Decimal(12, 2)
   currency          String        @default("GEL") @db.VarChar(3)
   status            PaymentStatus @default(PENDING)
@@ -180,22 +187,28 @@ model Payment {
 }
 
 model Notification {
-  id           String              @id @default(cuid())
-  userId       String
-  bookingId    String?
-  channel      NotificationChannel
-  type         NotificationType
-  status       NotificationStatus  @default(PENDING)
-  payload      Json?
-  sentAt       DateTime?           @db.Timestamptz(3)
-  errorMessage String?             @db.Text
-  createdAt    DateTime            @default(now()) @db.Timestamptz(3)
-  user         User                @relation(fields: [userId], references: [id], onDelete: Restrict)
-  booking      Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  id            String              @id @default(cuid())
+  userId        String
+  bookingId     String?
+  channel       NotificationChannel
+  type          NotificationType
+  status        NotificationStatus  @default(PENDING)
+  payload       Json?
+  eventKey      String?             @unique
+  attempts      Int                 @default(0)
+  nextAttemptAt DateTime            @default(now()) @db.Timestamptz(3)
+  lockedUntil   DateTime?           @db.Timestamptz(3)
+  sentAt        DateTime?           @db.Timestamptz(3)
+  errorMessage  String?             @db.Text
+  createdAt     DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime            @updatedAt @db.Timestamptz(3)
+  user          User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  booking       Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
 
   @@index([userId, status])
   @@index([bookingId, status])
   @@index([status, createdAt])
+  @@index([status, nextAttemptAt])
 }
 
 model AuditLog {
@@ -210,4 +223,17 @@ model AuditLog {
 
   @@index([userId, createdAt])
   @@index([entity, entityId, createdAt])
+}
+
+model PasswordResetToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime  @db.Timestamptz(3)
+  consumedAt DateTime? @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
 }
