@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  CUSTOMER
+  MANAGER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  UNAVAILABLE
+  MAINTENANCE
+  ARCHIVED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REJECTED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  TELEGRAM
+  WHATSAPP
+}
+
+enum NotificationType {
+  BOOKING_CREATED
+  BOOKING_UPDATED
+  BOOKING_CANCELLED
+  BOOKING_CONFIRMED
+  BOOKING_REJECTED
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  phone         String?
+  passwordHash  String?
+  role          UserRole       @default(CUSTOMER)
+  status        UserStatus     @default(ACTIVE)
+  createdAt     DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @db.Timestamptz(3)
+  bookings      Booking[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  @@index([role, status])
+  @@index([status])
+}
+
+model Vehicle {
+  id                String         @id @default(cuid())
+  slug              String         @unique
+  brand             String
+  model             String
+  year              Int
+  category          String
+  description       String?        @db.Text
+  seats             Int
+  transmission      String
+  fuel              String
+  drive             String
+  engine            String?
+  depositAmount     Decimal        @db.Decimal(12, 2)
+  insuranceIncluded Boolean        @default(false)
+  status            VehicleStatus  @default(AVAILABLE)
+  location          String
+  createdAt         DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime       @updatedAt @db.Timestamptz(3)
+  images            VehicleImage[]
+  pricingRules      PricingRule[]
+  bookings          Booking[]
+
+  @@index([status, category])
+  @@index([status, location])
+  @@index([status, seats])
+}
+
+model VehicleImage {
+  id        String  @id @default(cuid())
+  vehicleId String
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, sortOrder])
+}
+
+model PricingRule {
+  id          String  @id @default(cuid())
+  vehicleId   String
+  minDays     Int
+  maxDays     Int?
+  pricePerDay Decimal @db.Decimal(12, 2)
+  currency    String  @default("GEL") @db.VarChar(3)
+  vehicle     Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([vehicleId, minDays, maxDays])
+  @@index([vehicleId, minDays, maxDays])
+}
+
+model Booking {
+  id              String         @id @default(cuid())
+  userId          String
+  vehicleId       String
+  startDate       DateTime       @db.Timestamptz(3)
+  endDate         DateTime       @db.Timestamptz(3)
+  pickupLocation  String
+  returnLocation  String
+  totalDays       Int
+  pricePerDay     Decimal        @db.Decimal(12, 2)
+  totalAmount     Decimal        @db.Decimal(12, 2)
+  depositAmount   Decimal        @db.Decimal(12, 2)
+  currency        String         @default("GEL") @db.VarChar(3)
+  status          BookingStatus  @default(PENDING)
+  paymentStatus   PaymentStatus  @default(UNPAID)
+  customerComment String?        @db.Text
+  managerComment  String?        @db.Text
+  createdAt       DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime       @updatedAt @db.Timestamptz(3)
+  user            User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  vehicle         Vehicle        @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  payments        Payment[]
+  notifications   Notification[]
+
+  // Supports availability lookups; overlap enforcement belongs in the booking transaction.
+  @@index([vehicleId, status, startDate, endDate], map: "booking_availability_idx")
+  @@index([userId, createdAt])
+  @@index([status, startDate, endDate])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  bookingId         String
+  provider          String
+  providerPaymentId String?
+  amount            Decimal       @db.Decimal(12, 2)
+  currency          String        @default("GEL") @db.VarChar(3)
+  status            PaymentStatus @default(PENDING)
+  metadata          Json?
+  createdAt         DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime      @updatedAt @db.Timestamptz(3)
+  booking           Booking       @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, providerPaymentId])
+  @@index([bookingId, status])
+}
+
+model Notification {
+  id           String              @id @default(cuid())
+  userId       String
+  bookingId    String?
+  channel      NotificationChannel
+  type         NotificationType
+  status       NotificationStatus  @default(PENDING)
+  payload      Json?
+  sentAt       DateTime?           @db.Timestamptz(3)
+  errorMessage String?             @db.Text
+  createdAt    DateTime            @default(now()) @db.Timestamptz(3)
+  user         User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  booking      Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([bookingId, status])
+  @@index([status, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  metadata  Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([entity, entityId, createdAt])
+}
