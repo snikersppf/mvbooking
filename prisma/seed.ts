@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { randomBytes, scrypt } from "node:crypto";
 import { PrismaPg } from "@prisma/adapter-pg";
 import {
   BookingStatus,
@@ -8,6 +7,9 @@ import {
   UserRole,
   VehicleStatus,
 } from "@prisma/client";
+import { hashPassword } from "../server/security/password";
+
+const SEED_PASSWORD_PLACEHOLDER = "replace-with-a-local-seed-password";
 
 type SeedVehicle = {
   brand: string;
@@ -61,34 +63,28 @@ function seedDatabaseUrl(): string {
   const url = new URL(connectionString);
   if (
     !["postgresql:", "postgres:"].includes(url.protocol) ||
-    !["localhost", "127.0.0.1"].includes(url.hostname) ||
+    !["localhost", "127.0.0.1", "postgres"].includes(url.hostname) ||
     url.pathname !== "/mvbooking"
   ) {
-    throw new Error("Seed may only connect to local PostgreSQL database mvbooking.");
+    throw new Error(
+      "Seed may only connect to database mvbooking on localhost, 127.0.0.1 or postgres.",
+    );
   }
   return connectionString;
 }
 
 function seedPassword(): string {
   const password = process.env.SEED_PASSWORD;
-  if (!password || password.length < 12) {
-    throw new Error("Set SEED_PASSWORD to at least 12 characters in .env.");
+  if (
+    !password ||
+    password.length < 12 ||
+    password === SEED_PASSWORD_PLACEHOLDER
+  ) {
+    throw new Error(
+      "Set SEED_PASSWORD to a non-placeholder value of at least 12 characters.",
+    );
   }
   return password;
-}
-
-async function hashPassword(password: string): Promise<string> {
-  const N = 16384;
-  const r = 8;
-  const p = 1;
-  const salt = randomBytes(16);
-  const derived = await new Promise<Buffer>((resolve, reject) => {
-    scrypt(password, salt, 64, { N, r, p, maxmem: 64 * 1024 * 1024 }, (error, key) => {
-      if (error) reject(error);
-      else resolve(key);
-    });
-  });
-  return ["scrypt", N, r, p, salt.toString("hex"), derived.toString("hex")].join(":");
 }
 
 function daysFromNow(days: number): Date {
@@ -157,29 +153,27 @@ async function main(): Promise<void> {
       }
     }
 
-    const exampleBookings = [
-      { id: "seed-booking-corolla", vehicleSlug: vehicles[0].slug, offset: 7, status: BookingStatus.PENDING },
-      { id: "seed-booking-rav4", vehicleSlug: vehicles[6].slug, offset: 9, status: BookingStatus.CONFIRMED },
-    ];
-
-    for (const booking of exampleBookings) {
-      const vehicle = vehicles.find((item) => item.slug === booking.vehicleSlug);
-      if (!vehicle) throw new Error("Seed vehicle missing.");
+    async function upsertExampleBooking(input: {
+      id: string;
+      vehicle: SeedVehicle;
+      startDate: Date;
+      endDate: Date;
+      status: BookingStatus;
+    }) {
+      const { id, vehicle, startDate, endDate, status } = input;
       const pricePerDay = new Prisma.Decimal(dailyPrice[vehicle.category])
         .mul(new Prisma.Decimal("0.95"))
         .toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
       const totalDays = 3;
-      const startDate = daysFromNow(booking.offset);
-      const endDate = new Date(startDate.getTime() + totalDays * 24 * 60 * 60 * 1000);
 
       // Existing records remain untouched on subsequent runs, including their dates/status.
-      await prisma.booking.upsert({
-        where: { id: booking.id },
+      return prisma.booking.upsert({
+        where: { id },
         update: {},
         create: {
-          id: booking.id,
+          id,
           userId: "seed-user-customer",
-          vehicleId: "seed-vehicle-" + booking.vehicleSlug,
+          vehicleId: "seed-vehicle-" + vehicle.slug,
           startDate,
           endDate,
           pickupLocation: vehicle.location,
@@ -192,14 +186,59 @@ async function main(): Promise<void> {
             vehicle.category === "VAN" ? "600.00" : "300.00",
           ),
           currency: "GEL",
-          status: booking.status,
+          status,
           idempotencyKey: null,
           requestHash: null,
         },
       });
     }
 
-    console.log("Seed complete: 3 users, 12 vehicles, 48 pricing rules, 2 bookings.");
+    const pendingStart = daysFromNow(7);
+    const pendingBooking = await upsertExampleBooking({
+      id: "seed-booking-corolla",
+      vehicle: vehicles[0],
+      startDate: pendingStart,
+      endDate: new Date(pendingStart.getTime() + 3 * 24 * 60 * 60 * 1000),
+      status: BookingStatus.PENDING,
+    });
+
+    const confirmedStart = daysFromNow(9);
+    await upsertExampleBooking({
+      id: "seed-booking-rav4",
+      vehicle: vehicles[6],
+      startDate: confirmedStart,
+      endDate: new Date(confirmedStart.getTime() + 3 * 24 * 60 * 60 * 1000),
+      status: BookingStatus.CONFIRMED,
+    });
+
+    // CANCELLED does not occupy the vehicle and intentionally overlaps PENDING.
+    await upsertExampleBooking({
+      id: "seed-booking-corolla-cancelled",
+      vehicle: vehicles[0],
+      startDate: pendingBooking.startDate,
+      endDate: pendingBooking.endDate,
+      status: BookingStatus.CANCELLED,
+    });
+
+    const completedStart = daysFromNow(-10);
+    await upsertExampleBooking({
+      id: "seed-booking-yaris-completed",
+      vehicle: vehicles[3],
+      startDate: completedStart,
+      endDate: new Date(completedStart.getTime() + 3 * 24 * 60 * 60 * 1000),
+      status: BookingStatus.COMPLETED,
+    });
+
+    const rejectedStart = daysFromNow(14);
+    await upsertExampleBooking({
+      id: "seed-booking-golf-rejected",
+      vehicle: vehicles[4],
+      startDate: rejectedStart,
+      endDate: new Date(rejectedStart.getTime() + 3 * 24 * 60 * 60 * 1000),
+      status: BookingStatus.REJECTED,
+    });
+
+    console.log("Seed complete: 3 users, 12 vehicles, 48 pricing rules, 5 bookings.");
   } finally {
     await prisma.$disconnect();
   }
