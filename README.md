@@ -11,8 +11,9 @@ MVP foundation for a car-rental booking platform in Georgia.
 The foundation page, Prisma schema, three SQL migrations and sample seed exist.
 Stage 3 authentication, registration and temporary auth pages are implemented.
 Stage 4a booking rules and validators, Stage 4b database-backed booking
-services, and Stage 4c catalog and availability are implemented. Booking Route
-Handlers are still planned.
+services, and Stage 4c catalog and availability are implemented. Stage 5a adds
+the public catalog API and the authenticated customer booking API. Admin API
+and booking forms are still planned.
 
 ## Preview the current application
 
@@ -136,6 +137,73 @@ DATABASE_URL='postgresql://mvbooking:mvbooking_dev@localhost:5432/mvbooking_test
 Booking/auth E2E tests are still planned.
 If a check cannot run due to environment permissions or missing PostgreSQL,
 report it as unverified rather than passed.
+
+## HTTP API
+
+Successful responses use `{ "data": ... }`. Errors use
+`{ "error": { "code", "messageKey", "fieldErrors"?, "requestId" } }`.
+Private responses set `Cache-Control: private, no-store`. Public availability
+and quotes are not stored; catalog responses use a short shared cache.
+
+| Method | Path | Access | Purpose |
+| --- | --- | --- | --- |
+| `GET` | `/api/vehicles` | Public | Filtered, sorted and paginated catalog |
+| `GET` | `/api/vehicles/[slug]` | Public | Vehicle, images and pricing tiers |
+| `GET` | `/api/vehicles/[slug]/availability` | Public | Availability for an offset-aware period |
+| `GET` | `/api/vehicles/[slug]/quote` | Public | Availability and non-reserving quote |
+| `GET` | `/api/availability` | Public | Available vehicles for a period |
+| `POST` | `/api/bookings` | Active session | Create a booking for the current user |
+| `GET` | `/api/bookings` | Active session | List only the current user's bookings |
+| `GET` | `/api/bookings/[id]` | Active session, owner | Read an own booking; another user's ID returns `404` |
+| `PATCH` | `/api/bookings/[id]/cancel` | Active session, owner | Cancel an own unpaid `PENDING` booking |
+| `GET` | `/api/me` | Active session | Current DB-verified user profile |
+
+Catalog filters are `category`, `minPrice`, `maxPrice`, `seats`,
+`transmission`, `fuel`, `drive`, `sort`, `page` and `pageSize` (maximum 50).
+Availability endpoints require `startDate` and `endDate` with an explicit UTC
+offset or `Z`. `/api/availability` accepts the catalog filters too.
+
+Public reads are limited to 120 requests per minute per resolved client IP.
+Booking creation is limited to 10 attempts per minute per user. `POST` and
+`PATCH` require `Content-Type: application/json` and an exact `Origin` matching
+`APP_ORIGIN`. `POST /api/bookings` accepts an optional `Idempotency-Key` header
+(1–128 characters); replaying the same body returns the existing booking.
+
+Catalog example:
+
+```bash
+curl 'http://localhost:3000/api/vehicles?category=SUV&sort=price_asc&page=1&pageSize=12'
+```
+
+Booking example (replace the cookie and identifiers with local values):
+
+```bash
+curl -X POST 'http://localhost:3000/api/bookings' \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:3000' \
+  -H 'Idempotency-Key: booking-2026-10-11-001' \
+  -H 'Cookie: authjs.session-token=REPLACE_ME' \
+  --data '{
+    "vehicleId": "REPLACE_ME",
+    "startDate": "2026-11-01T10:00:00+04:00",
+    "endDate": "2026-11-04T10:00:00+04:00",
+    "pickupLocation": "Tbilisi Airport",
+    "returnLocation": "Tbilisi Airport",
+    "customerComment": "Flight arrives at 09:20"
+  }'
+```
+
+Example conflict response:
+
+```json
+{
+  "error": {
+    "code": "VEHICLE_UNAVAILABLE",
+    "messageKey": "errors.vehicleUnavailable",
+    "requestId": "0d93f506-c8a4-4e95-930a-6750a44d8452"
+  }
+}
+```
 
 ## Text files
 

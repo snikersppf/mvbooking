@@ -112,6 +112,15 @@ export const availableVehicleListQuerySchema = z
   .strict()
   .superRefine(validatePriceRange);
 
+const availabilityPeriodShape = {
+  startDate: offsetDateTimeSchema,
+  endDate: offsetDateTimeSchema,
+};
+
+export const availabilityPeriodQuerySchema = z
+  .object(availabilityPeriodShape)
+  .strict();
+
 export const vehicleAvailabilityQuerySchema = z
   .object({
     vehicleId: z
@@ -119,8 +128,7 @@ export const vehicleAvailabilityQuerySchema = z
       .trim()
       .min(1)
       .max(CATALOG_QUERY_LIMITS.vehicleId),
-    startDate: offsetDateTimeSchema,
-    endDate: offsetDateTimeSchema,
+    ...availabilityPeriodShape,
   })
   .strict();
 
