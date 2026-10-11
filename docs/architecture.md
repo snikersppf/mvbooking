@@ -4,9 +4,11 @@
 Статус: **утверждён с поправками**.
 Этап 2 реализован: существуют Prisma schema, PostgreSQL adapter, начальные
 миграции, CHECK-миграция email и local-only seed. Начальные миграции и seed
-проверены владельцем проекта на PostgreSQL 16 в Arch Linux. Авторизация,
-Route Handlers и booking service ещё
-не реализованы. При расхождении раннего текста плана с разделом «Решения и
+проверены владельцем проекта на PostgreSQL 16 в Arch Linux. Подэтапы 3a–3c
+реализуют серверные auth guards, rate limiting, регистрацию, Auth.js
+Credentials и JWT-сессии, Proxy, временные страницы и Origin-проверку.
+Booking service ещё не реализован. При расхождении раннего текста плана с
+разделом «Решения и
 поправки» действуют утверждённые поправки.
 
 ## 1. Результат проверки проекта
@@ -14,7 +16,8 @@ Route Handlers и booking service ещё
 Есть Git-репозиторий, Next.js App Router, стартовая страница, Prisma schema,
 PostgreSQL adapter, миграции и seed. Seed содержит 12 автомобилей, 3 локальных
 пользователя с хешами паролей, тарифы и примеры бронирований.
-Нет авторизации, Route Handlers приложения и booking service.
+Есть регистрационный и Auth.js Route Handlers, Credentials и JWT-сессии;
+есть Proxy и временные auth-страницы; остальные Route Handlers и booking service отсутствуют.
 
 Файлы `AGENTS.md` и `docsmvp-spec.md` успешно декодируются строгим UTF-8;
 русский текст сохранён корректно. Предыдущее заключение о повреждённой
@@ -53,24 +56,24 @@ PostgreSQL adapter, миграции и seed. Seed содержит 12 авто�
 | Next.js | 16.3.8 | Сохранить |
 | React / React DOM | 19.1.0 / 19.1.0 | Сохранить; peerDependencies Next допускают эти версии |
 | Prisma CLI / Client | 7.10.0 / 7.10.0 | Сохранить; PostgreSQL adapter той же версии |
-| Auth.js, пакет next-auth | Не установлен | Предлагается точно 5.0.0-beta.32; это pre-release |
-| @auth/core | Не установлен | Определяется зависимостью next-auth; закрепляется lockfile |
-| Zod | 4.6.5, транзитивно | Добавить прямую зависимость zod@4.6.5 |
+| Auth.js, пакет next-auth | 5.0.0-beta.32 | Точная pre-release версия закреплена в lockfile |
+| @auth/core | 0.41.3 | Транзитивная версия закреплена lockfile |
+| Zod | 4.6.5 | Прямая зависимость приложения |
 | Vitest | 3.2.4 | Сохранить; пользоваться руководством v3 |
 | TypeScript | 5.9.3 | Сохранить |
 | Node.js | 22.22.2 в окружении | Node 22 для локального запуска/CI |
 | PostgreSQL | Образ postgres:16-alpine | Мажорная версия 16; фактический patch сервера пока не проверен |
 
-Никакие зависимости сейчас не устанавливаются и не обновляются.
-Наличие пакета в транзитивном дереве не заменяет прямую зависимость приложения.
-Существующая сборка проходила, но совместимость будущей авторизации должна
-быть подтверждена после установки тестами регистрации/входа.
+Зависимости Этапа 3 закреплены точными версиями и используются регистрацией,
+Credentials-входом, JWT-сессиями и временными формами.
 
 ### Next.js 16: proxy.ts и серверные проверки
 
-В корне рядом с `app/` использовать `proxy.ts` и экспорт `proxy`.
+В корне рядом с `app/` используется `proxy.ts` с экспортом `proxy`.
 В Next.js 16 middleware переименован; Proxy работает в Node.js runtime.
-Proxy нужен для предварительного перенаправления на login.
+Proxy делает предварительные редиректы на login для `/account`, `/bookings`
+и `/admin`, а авторизованного пользователя уводит с login/register на главную.
+Он проверяет только наличие Auth.js-сессии и не обращается к БД.
 Окончательное решение о доступе принимают guards в Route Handlers,
 Server Actions и server services. Отключение Proxy не должно открывать API.
 
@@ -108,7 +111,7 @@ CLI, если того требует выбранный PostgreSQL-хостин
 
 Выбрана v5 API, конкретный выпущенный pre-release:
 [next-auth@5.0.0-beta.32](https://github.com/nextauthjs/next-auth/releases/tag/next-auth@5.0.0-beta.32).
-Этот выбор входит в утверждаемый план; пакет ещё не установлен.
+Точная версия установлена и закреплена lockfile.
 Не смешивать примеры v4 (`getServerSession`) с v5 (`auth()`).
 
 `auth.ts` возвращает `handlers, auth, signIn, signOut`.
@@ -117,6 +120,9 @@ Credentials импортируется из `next-auth/providers/credentials`.
 В `authorize(credentials, request)`: Zod-валидация, rate limiting,
 поиск User, проверка ACTIVE и хеша пароля; результат — безопасные поля User
 либо null с единым сообщением об ошибке.
+Если User не найден, всё равно выполнить `verifyPassword` с фиксированным
+валидным dummy-хешем, чтобы отсутствие пользователя не создавало заметно
+более быстрый путь ответа.
 
 Обязательно `session.strategy = "jwt"`.
 Credentials сам не регистрирует пользователей и требует JWT-сессии.
@@ -519,6 +525,12 @@ Reset увеличивает sessionVersion; старые JWT перестают
 Физическое logout очищает cookie текущего браузера; revoke всех сессий —
 увеличение sessionVersion.
 
+Auth.js v5 получает секрет только из `AUTH_SECRET` (не `NEXTAUTH_SECRET`);
+`AUTH_URL` задаёт канонический URL при необходимости. Секрет обязателен и
+должен иметь не менее 32 байт UTF-8; проверка выполняется в конфигурационном
+коде до запуска auth runtime. В репозитории хранятся только пустые имена
+переменных в `.env.example`, без значений.
+
 Источники: [Auth.js RBAC](https://authjs.dev/guides/role-based-access-control),
 [Node 22 crypto](https://nodejs.org/docs/latest-v22.x/api/crypto.html).
 Проверки БД и sessionVersion — наш проектный слой, не автоматическая функция Auth.js.
@@ -585,10 +597,11 @@ Zod whitelist входных полей, ограничение body/строк;
 
 ## 10. Rate limiting
 
-Принять интерфейс RateLimitStore и атомарный Redis-backed limiter
-для production и нескольких инстансов; память процесса только для dev/tests.
-Дополнительный Redis — инфраструктурная зависимость предложенного плана.
-Провайдер ещё не выбран; реальные ключи не нужны для архитектуры.
+Принять интерфейс RateLimitStore. В MVP используется in-memory реализация
+только для development/tests. На production runtime она считается ошибкой
+конфигурации; проверка не должна срабатывать во время `next build`.
+До production нужен атомарный общий store либо доказанно единственный
+экземпляр приложения с отдельным лимитом на ingress.
 
 Первоначальные лимиты, настраиваемые окружением:
 
@@ -607,8 +620,21 @@ Zod whitelist входных полей, ограничение body/строк;
 прямым POST Auth.js callback или Server Action signIn.
 Остальные проверки — в handler/service boundary.
 email/token ключи хешировать с server-side secret, не писать PII в Redis key/log.
-IP брать только из доверенных заголовков deploy proxy; не доверять
-произвольному X-Forwarded-For. Счётчик и TTL изменяются атомарно.
+Основной login-лимит — по IP. Дополнительный лимит по нормализованному email
+осознанно оставлен как defense-in-depth: злоумышленник может исчерпать его
+для чужого адреса и временно заблокировать вход владельцу. Этот компромисс
+компенсируется коротким окном, единым публичным ответом и мониторингом.
+
+IP по умолчанию — адрес непосредственного сетевого соединения.
+`X-Forwarded-For` и другие forwarded-заголовки разрешено учитывать только
+при явном `TRUST_PROXY_HEADERS=true` и настроенном доверенном ingress/proxy;
+при прямом публичном доступе эту настройку включать нельзя.
+Счётчик и TTL изменяются атомарно.
+Стандартный Next.js Route Handler не предоставляет адрес сетевого соединения.
+Поэтому без `TRUST_PROXY_HEADERS=true` лимит регистрации остаётся общим для
+всех клиентов. `proxy.ts` не устраняет это ограничение API Next.js. До
+production доверенный ingress должен передавать проверенный адрес либо
+deployment должен использовать custom server с адресом соединения.
 
 При превышении — 429 и Retry-After, без раскрытия существования email.
 При недоступном store auth/booking/payment mutations отвечают 503;
@@ -628,16 +654,13 @@ skipCSRFCheck и не обходить framework handlers.
 1. Сверить Origin с точным allowlist APP_ORIGIN, без wildcard.
    Нет Origin или чужой Origin в браузерном cookie API — отказ 403.
 2. При наличии Sec-Fetch-Site отклонять cross-site.
-3. Принимать application/json и X-CSRF-Token.
-4. Использовать подписанный double-submit: случайный nonce в
-   HttpOnly cookie, token = HMAC(serverSecret, nonce + userBinding);
-   token выдаёт GET /api/csrf (no-store), проверка constant-time.
-   После входа сменить nonce/binding и получить новый token.
-5. После CSRF выполнить серверные auth/role/ownership guards.
+3. Принимать только `application/json`.
+4. После проверки источника выполнить серверные auth/role/ownership guards.
 
-Cookies: HttpOnly для session/nonce, SameSite=Lax, Secure на HTTPS,
-production nonce cookie __Host- с Path=/ и без Domain.
-В HTTP localhost использовать dev cookie без __Host-/Secure.
+В 3c эта проверка применяется к собственному `POST /api/auth/register`.
+Каждый следующий собственный unsafe Route Handler обязан подключить тот же guard.
+
+Session cookie Auth.js: HttpOnly, SameSite=Lax и Secure на HTTPS.
 Не хранить session token в localStorage.
 CORS по умолчанию same-origin; не добавлять Access-Control-Allow-Origin *.
 
@@ -650,7 +673,7 @@ Payment webhook исключён из browser-CSRF/cookie guards:
 dedup event и проверка amount/currency/bookingId.
 Ссылка success в браузере не устанавливает PAID.
 Источник концепции CSRF: [MDN](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/CSRF).
-Конкретный HMAC/double-submit контракт выше — решение проекта.
+HMAC/double-submit отложен после MVP согласно разделу «Решения и поправки».
 
 ## 12. Порядок дальнейшей реализации и проверок
 
@@ -730,6 +753,18 @@ secrets через environment, job/worker для notifications.
   требуется общий атомарный store для нескольких инстансов либо deployment
   с доказанно единственным экземпляром и отдельным ограничением на ingress.
   Локальная память одного инстанса не защищает кластер.
+- Основной лимит Credentials — по IP. Дополнительный лимит по email сохраняется
+  с известным риском временной блокировки чужого входа. Email в ключе хранится
+  только в HMAC-виде.
+- IP берётся из адреса соединения. Forwarded-заголовки учитываются только при
+  явной настройке доверенного proxy через `TRUST_PROXY_HEADERS=true`.
+- При неизвестном email `authorize` выполняет проверку пароля против
+  фиксированного dummy-хеша для выравнивания времени ответа.
+- Дубликат email при регистрации осознанно возвращает 409. Это удобнее клиенту,
+  но раскрывает факт регистрации; login и password-reset по-прежнему используют
+  единые ответы, а register защищён IP rate limit.
+- Auth.js v5 использует только переменные `AUTH_*`; секрет проверяется на
+  минимальную длину 32 байта до запуска auth runtime.
 - CSRF в MVP: точный allowlist Origin, SameSite=Lax для cookie и обязательный
   Content-Type: application/json для собственных unsafe API. HMAC
   double-submit и GET /api/csrf отложены; Auth.js сохраняет свою встроенную
@@ -742,5 +777,5 @@ secrets через environment, job/worker для notifications.
   общий список доступен менеджеру и администратору через
   GET /api/admin/bookings.
 - Этап 2 включает схему, Prisma 7 PostgreSQL adapter, миграции и seed.
-  Auth.js будет установлен позже. Docker и применение миграций выполняются
+  Auth.js установлен для Этапа 3. Docker и применение миграций выполняются
   владельцем проекта в окружении с доступным PostgreSQL.

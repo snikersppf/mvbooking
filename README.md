@@ -9,7 +9,8 @@ MVP foundation for a car-rental booking platform in Georgia.
 - [Project instructions](AGENTS.md)
 
 The foundation page, Prisma schema, three SQL migrations and sample seed exist.
-Authentication, application API and booking services have not been implemented.
+Stage 3 authentication, registration and temporary auth pages are implemented.
+Booking services and the remaining application API are still planned.
 
 ## Preview the current application
 
@@ -19,6 +20,8 @@ Requirements: Node.js 22.22.2 and npm.
 
 ```bash
 npm ci
+cp .env.example .env
+chmod 600 .env
 npm run dev
 ```
 
@@ -29,8 +32,10 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-Open http://localhost:3000. The current page contains the MVBooking heading
-and foundation message. It does not require a database.
+Before starting, configure `AUTH_SECRET` with at least 32 bytes and set
+`AUTH_URL` and `APP_ORIGIN` to the application's exact origin.
+Open http://localhost:3000. The home page itself does not query the database;
+registration requires the local PostgreSQL setup below.
 Stop the foreground dev server with Ctrl+C.
 Using npm.cmd avoids PowerShell execution-policy restrictions on npm.ps1.
 
