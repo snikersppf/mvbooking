@@ -103,7 +103,7 @@ export async function POST(request: Request): Promise<Response> {
     if (error instanceof RateLimitUnavailableError) {
       return jsonError(503, error.code, "errors.serviceUnavailable");
     }
-
+    console.error("register failed:", error instanceof Error ? `${error.name}: ${error.message}` : "unknown");
     return jsonError(503, "REGISTRATION_UNAVAILABLE", "errors.serviceUnavailable");
   }
 }
