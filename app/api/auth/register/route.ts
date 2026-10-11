@@ -1,5 +1,6 @@
 import { trustProxyHeaders } from "@/server/config/auth";
 import { requireAppOrigin } from "@/server/config/http";
+import { logRouteHandlerError } from "@/server/http/route-handler-errors";
 import { resolveClientIp } from "@/server/security/client-ip";
 import {
   assertTrustedMutationRequest,
@@ -103,7 +104,11 @@ export async function POST(request: Request): Promise<Response> {
     if (error instanceof RateLimitUnavailableError) {
       return jsonError(503, error.code, "errors.serviceUnavailable");
     }
-    console.error("register failed:", error instanceof Error ? `${error.name}: ${error.message}` : "unknown");
-    return jsonError(503, "REGISTRATION_UNAVAILABLE", "errors.serviceUnavailable");
+    logRouteHandlerError("POST /api/auth/register", error);
+    return jsonError(
+      503,
+      "REGISTRATION_UNAVAILABLE",
+      "errors.serviceUnavailable",
+    );
   }
 }

@@ -10,7 +10,8 @@ MVP foundation for a car-rental booking platform in Georgia.
 
 The foundation page, Prisma schema, three SQL migrations and sample seed exist.
 Stage 3 authentication, registration and temporary auth pages are implemented.
-Booking services and the remaining application API are still planned.
+Stage 4a booking rules and validators are implemented. Database-backed booking
+orchestration, repositories, booking API and catalog UI are still planned.
 
 ## Preview the current application
 
@@ -32,8 +33,18 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-Before starting, configure `AUTH_SECRET` with at least 32 bytes and set
-`AUTH_URL` and `APP_ORIGIN` to the application's exact origin.
+Before starting, configure the authentication and HTTP origin variables:
+
+- `AUTH_SECRET` — a private random value of at least 32 bytes. Never commit it.
+- `AUTH_URL` — the canonical Auth.js URL, including the scheme and port when
+  applicable, for example `http://localhost:3000`.
+- `APP_ORIGIN` — the exact public application origin used to validate
+  state-changing requests, for example `http://localhost:3000`. It normally
+  matches `AUTH_URL` and must not contain a path, query or credentials.
+- `TRUST_PROXY_HEADERS` — `false` unless the application runs behind a trusted
+  reverse proxy that replaces `X-Forwarded-For`/`X-Real-IP`; set it to `true`
+  only in that controlled deployment.
+
 Open http://localhost:3000. The home page itself does not query the database;
 registration requires the local PostgreSQL setup below.
 Stop the foreground dev server with Ctrl+C.
