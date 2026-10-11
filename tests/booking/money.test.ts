@@ -6,6 +6,21 @@ import {
 } from "@/server/services/booking/money";
 
 describe("calculateBookingMoney", () => {
+  it("rounds 33.335 HALF_UP and preserves the total amount invariant", () => {
+    const totalDays = 3;
+    const result = calculateBookingMoney({
+      pricePerDay: new Prisma.Decimal("33.335"),
+      totalDays,
+      depositAmount: new Prisma.Decimal("0.00"),
+    });
+
+    expect(result.pricePerDay.toFixed(2)).toBe("33.34");
+    expect(result.totalAmount.toFixed(2)).toBe("100.02");
+    expect(
+      satisfiesBookingTotalAmountCheck({ ...result, totalDays }),
+    ).toBe(true);
+  });
+
   it("rounds HALF_UP with Prisma.Decimal and keeps deposit separate", () => {
     const result = calculateBookingMoney({
       pricePerDay: new Prisma.Decimal("12.345"),

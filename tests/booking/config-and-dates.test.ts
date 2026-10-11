@@ -86,4 +86,21 @@ describe("calculateBookingDays", () => {
     expect(formatBookingCalendarDate(booking.endDate)).toBe("2026-01-11");
     expect(calculateBookingDays(booking, NOW)).toBe(1);
   });
+
+  it("formats 20:00 UTC as the next Tbilisi date without changing interval days", () => {
+    const utcInterval = interval(
+      "2026-10-10T20:00:00Z",
+      "2026-10-11T20:00:00Z",
+    );
+    const tbilisiOffsetInterval = interval(
+      "2026-10-11T00:00:00+04:00",
+      "2026-10-12T00:00:00+04:00",
+    );
+
+    expect(formatBookingCalendarDate(utcInterval.startDate)).toBe(
+      "2026-10-11",
+    );
+    expect(calculateBookingDays(utcInterval, NOW)).toBe(1);
+    expect(calculateBookingDays(tbilisiOffsetInterval, NOW)).toBe(1);
+  });
 });
