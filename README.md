@@ -10,9 +10,9 @@ MVP foundation for a car-rental booking platform in Georgia.
 
 The foundation page, Prisma schema, three SQL migrations and sample seed exist.
 Stage 3 authentication, registration and temporary auth pages are implemented.
-Stage 4a booking rules and validators and Stage 4b database-backed booking
-services are implemented. Booking Route Handlers and catalog UI are still
-planned.
+Stage 4a booking rules and validators, Stage 4b database-backed booking
+services, and Stage 4c catalog and availability are implemented. Booking Route
+Handlers are still planned.
 
 ## Preview the current application
 
