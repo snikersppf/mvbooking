@@ -19,6 +19,11 @@ export type PublicUser = Pick<
   "id" | "name" | "email" | "phone" | "role" | "status" | "createdAt"
 >;
 
+export type LockedUser = Pick<
+  User,
+  "id" | "role" | "status" | "sessionVersion"
+>;
+
 export type CreateCustomerInput = {
   name: string;
   email: string;
@@ -105,3 +110,17 @@ export class PrismaUserRepository implements UserRepository {
 }
 
 export const userRepository: UserRepository = new PrismaUserRepository();
+
+export async function lockUserById(
+  transaction: Prisma.TransactionClient,
+  id: string,
+): Promise<LockedUser | null> {
+  const rows = await transaction.$queryRaw<LockedUser[]>`
+    SELECT "id", "role", "status", "sessionVersion"
+    FROM "User"
+    WHERE "id" = ${id}
+    FOR UPDATE
+  `;
+
+  return rows[0] ?? null;
+}

@@ -10,8 +10,9 @@ MVP foundation for a car-rental booking platform in Georgia.
 
 The foundation page, Prisma schema, three SQL migrations and sample seed exist.
 Stage 3 authentication, registration and temporary auth pages are implemented.
-Stage 4a booking rules and validators are implemented. Database-backed booking
-orchestration, repositories, booking API and catalog UI are still planned.
+Stage 4a booking rules and validators and Stage 4b database-backed booking
+services are implemented. Booking Route Handlers and catalog UI are still
+planned.
 
 ## Preview the current application
 
@@ -119,8 +120,20 @@ npm run build
 ```
 
 The smoke test proves the test runner starts; password unit tests cover valid
-and invalid passwords and per-hash random salts.
-Database integration tests and booking/auth E2E tests are still planned.
+and invalid passwords and per-hash random salts. Booking integration tests use
+only an explicit `DATABASE_URL` whose database name ends in `_test`; the test
+Prisma config does not load application `.env` files.
+
+Create and prepare the separate local test database, then run the integration
+suite:
+
+```bash
+docker compose exec postgres createdb -U mvbooking -O mvbooking mvbooking_test
+DATABASE_URL='postgresql://mvbooking:mvbooking_dev@localhost:5432/mvbooking_test?schema=public' npm run prisma:migrate:test
+DATABASE_URL='postgresql://mvbooking:mvbooking_dev@localhost:5432/mvbooking_test?schema=public' npm run test:integration
+```
+
+Booking/auth E2E tests are still planned.
 If a check cannot run due to environment permissions or missing PostgreSQL,
 report it as unverified rather than passed.
 

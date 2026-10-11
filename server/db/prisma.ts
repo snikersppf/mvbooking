@@ -15,14 +15,14 @@ function requireDatabaseUrl(): string {
   return connectionString;
 }
 
-function createPrismaClient(): PrismaClient {
-  const adapter = new PrismaPg({ connectionString: requireDatabaseUrl() });
+export function createPrismaClient(connectionString: string): PrismaClient {
+  const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({ adapter });
 }
 
 export function getPrismaClient(): PrismaClient {
   if (!prismaGlobal.mvbookingPrisma) {
-    prismaGlobal.mvbookingPrisma = createPrismaClient();
+    prismaGlobal.mvbookingPrisma = createPrismaClient(requireDatabaseUrl());
   }
 
   return prismaGlobal.mvbookingPrisma;
