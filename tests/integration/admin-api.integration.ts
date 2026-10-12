@@ -87,6 +87,7 @@ import {
   createPrismaClient,
   getPrismaClient,
 } from "@/server/db/prisma";
+import { cleanupTrackedPrefixes } from "@/tests/integration/cleanup";
 import { requireTestDatabaseUrl } from "@/tests/integration/test-database";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
@@ -95,7 +96,7 @@ const databaseUrl = requireTestDatabaseUrl();
 const prisma = createPrismaClient(databaseUrl);
 const originalAppOrigin = process.env.APP_ORIGIN;
 const originalTrustProxyHeaders = process.env.TRUST_PROXY_HEADERS;
-let prefixes: string[] = [];
+const prefixes: string[] = [];
 
 function newPrefix(): string {
   const prefix = `admin_${randomUUID().replaceAll("-", "").slice(0, 14)}`;
@@ -255,6 +256,19 @@ const pricingPayload = {
 };
 
 async function cleanup(prefix: string): Promise<void> {
+  const slugPrefix = prefix.replaceAll("_", "-");
+  const vehicleIds = (
+    await prisma.vehicle.findMany({
+      where: {
+        OR: [
+          { id: { startsWith: prefix } },
+          { slug: { startsWith: slugPrefix } },
+        ],
+      },
+      select: { id: true },
+    })
+  ).map(({ id }) => id);
+
   await prisma.notification.deleteMany({
     where: { userId: { startsWith: prefix } },
   });
@@ -265,18 +279,18 @@ async function cleanup(prefix: string): Promise<void> {
     where: {
       OR: [
         { userId: { startsWith: prefix } },
-        { vehicleId: { startsWith: prefix } },
+        { vehicleId: { in: vehicleIds } },
       ],
     },
   });
   await prisma.vehicleImage.deleteMany({
-    where: { vehicleId: { startsWith: prefix } },
+    where: { vehicleId: { in: vehicleIds } },
   });
   await prisma.pricingRule.deleteMany({
-    where: { vehicleId: { startsWith: prefix } },
+    where: { vehicleId: { in: vehicleIds } },
   });
   await prisma.vehicle.deleteMany({
-    where: { id: { startsWith: prefix } },
+    where: { id: { in: vehicleIds } },
   });
   await prisma.passwordResetToken.deleteMany({
     where: { userId: { startsWith: prefix } },
@@ -292,19 +306,22 @@ beforeAll(async () => {
 
 afterEach(async () => {
   setSession(null);
-  for (const prefix of prefixes.reverse()) await cleanup(prefix);
-  prefixes = [];
+  await cleanupTrackedPrefixes(prefixes, cleanup);
 });
 
 afterAll(async () => {
-  await prisma.$disconnect();
-  await getPrismaClient().$disconnect();
-  if (originalAppOrigin === undefined) delete process.env.APP_ORIGIN;
-  else process.env.APP_ORIGIN = originalAppOrigin;
-  if (originalTrustProxyHeaders === undefined) {
-    delete process.env.TRUST_PROXY_HEADERS;
-  } else {
-    process.env.TRUST_PROXY_HEADERS = originalTrustProxyHeaders;
+  try {
+    await cleanupTrackedPrefixes(prefixes, cleanup);
+  } finally {
+    await prisma.$disconnect();
+    await getPrismaClient().$disconnect();
+    if (originalAppOrigin === undefined) delete process.env.APP_ORIGIN;
+    else process.env.APP_ORIGIN = originalAppOrigin;
+    if (originalTrustProxyHeaders === undefined) {
+      delete process.env.TRUST_PROXY_HEADERS;
+    } else {
+      process.env.TRUST_PROXY_HEADERS = originalTrustProxyHeaders;
+    }
   }
 });
 
@@ -408,12 +425,19 @@ describe("admin API integration", () => {
       ),
     );
     expect(listed.status).toBe(200);
-    await expect(listed.json()).resolves.toMatchObject({
+    const listedBody = (await listed.json()) as {
       data: {
-        items: [expect.objectContaining({ id: vehicleId })],
-        pageSize: 50,
-      },
-    });
+        items: Array<{ id: string; slug: string }>;
+        pageSize: number;
+      };
+    };
+    const prefixedItems = listedBody.data.items.filter(({ slug: itemSlug }) =>
+      itemSlug.startsWith(prefix.replaceAll("_", "-")),
+    );
+    expect(prefixedItems).toEqual([
+      expect.objectContaining({ id: vehicleId }),
+    ]);
+    expect(listedBody.data.pageSize).toBe(50);
 
     const forbiddenArchive = await deleteVehicle(
       mutationRequest(

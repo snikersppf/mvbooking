@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Pagination } from "@/components/ui/pagination";
 
 type CatalogPaginationProps = Readonly<{
   page: number;
@@ -14,12 +14,12 @@ export function CatalogPagination({
   nextHref,
 }: CatalogPaginationProps) {
   return (
-    <nav className="catalog-pagination" aria-label="Catalog pages">
-      {previousHref ? <Link href={previousHref}>Previous</Link> : <span />}
-      <span>
-        Page {page} of {totalPages}
-      </span>
-      {nextHref ? <Link href={nextHref}>Next</Link> : <span />}
-    </nav>
+    <Pagination
+      ariaLabel="Catalog pages"
+      page={page}
+      totalPages={totalPages}
+      previousHref={previousHref}
+      nextHref={nextHref}
+    />
   );
 }

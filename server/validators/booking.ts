@@ -1,10 +1,7 @@
 import { z } from "zod";
+import { BOOKING_INPUT_LIMITS } from "@/lib/booking-input";
 
-export const BOOKING_INPUT_LIMITS = Object.freeze({
-  vehicleId: 128,
-  location: 200,
-  customerComment: 2_000,
-});
+export { BOOKING_INPUT_LIMITS } from "@/lib/booking-input";
 
 const offsetDateTimeSchema = z.iso
   .datetime({ offset: true })

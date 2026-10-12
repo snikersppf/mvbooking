@@ -22,3 +22,10 @@ export function normalizeCallbackPath(value: unknown): string {
     return FALLBACK_PATH;
   }
 }
+
+export function buildLoginHref(callbackPath: string): string {
+  const searchParams = new URLSearchParams({
+    callbackUrl: normalizeCallbackPath(callbackPath),
+  });
+  return "/login?" + searchParams.toString();
+}

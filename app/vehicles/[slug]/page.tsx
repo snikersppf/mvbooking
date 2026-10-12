@@ -1,73 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ZodError } from "zod";
-import { AvailabilityForm } from "@/components/catalog/availability-form";
-import { AvailabilityResult } from "@/components/catalog/availability-result";
+import { BookingForm } from "@/components/booking/booking-form";
 import { VehicleDetail } from "@/components/catalog/vehicle-detail";
-import { checkVehicleAvailability } from "@/server/services/availability/check-vehicle";
-import type { VehicleAvailabilityResult } from "@/server/services/availability/check-vehicle";
-import { BookingRuleError } from "@/server/services/booking/errors";
+import { BOOKING_CONFIG } from "@/server/config/booking";
 import { getCatalogVehicleBySlug } from "@/server/services/catalog/get-vehicle";
-
-type RawSearchParams = Record<string, string | string[] | undefined>;
 
 type VehiclePageProps = Readonly<{
   params: Promise<{ slug: string }>;
-  searchParams: Promise<RawSearchParams>;
 }>;
 
-type AvailabilityView = Readonly<{
-  result: VehicleAvailabilityResult | null;
-  validationError: boolean;
-  startDate: string;
-  endDate: string;
-}>;
-
-function formValue(value: string | string[] | undefined): string {
-  return typeof value === "string" ? value : "";
-}
-
-async function loadAvailability(
-  vehicleId: string,
-  searchParams: RawSearchParams,
-): Promise<AvailabilityView> {
-  const startDate = formValue(searchParams.startDate);
-  const endDate = formValue(searchParams.endDate);
-  const hasAvailabilityQuery =
-    searchParams.startDate !== undefined || searchParams.endDate !== undefined;
-
-  if (!hasAvailabilityQuery) {
-    return { result: null, validationError: false, startDate, endDate };
-  }
-
-  try {
-    return {
-      result: await checkVehicleAvailability({
-        vehicleId,
-        startDate: searchParams.startDate,
-        endDate: searchParams.endDate,
-      }),
-      validationError: false,
-      startDate,
-      endDate,
-    };
-  } catch (error) {
-    if (error instanceof ZodError || error instanceof BookingRuleError) {
-      return { result: null, validationError: true, startDate, endDate };
-    }
-    throw error;
-  }
-}
-
-export default async function VehiclePage({
-  params,
-  searchParams,
-}: VehiclePageProps) {
-  const [{ slug }, query] = await Promise.all([params, searchParams]);
+export default async function VehiclePage({ params }: VehiclePageProps) {
+  const { slug } = await params;
   const vehicle = await getCatalogVehicleBySlug(slug);
   if (!vehicle) notFound();
-
-  const availability = await loadAvailability(vehicle.id, query);
 
   return (
     <main className="vehicle-page-shell">
@@ -84,16 +29,14 @@ export default async function VehiclePage({
 
       <VehicleDetail vehicle={vehicle} />
 
-      <section className="availability-panel" aria-labelledby="availability-title">
-        <h2 id="availability-title">Availability and quote</h2>
-        <AvailabilityForm
-          action={`/vehicles/${vehicle.slug}`}
-          startDate={availability.startDate}
-          endDate={availability.endDate}
-        />
-        <AvailabilityResult
-          result={availability.result}
-          validationError={availability.validationError}
+      <section className="availability-panel" aria-labelledby="booking-title">
+        <h2 id="booking-title">Availability and booking</h2>
+        <BookingForm
+          vehicleId={vehicle.id}
+          vehicleSlug={vehicle.slug}
+          defaultLocation={vehicle.location}
+          displayTimeZone={BOOKING_CONFIG.displayTimeZone}
+          maxDurationDays={BOOKING_CONFIG.maxDurationDays}
         />
       </section>
     </main>

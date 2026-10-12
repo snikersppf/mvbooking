@@ -39,11 +39,25 @@ export type CustomerBookingDto = Readonly<{
   customerComment: string | null;
   createdAt: string;
   updatedAt: string;
+  vehicle: Readonly<{
+    slug: string;
+    brand: string;
+    model: string;
+  }> | null;
 }>;
 
 export function toCustomerBookingDto(
   booking: CustomerBookingSource | CustomerBookingRecord,
 ): CustomerBookingDto {
+  const vehicle =
+    "vehicle" in booking
+      ? {
+          slug: booking.vehicle.slug,
+          brand: booking.vehicle.brand,
+          model: booking.vehicle.model,
+        }
+      : null;
+
   return {
     id: booking.id,
     vehicleId: booking.vehicleId,
@@ -62,5 +76,6 @@ export function toCustomerBookingDto(
     customerComment: booking.customerComment,
     createdAt: booking.createdAt.toISOString(),
     updatedAt: booking.updatedAt.toISOString(),
+    vehicle,
   };
 }

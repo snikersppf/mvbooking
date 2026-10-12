@@ -82,6 +82,7 @@ import {
   createPrismaClient,
   getPrismaClient,
 } from "@/server/db/prisma";
+import { cleanupTrackedPrefixes } from "@/tests/integration/cleanup";
 import { requireTestDatabaseUrl } from "@/tests/integration/test-database";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
@@ -90,7 +91,7 @@ const databaseUrl = requireTestDatabaseUrl();
 const prisma = createPrismaClient(databaseUrl);
 const originalAppOrigin = process.env.APP_ORIGIN;
 const originalTrustProxyHeaders = process.env.TRUST_PROXY_HEADERS;
-let prefixes: string[] = [];
+const prefixes: string[] = [];
 
 function newPrefix(): string {
   const prefix = `api_${randomUUID().replaceAll("-", "").slice(0, 14)}`;
@@ -297,19 +298,22 @@ beforeAll(async () => {
 
 afterEach(async () => {
   setSession(null);
-  for (const prefix of prefixes.reverse()) await cleanup(prefix);
-  prefixes = [];
+  await cleanupTrackedPrefixes(prefixes, cleanup);
 });
 
 afterAll(async () => {
-  await prisma.$disconnect();
-  await getPrismaClient().$disconnect();
-  if (originalAppOrigin === undefined) delete process.env.APP_ORIGIN;
-  else process.env.APP_ORIGIN = originalAppOrigin;
-  if (originalTrustProxyHeaders === undefined) {
-    delete process.env.TRUST_PROXY_HEADERS;
-  } else {
-    process.env.TRUST_PROXY_HEADERS = originalTrustProxyHeaders;
+  try {
+    await cleanupTrackedPrefixes(prefixes, cleanup);
+  } finally {
+    await prisma.$disconnect();
+    await getPrismaClient().$disconnect();
+    if (originalAppOrigin === undefined) delete process.env.APP_ORIGIN;
+    else process.env.APP_ORIGIN = originalAppOrigin;
+    if (originalTrustProxyHeaders === undefined) {
+      delete process.env.TRUST_PROXY_HEADERS;
+    } else {
+      process.env.TRUST_PROXY_HEADERS = originalTrustProxyHeaders;
+    }
   }
 });
 

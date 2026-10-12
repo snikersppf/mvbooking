@@ -21,11 +21,12 @@ import {
   mapBookingPersistenceError,
 } from "@/server/services/booking/persistence-errors";
 import { BookingServiceError } from "@/server/services/booking/service-errors";
+import { cleanupTrackedPrefixes } from "@/tests/integration/cleanup";
 import { requireTestDatabaseUrl } from "@/tests/integration/test-database";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const prisma = createPrismaClient(requireTestDatabaseUrl());
-let prefixes: string[] = [];
+const prefixes: string[] = [];
 
 function newPrefix(): string {
   const prefix = `it_${randomUUID().replaceAll("-", "").slice(0, 16)}`;
@@ -188,12 +189,15 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  for (const prefix of prefixes.reverse()) await cleanup(prefix);
-  prefixes = [];
+  await cleanupTrackedPrefixes(prefixes, cleanup);
 });
 
 afterAll(async () => {
-  await prisma.$disconnect();
+  try {
+    await cleanupTrackedPrefixes(prefixes, cleanup);
+  } finally {
+    await prisma.$disconnect();
+  }
 });
 
 describe("booking service integration", () => {

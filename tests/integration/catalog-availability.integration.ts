@@ -13,11 +13,12 @@ import { listAvailableVehicles } from "@/server/services/availability/list-avail
 import { createBooking } from "@/server/services/booking/create-booking";
 import { getCatalogVehicleBySlug } from "@/server/services/catalog/get-vehicle";
 import { listCatalogVehicles } from "@/server/services/catalog/list-vehicles";
+import { cleanupTrackedPrefixes } from "@/tests/integration/cleanup";
 import { requireTestDatabaseUrl } from "@/tests/integration/test-database";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const prisma = createPrismaClient(requireTestDatabaseUrl());
-let prefixes: string[] = [];
+const prefixes: string[] = [];
 
 function newPrefix(): string {
   const prefix = `cat_${randomUUID().replaceAll("-", "").slice(0, 14)}`;
@@ -155,12 +156,15 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  for (const prefix of prefixes.reverse()) await cleanup(prefix);
-  prefixes = [];
+  await cleanupTrackedPrefixes(prefixes, cleanup);
 });
 
 afterAll(async () => {
-  await prisma.$disconnect();
+  try {
+    await cleanupTrackedPrefixes(prefixes, cleanup);
+  } finally {
+    await prisma.$disconnect();
+  }
 });
 
 describe("catalog and availability integration", () => {

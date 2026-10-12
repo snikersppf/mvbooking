@@ -17,6 +17,13 @@ export const customerBookingSelect = {
   customerComment: true,
   createdAt: true,
   updatedAt: true,
+  vehicle: {
+    select: {
+      slug: true,
+      brand: true,
+      model: true,
+    },
+  },
 } satisfies Prisma.BookingSelect;
 
 export type CustomerBookingRecord = Prisma.BookingGetPayload<{
