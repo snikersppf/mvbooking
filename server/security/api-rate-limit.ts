@@ -6,10 +6,12 @@ import { RateLimiter } from "@/server/security/rate-limit/rate-limiter";
 export const API_RATE_LIMITS = Object.freeze({
   publicRead: { limit: 120, windowMs: 60_000 },
   bookingCreate: { limit: 10, windowMs: 60_000 },
+  adminMutation: { limit: 60, windowMs: 60_000 },
 });
 
 let publicReadRateLimiter: RateLimiter | undefined;
 let bookingCreateRateLimiter: RateLimiter | undefined;
+let adminMutationRateLimiter: RateLimiter | undefined;
 
 function getPublicReadRateLimiter(): RateLimiter {
   publicReadRateLimiter ??= new RateLimiter(createDefaultRateLimitStore());
@@ -19,6 +21,11 @@ function getPublicReadRateLimiter(): RateLimiter {
 function getBookingCreateRateLimiter(): RateLimiter {
   bookingCreateRateLimiter ??= new RateLimiter(createDefaultRateLimitStore());
   return bookingCreateRateLimiter;
+}
+
+function getAdminMutationRateLimiter(): RateLimiter {
+  adminMutationRateLimiter ??= new RateLimiter(createDefaultRateLimitStore());
+  return adminMutationRateLimiter;
 }
 
 export async function enforcePublicReadRateLimit(
@@ -41,5 +48,14 @@ export async function enforceBookingCreateRateLimit(
   await getBookingCreateRateLimiter().check({
     key: `booking-create:user:${userId}`,
     ...API_RATE_LIMITS.bookingCreate,
+  });
+}
+
+export async function enforceAdminMutationRateLimit(
+  userId: string,
+): Promise<void> {
+  await getAdminMutationRateLimiter().check({
+    key: `admin-mutation:user:${userId}`,
+    ...API_RATE_LIMITS.adminMutation,
   });
 }

@@ -7,6 +7,7 @@ import {
   PRIVATE_NO_STORE,
 } from "@/server/http/api-response";
 import { RateLimitExceededError } from "@/server/security/rate-limit/rate-limiter";
+import { AdminServiceError } from "@/server/services/admin/errors";
 import { BookingServiceError } from "@/server/services/booking/service-errors";
 
 afterEach(() => {
@@ -41,6 +42,37 @@ describe("API response contract", () => {
       status: 404,
       code: "BOOKING_NOT_FOUND",
       messageKey: "errors.bookingNotFound",
+    });
+  });
+
+  it("maps admin conflicts and authorization failures explicitly", () => {
+    expect(
+      describeApiError(
+        new AdminServiceError(
+          "LAST_ACTIVE_ADMIN",
+          409,
+          "Sensitive detail.",
+          "service-request-id",
+        ),
+      ),
+    ).toEqual({
+      status: 409,
+      code: "LAST_ACTIVE_ADMIN",
+      messageKey: "errors.lastActiveAdmin",
+    });
+    expect(
+      describeApiError(
+        new BookingServiceError(
+          "FORBIDDEN",
+          403,
+          "Sensitive detail.",
+          "service-request-id",
+        ),
+      ),
+    ).toEqual({
+      status: 403,
+      code: "FORBIDDEN",
+      messageKey: "errors.forbidden",
     });
   });
 

@@ -12,6 +12,7 @@ import {
   RateLimitExceededError,
   RateLimitUnavailableError,
 } from "@/server/security/rate-limit/rate-limiter";
+import { AdminServiceError } from "@/server/services/admin/errors";
 import { BookingRuleError } from "@/server/services/booking/errors";
 import { BookingServiceError } from "@/server/services/booking/service-errors";
 
@@ -56,10 +57,12 @@ const bookingMessageKeys: Readonly<Record<string, string>> = {
   IDEMPOTENCY_KEY_REUSED: "errors.idempotencyKeyReused",
   BOOKING_NOT_FOUND: "errors.bookingNotFound",
   BOOKING_CANNOT_BE_CANCELLED: "errors.bookingCannotBeCancelled",
+  INVALID_BOOKING_TRANSITION: "errors.invalidBookingTransition",
   BOOKING_TEMPORARILY_UNAVAILABLE: "errors.serviceUnavailable",
   USER_NOT_FOUND: "errors.authenticationRequired",
   USER_NOT_ACTIVE: "errors.authenticationRequired",
   SESSION_VERSION_MISMATCH: "errors.authenticationRequired",
+  FORBIDDEN: "errors.forbidden",
   BOOKING_CONFIGURATION_ERROR: "errors.serviceUnavailable",
 };
 
@@ -71,6 +74,14 @@ function describeBookingServiceError(
       status: 404,
       code: "BOOKING_NOT_FOUND",
       messageKey: "errors.bookingNotFound",
+    };
+  }
+
+  if (error.code === "FORBIDDEN") {
+    return {
+      status: 403,
+      code: error.code,
+      messageKey: "errors.forbidden",
     };
   }
 
@@ -179,6 +190,23 @@ export function describeApiError(error: unknown): ApiErrorDescriptor | null {
       status: 503,
       code: error.code,
       messageKey: "errors.serviceUnavailable",
+    };
+  }
+  if (error instanceof AdminServiceError) {
+    const messageKeys: Readonly<Record<string, string>> = {
+      ADMIN_RESOURCE_NOT_FOUND: "errors.notFound",
+      VEHICLE_NOT_FOUND: "errors.vehicleNotFound",
+      VEHICLE_SLUG_CONFLICT: "errors.vehicleSlugConflict",
+      VEHICLE_HAS_FUTURE_BOOKINGS: "errors.vehicleHasFutureBookings",
+      USER_NOT_FOUND: "errors.userNotFound",
+      LAST_ACTIVE_ADMIN: "errors.lastActiveAdmin",
+      AUTHENTICATION_REQUIRED: "errors.authenticationRequired",
+      FORBIDDEN: "errors.forbidden",
+    };
+    return {
+      status: error.status,
+      code: error.code,
+      messageKey: messageKeys[error.code] ?? "errors.request",
     };
   }
   if (error instanceof BookingServiceError) {

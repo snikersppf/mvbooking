@@ -38,7 +38,7 @@ export function assertActiveLockedUser(
 export function assertManagerRole(user: LockedUser, requestId: string): void {
   if (user.role !== UserRole.MANAGER && user.role !== UserRole.ADMIN) {
     throw new BookingServiceError(
-      "BOOKING_FORBIDDEN",
+      "FORBIDDEN",
       403,
       "Manager or administrator role is required.",
       requestId,
