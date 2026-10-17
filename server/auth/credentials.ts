@@ -101,7 +101,12 @@ export async function authorizeCredentials(
     }),
   ]);
 
-  const parsed = credentialsSchema.safeParse(rawCredentials);
+  // Auth.js also includes callbackUrl and csrfToken in the posted credentials.
+  // Validate only the declared credential fields, never the transport metadata.
+  const parsed = credentialsSchema.safeParse({
+    email: rawCredentials.email,
+    password: rawCredentials.password,
+  });
   const user = parsed.success
     ? await dependencies.repository.findCredentialsUserByEmail(
         parsed.data.email,

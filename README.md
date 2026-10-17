@@ -13,9 +13,12 @@ seed exist. Stages 3–6 are implemented: registration and login, booking rules
 and transactional services, catalog and availability, public/customer/admin
 APIs, customer booking forms and account pages, and a temporary admin UI.
 The admin UI is currently in the working tree and has not yet been committed.
-Next are payment, notification and map adapters (Stage 7), browser E2E and CI
-(Stage 8), and production deployment (Stage 9). Notifications currently use
-an outbox record with a mock provider; no sender is running.
+The booking workflow no longer plans online payment: a manager contacts the
+customer and confirms the `PENDING` request manually. The existing Payment
+table and payment-status fields remain as legacy schema until a separately
+reviewed migration can remove them. Stage 7 is in progress; browser E2E and CI
+(Stage 8) and production deployment (Stage 9) remain. Booking notifications
+still use an outbox record with a mock provider; no sender is running.
 
 ## Preview the current application
 
@@ -48,6 +51,21 @@ Before starting, configure the authentication and HTTP origin variables:
 - `TRUST_PROXY_HEADERS` — `false` unless the application runs behind a trusted
   reverse proxy that replaces `X-Forwarded-For`/`X-Real-IP`; set it to `true`
   only in that controlled deployment.
+- `CRON_SECRET` — a private random value of at least 32 bytes for the
+  expired-booking maintenance endpoint. Do not expose it to browsers.
+
+`PENDING` bookings older than 24 hours are cancelled by
+`POST /api/cron/cancel-expired` when called with
+`Authorization: Bearer <CRON_SECRET>`. Schedule this POST at least hourly;
+it is not run automatically by the web server. The job rechecks status under
+row locks, writes an audit record and releases the reserved interval.
+
+Password reset pages are `/forgot-password` and `/reset-password?token=...`.
+In development, a reset link is printed to the server console for an existing
+active account; the HTTP response is the same for unknown accounts. The token
+is stored only as a hash, expires after one hour and can be used once. Mock
+delivery is deliberately unavailable in production until a real private
+delivery channel is configured; request attempts return 503 there.
 
 Next.js 16 Route Handlers do not expose the connection IP. In production,
 IP-limited operations return 503 if a trusted ingress does not supply a valid
@@ -109,10 +127,17 @@ in place of these migrations.
 
 The Prisma schema also declares `RateLimitCounter` and
 `AdminMutationResult` for production rate limiting and admin idempotency.
-No migration for these new models has been generated or applied yet. Before
-using production rate limiting or sending admin `Idempotency-Key` headers,
-create and review a migration on a disposable database, then deploy it through
-the normal release process. Do not use `prisma db push` on an existing database.
+The migration `20261014020322_add_rate_limit_and_idempotency` creates these
+tables. Deploy it before using production rate limiting or admin mutations;
+do not use `prisma db push` on an existing database.
+
+Production checklist: schedule `npm run maintenance:cleanup` at least hourly
+with the production `DATABASE_URL` provided by the job environment. It deletes
+rate-limit counters whose window ended more than one hour ago and stored admin
+mutation responses older than 24 hours. The job needs the full npm dependencies
+because the script uses `tsx`; do not run it against a database before its
+migrations have been deployed. These responses contain whitelisted admin DTOs,
+not password hashes or tokens, but can contain user contact details and comments.
 
 After applying migrations, inspect the constraints:
 

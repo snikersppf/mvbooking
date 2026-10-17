@@ -6,9 +6,8 @@ import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
   applyAdminFieldErrors,
-  createAdminIdempotencyKey,
   describeAdminMutationFailure,
-  requestAdminMutation,
+  useAdminMutationRequest,
 } from "@/components/admin/api-client";
 import {
   adminImagesFormSchema,
@@ -26,6 +25,7 @@ type ImagesFormProps = Readonly<{
 
 export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
   const router = useRouter();
+  const requestAdminMutation = useAdminMutationRequest();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const {
@@ -51,7 +51,6 @@ export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
         path: `/api/admin/vehicles/${encodeURIComponent(vehicleId)}/images`,
         method: "PUT",
         body: toAdminImagesPayload(values),
-        idempotencyKey: createAdminIdempotencyKey(),
       });
       setSuccess("Image list saved.");
       router.refresh();

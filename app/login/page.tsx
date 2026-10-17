@@ -33,6 +33,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         />
 
         <p className="auth-switch">
+          <Link href="/forgot-password">Forgot your password?</Link>
+        </p>
+
+        <p className="auth-switch">
           No account yet? <Link href="/register">Create one</Link>
         </p>
       </section>

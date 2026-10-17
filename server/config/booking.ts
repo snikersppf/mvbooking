@@ -5,3 +5,5 @@ export const BOOKING_CONFIG = Object.freeze({
   maxActivePendingPerUser: 3,
   displayTimeZone: "Asia/Tbilisi",
 });
+
+export const PENDING_BOOKING_EXPIRATION_MS = 24 * 60 * 60 * 1_000;

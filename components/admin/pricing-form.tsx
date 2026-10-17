@@ -6,9 +6,8 @@ import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
   applyAdminFieldErrors,
-  createAdminIdempotencyKey,
   describeAdminMutationFailure,
-  requestAdminMutation,
+  useAdminMutationRequest,
 } from "@/components/admin/api-client";
 import {
   adminPricingFormSchema,
@@ -26,6 +25,7 @@ type PricingFormProps = Readonly<{
 
 export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
   const router = useRouter();
+  const requestAdminMutation = useAdminMutationRequest();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const {
@@ -51,7 +51,6 @@ export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
         path: `/api/admin/vehicles/${encodeURIComponent(vehicleId)}/pricing`,
         method: "PUT",
         body: toAdminPricingPayload(values),
-        idempotencyKey: createAdminIdempotencyKey(),
       });
       setSuccess("Pricing tiers saved.");
       router.refresh();

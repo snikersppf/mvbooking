@@ -112,6 +112,22 @@ describe("authorizeCredentials", () => {
     expect(calls[1]?.[0].key).not.toContain("nino@example.com");
   });
 
+  it("accepts Auth.js transport fields without weakening credential validation", async () => {
+    const dependencies = createDependencies();
+    await expect(authorizeCredentials(
+      {
+        email: "nino@example.com",
+        password: "correct-password",
+        csrfToken: "transport-token",
+        callbackUrl: "http://localhost/account/bookings",
+      } as Partial<Record<"email" | "password", unknown>>,
+      createRequest(),
+      dependencies,
+    )).resolves.toMatchObject({ id: credentialsUser.id });
+    expect(dependencies.repository.findCredentialsUserByEmail)
+      .toHaveBeenCalledWith("nino@example.com");
+  });
+
   it("uses one fixed dummy hash when the user does not exist", async () => {
     const repository = createRepository(null);
     const passwordVerifier = vi.fn().mockResolvedValue(false);

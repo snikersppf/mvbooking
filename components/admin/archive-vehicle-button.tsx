@@ -3,15 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
-  createAdminIdempotencyKey,
   describeAdminMutationFailure,
-  requestAdminMutation,
+  useAdminMutationRequest,
 } from "@/components/admin/api-client";
 import { MutationFeedback } from "@/components/admin/mutation-feedback";
 import type { AdminVehicleDto } from "@/server/services/admin/dto";
 
 export function ArchiveVehicleButton({ vehicleId }: Readonly<{ vehicleId: string }>) {
   const router = useRouter();
+  const requestAdminMutation = useAdminMutationRequest();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -24,7 +24,6 @@ export function ArchiveVehicleButton({ vehicleId }: Readonly<{ vehicleId: string
       await requestAdminMutation<AdminVehicleDto>({
         path: `/api/admin/vehicles/${encodeURIComponent(vehicleId)}`,
         method: "DELETE",
-        idempotencyKey: createAdminIdempotencyKey(),
       });
       setSuccess("Vehicle archived.");
       router.refresh();

@@ -42,6 +42,7 @@ import {
   executeAdminMutation,
   normalizeAdminIdempotencyKey,
 } from "@/server/services/admin/idempotency";
+import { canonicalJson } from "@/lib/canonical-json";
 
 const user = {
   id: "admin-1",
@@ -60,6 +61,9 @@ function request(key: string): Request {
 beforeEach(() => { state.stored = null; });
 
 describe("admin idempotency", () => {
+  it("sorts object keys by UTF-16 code units, independent of locale", () => {
+    expect(canonicalJson({ a: 1, Z: 2 })).toBe('{"Z":2,"a":1}');
+  });
   it("returns a saved result on retry and rejects key reuse with another body", async () => {
     const operation = vi.fn(async () => ({ id: "vehicle-1" }));
     const common = {
@@ -77,6 +81,30 @@ describe("admin idempotency", () => {
     await expect(executeAdminMutation({ ...common, body: { slug: "b" } }))
       .rejects.toMatchObject({ code: "IDEMPOTENCY_KEY_REUSED", status: 409 });
     expect(operation).toHaveBeenCalledTimes(1);
+  });
+
+  it("never stores or replays secret-shaped response fields", async () => {
+    const common = {
+      request: request("sensitive-response"),
+      requestId: "request-sensitive",
+      user,
+      body: { slug: "safe" },
+      allowedRoles: [UserRole.ADMIN],
+    };
+    await expect(executeAdminMutation({
+      ...common,
+      operation: async () => ({ id: "user-1", user: { passwordHash: "secret" } }),
+    })).rejects.toThrow(/sensitive field: passwordHash/);
+    expect(state.stored).toBeNull();
+
+    state.stored = {
+      requestHash: adminMutationRequestHash(common.request, common.body),
+      response: { id: "user-1", accessToken: "secret" },
+    };
+    await expect(executeAdminMutation({
+      ...common,
+      operation: async () => ({ id: "user-1" }),
+    })).rejects.toThrow(/sensitive field: accessToken/);
   });
 
   it("includes method and path in the request hash and validates keys", () => {

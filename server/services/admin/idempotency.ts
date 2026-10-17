@@ -1,12 +1,14 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { Prisma, UserRole } from "@prisma/client";
 import type { CurrentUser } from "@/server/auth/current-user";
+import { canonicalJson } from "@/lib/canonical-json";
 import { getPrismaClient } from "@/server/db/prisma";
 import { ADMINISTRATION_LOCK_KEY } from "@/server/repositories/admin-users";
 import { lockUserById } from "@/server/repositories/users";
 import { runBookingTransaction } from "@/server/services/booking/transaction";
 import { assertActiveAdminActor } from "./authorization";
 import { AdminServiceError } from "./errors";
+import { assertSafeAdminMutationResponse } from "./safe-mutation-response";
 
 type StoredMutation = Readonly<{ requestHash: string; response: unknown }>;
 
@@ -19,19 +21,6 @@ type AdminMutationInput<T> = Readonly<{
   lockAdministrationUsers?: boolean;
   operation: (transaction?: Prisma.TransactionClient) => Promise<T>;
 }>;
-
-function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) {
-    return `[${value.map(canonicalJson).join(",")}]`;
-  }
-  if (value !== null && typeof value === "object") {
-    const entries = Object.entries(value).sort(([left], [right]) =>
-      left.localeCompare(right),
-    );
-    return `{${entries.map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`).join(",")}}`;
-  }
-  return JSON.stringify(value) ?? "null";
-}
 
 export function adminMutationRequestHash(request: Request, body: unknown): string {
   const payload = canonicalJson({
@@ -103,10 +92,12 @@ export async function executeAdminMutation<T>(
           input.requestId,
         );
       }
+      assertSafeAdminMutationResponse(existing.response);
       return existing.response as T;
     }
 
     const result = await input.operation(transaction);
+    assertSafeAdminMutationResponse(result);
     await transaction.$executeRaw`
       INSERT INTO "AdminMutationResult"
         ("id", "actorUserId", "idempotencyKey", "requestHash", "response", "createdAt")

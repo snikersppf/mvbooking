@@ -6,9 +6,8 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   applyAdminFieldErrors,
-  createAdminIdempotencyKey,
   describeAdminMutationFailure,
-  requestAdminMutation,
+  useAdminMutationRequest,
 } from "@/components/admin/api-client";
 import {
   createAdminBookingStatusFormSchema,
@@ -32,6 +31,7 @@ export function BookingStatusForm({
   managerComment,
 }: BookingStatusFormProps) {
   const router = useRouter();
+  const requestAdminMutation = useAdminMutationRequest();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const schema = useMemo(
@@ -59,7 +59,6 @@ export function BookingStatusForm({
         path: `/api/admin/bookings/${encodeURIComponent(bookingId)}/status`,
         method: "PATCH",
         body: toAdminBookingStatusPayload(values, allowedStatuses),
-        idempotencyKey: createAdminIdempotencyKey(),
       });
       setSuccess("Booking status updated.");
       router.refresh();

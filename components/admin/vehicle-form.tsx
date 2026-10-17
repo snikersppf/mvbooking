@@ -6,9 +6,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   applyAdminFieldErrors,
-  createAdminIdempotencyKey,
   describeAdminMutationFailure,
-  requestAdminMutation,
+  useAdminMutationRequest,
 } from "@/components/admin/api-client";
 import {
   adminVehicleFormSchema,
@@ -40,6 +39,7 @@ export function VehicleForm({
   defaultValues,
 }: VehicleFormProps) {
   const router = useRouter();
+  const requestAdminMutation = useAdminMutationRequest();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const {
@@ -72,7 +72,6 @@ export function VehicleForm({
         body: isCreate
           ? toAdminVehicleCreatePayload(values)
           : toAdminVehiclePatchPayload(values),
-        idempotencyKey: createAdminIdempotencyKey(),
       });
       if (isCreate) {
         router.push(`/admin/vehicles/${encodeURIComponent(vehicle.id)}`);

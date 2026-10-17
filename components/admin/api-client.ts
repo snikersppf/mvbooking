@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
+import { canonicalJson } from "@/lib/canonical-json";
 
 type Fetcher = (
   input: RequestInfo | URL,
@@ -94,6 +96,47 @@ export type AdminMutationRequest = Readonly<{
 
 export function createAdminIdempotencyKey(): string {
   return globalThis.crypto.randomUUID();
+}
+
+export class AdminMutationKeyCache {
+  private current: { fingerprint: string; key: string } | null = null;
+
+  keyFor(request: Omit<AdminMutationRequest, "idempotencyKey">): string {
+    const fingerprint = canonicalJson({
+      method: request.method,
+      path: request.path,
+      body: request.body ?? {},
+    });
+    if (this.current?.fingerprint !== fingerprint) {
+      this.current = { fingerprint, key: createAdminIdempotencyKey() };
+    }
+    return this.current.key;
+  }
+
+  clear(): void {
+    this.current = null;
+  }
+}
+
+export async function requestAdminMutationWithCache<T>(
+  request: Omit<AdminMutationRequest, "idempotencyKey">,
+  cache: AdminMutationKeyCache,
+  fetcher: Fetcher = fetch,
+): Promise<T> {
+  const result = await requestAdminMutation<T>(
+    { ...request, idempotencyKey: cache.keyFor(request) },
+    fetcher,
+  );
+  cache.clear();
+  return result;
+}
+
+export function useAdminMutationRequest(): <T>(
+  request: Omit<AdminMutationRequest, "idempotencyKey">,
+) => Promise<T> {
+  const [cache] = useState(() => new AdminMutationKeyCache());
+  return <T>(request: Omit<AdminMutationRequest, "idempotencyKey">) =>
+    requestAdminMutationWithCache<T>(request, cache);
 }
 
 export async function requestAdminMutation<T>(

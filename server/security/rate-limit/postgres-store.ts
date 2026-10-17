@@ -1,10 +1,13 @@
+import type { PrismaClient } from "@prisma/client";
 import { getPrismaClient } from "@/server/db/prisma";
 import type { RateLimitInput, RateLimitResult, RateLimitStore } from "./types";
 
 type CounterRow = Readonly<{ count: number; retryAfterMs: bigint }>;
 
 export class PostgresRateLimitStore implements RateLimitStore {
-  private operations = 0;
+  constructor(
+    private readonly clientProvider: () => Pick<PrismaClient, "$queryRaw"> = getPrismaClient,
+  ) {}
 
   async consume(input: RateLimitInput): Promise<RateLimitResult> {
     if (
@@ -15,7 +18,7 @@ export class PostgresRateLimitStore implements RateLimitStore {
       throw new TypeError("Invalid rate-limit input.");
     }
 
-    const prisma = getPrismaClient();
+    const prisma = this.clientProvider();
     const [row] = await prisma.$queryRaw<CounterRow[]>`
       INSERT INTO "RateLimitCounter" ("key", "count", "resetAt")
       VALUES (${input.key}, 1, clock_timestamp() + ${input.windowMs} * INTERVAL '1 millisecond')
@@ -33,18 +36,6 @@ export class PostgresRateLimitStore implements RateLimitStore {
         GREATEST(0, EXTRACT(EPOCH FROM ("resetAt" - clock_timestamp())) * 1000)::bigint AS "retryAfterMs"
     `;
     if (!row) throw new Error("Rate-limit counter was not returned.");
-
-    this.operations += 1;
-    if (this.operations % 256 === 0) {
-      await prisma.$executeRaw`
-        DELETE FROM "RateLimitCounter"
-        WHERE "key" IN (
-          SELECT "key" FROM "RateLimitCounter"
-          WHERE "resetAt" < clock_timestamp() - INTERVAL '1 hour'
-          ORDER BY "resetAt" LIMIT 100
-        )
-      `;
-    }
 
     return {
       allowed: row.count <= input.limit,

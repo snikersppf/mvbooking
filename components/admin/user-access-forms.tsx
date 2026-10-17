@@ -6,9 +6,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   applyAdminFieldErrors,
-  createAdminIdempotencyKey,
   describeAdminMutationFailure,
-  requestAdminMutation,
+  useAdminMutationRequest,
 } from "@/components/admin/api-client";
 import {
   adminUserRoleFormSchema,
@@ -34,6 +33,7 @@ export function AdminUserRoleForm({
   role,
 }: Readonly<{ userId: string; role: AdminUserRoleFormValues["role"] }>) {
   const router = useRouter();
+  const requestAdminMutation = useAdminMutationRequest();
   const [state, setState] = useState<UserMutationState>(EMPTY_STATE);
   const [savedRole, setSavedRole] = useState(role);
   const {
@@ -54,7 +54,6 @@ export function AdminUserRoleForm({
         path: `/api/admin/users/${encodeURIComponent(userId)}/role`,
         method: "PATCH",
         body: values,
-        idempotencyKey: createAdminIdempotencyKey(),
       });
       setSavedRole(values.role);
       reset(values);
@@ -98,6 +97,7 @@ export function AdminUserStatusForm({
   status: AdminUserStatusFormValues["status"];
 }>) {
   const router = useRouter();
+  const requestAdminMutation = useAdminMutationRequest();
   const [state, setState] = useState<UserMutationState>(EMPTY_STATE);
   const [savedStatus, setSavedStatus] = useState(status);
   const {
@@ -118,7 +118,6 @@ export function AdminUserStatusForm({
         path: `/api/admin/users/${encodeURIComponent(userId)}/status`,
         method: "PATCH",
         body: values,
-        idempotencyKey: createAdminIdempotencyKey(),
       });
       setSavedStatus(values.status);
       reset(values);
