@@ -1,5 +1,5 @@
-import { ConfigurationError } from "@/server/config/auth";
 import { MemoryRateLimitStore } from "./memory-store";
+import { PostgresRateLimitStore } from "./postgres-store";
 import type { RateLimitStore } from "./types";
 
 const PRODUCTION_BUILD_PHASE = "phase-production-build";
@@ -12,9 +12,7 @@ export function createDefaultRateLimitStore(
     env.NODE_ENV === "production" &&
     env.NEXT_PHASE !== PRODUCTION_BUILD_PHASE
   ) {
-    throw new ConfigurationError(
-      "In-memory rate limiting is forbidden in production runtime.",
-    );
+    return new PostgresRateLimitStore();
   }
 
   return new MemoryRateLimitStore();

@@ -237,3 +237,23 @@ model PasswordResetToken {
   @@index([userId, expiresAt])
   @@index([expiresAt])
 }
+
+model RateLimitCounter {
+  key     String   @id @db.VarChar(191)
+  count   Int
+  resetAt DateTime @db.Timestamptz(3)
+
+  @@index([resetAt])
+}
+
+model AdminMutationResult {
+  id             String   @id @default(cuid())
+  actorUserId    String
+  idempotencyKey String
+  requestHash    String
+  response       Json
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([actorUserId, idempotencyKey])
+  @@index([createdAt])
+}
