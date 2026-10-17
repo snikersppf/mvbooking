@@ -6,6 +6,7 @@ import {
 import { prepareAdminMutation } from "@/server/http/admin-request";
 import { MANAGER_ADMIN_ROLES } from "@/server/services/admin/authorization";
 import { replaceAdminVehicleImages } from "@/server/services/admin/vehicles";
+import { executeAdminMutation } from "@/server/services/admin/idempotency";
 
 type AdminVehicleImagesRouteContext = Readonly<{
   params: Promise<{ id: string }>;
@@ -20,12 +21,16 @@ export const PUT = withApiHandler<
       prepareAdminMutation(request, MANAGER_ADMIN_ROLES),
       context.params,
     ]);
-    const vehicle = await replaceAdminVehicleImages({
-      actorUserId: user.id,
-      expectedSessionVersion: user.sessionVersion,
-      vehicleId: id,
-      images: body,
-      requestId,
+    const vehicle = await executeAdminMutation({
+      request, requestId, user, body,
+      allowedRoles: MANAGER_ADMIN_ROLES,
+      operation: (transaction) => replaceAdminVehicleImages({
+        actorUserId: user.id,
+        expectedSessionVersion: user.sessionVersion,
+        vehicleId: id,
+        images: body,
+        requestId,
+      }, { transaction }),
     });
     return jsonData(vehicle, { cacheControl: PRIVATE_NO_STORE, requestId });
   },

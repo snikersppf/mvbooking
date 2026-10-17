@@ -6,6 +6,7 @@ import {
 import { prepareAdminMutation } from "@/server/http/admin-request";
 import { ADMIN_ONLY_ROLES } from "@/server/services/admin/authorization";
 import { changeAdminUserRole } from "@/server/services/admin/users";
+import { executeAdminMutation } from "@/server/services/admin/idempotency";
 
 type AdminUserRoleRouteContext = Readonly<{
   params: Promise<{ id: string }>;
@@ -18,12 +19,17 @@ export const PATCH = withApiHandler<[Request, AdminUserRoleRouteContext]>(
       prepareAdminMutation(request, ADMIN_ONLY_ROLES),
       context.params,
     ]);
-    const updatedUser = await changeAdminUserRole({
-      actorUserId: user.id,
-      expectedSessionVersion: user.sessionVersion,
-      userId: id,
-      change: body,
-      requestId,
+    const updatedUser = await executeAdminMutation({
+      request, requestId, user, body,
+      allowedRoles: ADMIN_ONLY_ROLES,
+      lockAdministrationUsers: true,
+      operation: (transaction) => changeAdminUserRole({
+        actorUserId: user.id,
+        expectedSessionVersion: user.sessionVersion,
+        userId: id,
+        change: body,
+        requestId,
+      }, { transaction }),
     });
     return jsonData(updatedUser, {
       cacheControl: PRIVATE_NO_STORE,

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { getPrismaClient } from "@/server/db/prisma";
 import {
   adminBookingRepository,
@@ -25,6 +25,7 @@ export type AdminBookingDependencies = Readonly<{
   repository?: AdminBookingRepository;
   now?: () => Date;
   requestId?: () => string;
+  transaction?: Prisma.TransactionClient;
 }>;
 
 export async function listAdminBookings(
@@ -84,12 +85,12 @@ export async function changeAdminBookingStatus(
       managerComment: change.managerComment,
       requestId,
     },
-    { prisma, now: dependencies.now },
+    { prisma, now: dependencies.now, transaction: dependencies.transaction },
   );
 
   const booking = await (
     dependencies.repository ?? adminBookingRepository
-  ).findById(prisma, bookingId);
+  ).findById(dependencies.transaction ?? prisma, bookingId);
   if (!booking) {
     throw new AdminServiceError(
       "ADMIN_RESOURCE_NOT_FOUND",

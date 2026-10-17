@@ -6,7 +6,9 @@ export type AdminServiceErrorCode =
   | "USER_NOT_FOUND"
   | "LAST_ACTIVE_ADMIN"
   | "AUTHENTICATION_REQUIRED"
-  | "FORBIDDEN";
+  | "FORBIDDEN"
+  | "IDEMPOTENCY_KEY_INVALID"
+  | "IDEMPOTENCY_KEY_REUSED";
 
 export class AdminServiceError extends Error {
   constructor(

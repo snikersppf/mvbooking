@@ -4,7 +4,8 @@ import {
   requireAuthSecret,
   trustProxyHeaders,
 } from '@/server/config/auth';
-import { resolveClientIp } from '@/server/security/client-ip';
+import { requireRateLimitClientIp, resolveClientIp } from '@/server/security/client-ip';
+import { RateLimitUnavailableError } from '@/server/security/rate-limit/rate-limiter';
 import { createPrivateRateLimitKey } from '@/server/security/rate-limit/keys';
 
 describe('Auth.js environment configuration', () => {
@@ -64,6 +65,13 @@ describe('resolveClientIp', () => {
         trustProxy: true,
       }),
     ).toBe('192.0.2.10');
+  });
+
+  it('fails closed in production when no trusted IP is available', () => {
+    expect(() => requireRateLimitClientIp(null, { NODE_ENV: 'production' }))
+      .toThrow(RateLimitUnavailableError);
+    expect(requireRateLimitClientIp('203.0.113.8', { NODE_ENV: 'production' }))
+      .toBe('203.0.113.8');
   });
 });
 

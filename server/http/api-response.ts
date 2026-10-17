@@ -23,6 +23,17 @@ export const PUBLIC_NO_STORE = "no-store";
 
 export type ApiFieldErrors = Record<string, string[] | undefined>;
 
+function zodFieldErrors(error: ZodError): ApiFieldErrors {
+  const fieldErrors: ApiFieldErrors = {};
+  for (const issue of error.issues) {
+    const path = issue.path.length > 0 ? issue.path.join(".") : "root";
+    const messages = fieldErrors[path] ?? [];
+    messages.push(issue.message);
+    fieldErrors[path] = messages;
+  }
+  return fieldErrors;
+}
+
 export type ApiErrorDescriptor = Readonly<{
   status: number;
   code: string;
@@ -133,7 +144,7 @@ export function describeApiError(error: unknown): ApiErrorDescriptor | null {
       status: 400,
       code: "VALIDATION_ERROR",
       messageKey: "errors.validation",
-      fieldErrors: error.flatten().fieldErrors,
+      fieldErrors: zodFieldErrors(error),
     };
   }
   if (error instanceof ApiRequestError) {
@@ -202,6 +213,8 @@ export function describeApiError(error: unknown): ApiErrorDescriptor | null {
       LAST_ACTIVE_ADMIN: "errors.lastActiveAdmin",
       AUTHENTICATION_REQUIRED: "errors.authenticationRequired",
       FORBIDDEN: "errors.forbidden",
+      IDEMPOTENCY_KEY_INVALID: "errors.idempotencyKeyInvalid",
+      IDEMPOTENCY_KEY_REUSED: "errors.idempotencyKeyReused",
     };
     return {
       status: error.status,

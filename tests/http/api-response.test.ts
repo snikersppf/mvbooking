@@ -30,6 +30,16 @@ describe("API response contract", () => {
     });
   });
 
+  it("keeps nested Zod paths so a form can highlight the exact field", () => {
+    const schema = z.object({ rules: z.array(z.object({ minDays: z.number().positive() })) });
+    const result = schema.safeParse({ rules: [{ minDays: 0 }] });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(describeApiError(result.error)?.fieldErrors).toEqual({
+      "rules.0.minDays": [expect.any(String)],
+    });
+  });
+
   it("hides an ownership failure behind BOOKING_NOT_FOUND", () => {
     const error = new BookingServiceError(
       "BOOKING_FORBIDDEN",

@@ -1,4 +1,5 @@
 import { isIP } from "node:net";
+import { RateLimitUnavailableError } from "@/server/security/rate-limit/rate-limiter";
 
 type ClientIpInput = {
   connectionAddress: string | null;
@@ -35,4 +36,13 @@ export function resolveClientIp(input: ClientIpInput): string | null {
   }
 
   return normalizeIp(input.connectionAddress);
+}
+
+export function requireRateLimitClientIp(
+  clientIp: string | null,
+  env: Readonly<{ NODE_ENV?: string }> = process.env,
+): string {
+  if (clientIp) return clientIp;
+  if (env.NODE_ENV === "production") throw new RateLimitUnavailableError();
+  return "unavailable";
 }

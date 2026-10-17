@@ -6,6 +6,7 @@ import {
 import { prepareAdminMutation } from "@/server/http/admin-request";
 import { MANAGER_ADMIN_ROLES } from "@/server/services/admin/authorization";
 import { changeAdminBookingStatus } from "@/server/services/admin/bookings";
+import { executeAdminMutation } from "@/server/services/admin/idempotency";
 
 type AdminBookingStatusRouteContext = Readonly<{
   params: Promise<{ id: string }>;
@@ -20,12 +21,16 @@ export const PATCH = withApiHandler<
       prepareAdminMutation(request, MANAGER_ADMIN_ROLES),
       context.params,
     ]);
-    const booking = await changeAdminBookingStatus({
-      actorUserId: user.id,
-      expectedSessionVersion: user.sessionVersion,
-      bookingId: id,
-      change: body,
-      requestId,
+    const booking = await executeAdminMutation({
+      request, requestId, user, body,
+      allowedRoles: MANAGER_ADMIN_ROLES,
+      operation: (transaction) => changeAdminBookingStatus({
+        actorUserId: user.id,
+        expectedSessionVersion: user.sessionVersion,
+        bookingId: id,
+        change: body,
+        requestId,
+      }, { transaction }),
     });
     return jsonData(booking, { cacheControl: PRIVATE_NO_STORE, requestId });
   },

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { ConfigurationError } from '@/server/config/auth';
 import { createDefaultRateLimitStore } from '@/server/security/rate-limit/factory';
 import { MemoryRateLimitStore } from '@/server/security/rate-limit/memory-store';
+import { PostgresRateLimitStore } from '@/server/security/rate-limit/postgres-store';
 import {
   RateLimiter,
   RateLimitExceededError,
@@ -74,13 +74,13 @@ describe('RateLimiter', () => {
 });
 
 describe('createDefaultRateLimitStore', () => {
-  it('rejects in-memory storage in production runtime', () => {
-    expect(() =>
+  it('selects the PostgreSQL store in production runtime', () => {
+    expect(
       createDefaultRateLimitStore({
         NODE_ENV: 'production',
         NEXT_PHASE: undefined,
       }),
-    ).toThrow(ConfigurationError);
+    ).toBeInstanceOf(PostgresRateLimitStore);
   });
 
   it('allows next build without initializing production infrastructure', () => {

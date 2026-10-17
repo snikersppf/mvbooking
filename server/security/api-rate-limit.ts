@@ -1,5 +1,5 @@
 import { trustProxyHeaders } from "@/server/config/auth";
-import { resolveClientIp } from "@/server/security/client-ip";
+import { requireRateLimitClientIp, resolveClientIp } from "@/server/security/client-ip";
 import { createDefaultRateLimitStore } from "@/server/security/rate-limit/factory";
 import { RateLimiter } from "@/server/security/rate-limit/rate-limiter";
 
@@ -37,7 +37,7 @@ export async function enforcePublicReadRateLimit(
     trustProxy: trustProxyHeaders(),
   });
   await getPublicReadRateLimiter().check({
-    key: `public-read:ip:${clientIp ?? "unavailable"}`,
+    key: `public-read:ip:${requireRateLimitClientIp(clientIp)}`,
     ...API_RATE_LIMITS.publicRead,
   });
 }

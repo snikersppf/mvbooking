@@ -4,7 +4,7 @@ import {
   userRepository,
   type UserRepository,
 } from "@/server/repositories/users";
-import { resolveClientIp } from "@/server/security/client-ip";
+import { requireRateLimitClientIp, resolveClientIp } from "@/server/security/client-ip";
 import { verifyPassword } from "@/server/security/password";
 import { createDefaultRateLimitStore } from "@/server/security/rate-limit/factory";
 import { createPrivateRateLimitKey } from "@/server/security/rate-limit/keys";
@@ -90,7 +90,7 @@ export async function authorizeCredentials(
 
   await Promise.all([
     dependencies.rateLimiter.check({
-      key: `login:ip:${clientIp ?? "unavailable"}`,
+      key: `login:ip:${requireRateLimitClientIp(clientIp)}`,
       limit: LOGIN_IP_LIMIT,
       windowMs: LOGIN_WINDOW_MS,
     }),

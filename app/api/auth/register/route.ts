@@ -1,7 +1,7 @@
 import { trustProxyHeaders } from "@/server/config/auth";
 import { requireAppOrigin } from "@/server/config/http";
 import { logRouteHandlerError } from "@/server/http/route-handler-errors";
-import { resolveClientIp } from "@/server/security/client-ip";
+import { requireRateLimitClientIp, resolveClientIp } from "@/server/security/client-ip";
 import {
   assertTrustedMutationRequest,
   MutationRequestError,
@@ -49,9 +49,8 @@ export async function POST(request: Request): Promise<Response> {
   try {
     assertTrustedMutationRequest(request, requireAppOrigin());
 
-    // The Web Request API does not expose a socket address. Until a hosting
-    // adapter supplies it, direct development traffic shares a conservative
-    // fallback bucket. Forwarded headers require explicit trusted-proxy config.
+    // Next.js 16 does not expose the socket IP. Production requires a trusted
+    // ingress that replaces forwarded headers before they reach this handler.
     const clientIp = resolveClientIp({
       connectionAddress: null,
       headers: request.headers,
@@ -59,7 +58,7 @@ export async function POST(request: Request): Promise<Response> {
     });
 
     await getRegistrationRateLimiter().check({
-      key: `register:ip:${clientIp ?? "unavailable"}`,
+      key: `register:ip:${requireRateLimitClientIp(clientIp)}`,
       limit: REGISTER_LIMIT,
       windowMs: REGISTER_WINDOW_MS,
     });

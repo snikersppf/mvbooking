@@ -2,10 +2,12 @@ import { randomUUID } from "node:crypto";
 import {
   BookingStatus,
   NotificationType,
+  type Prisma,
   type Booking,
   type PrismaClient,
 } from "@prisma/client";
 import { getPrismaClient } from "@/server/db/prisma";
+import { MANAGER_BOOKING_TRANSITIONS } from "@/server/config/booking-status";
 import { bookingEventRepository } from "@/server/repositories/booking-events";
 import { bookingRepository } from "@/server/repositories/bookings";
 import { lockUserById } from "@/server/repositories/users";
@@ -21,23 +23,6 @@ import {
 } from "@/server/services/booking/transaction";
 
 const MANAGER_COMMENT_MAX_LENGTH = 2_000;
-
-export const MANAGER_BOOKING_TRANSITIONS: Readonly<
-  Record<BookingStatus, readonly BookingStatus[]>
-> = {
-  [BookingStatus.PENDING]: [
-    BookingStatus.CONFIRMED,
-    BookingStatus.REJECTED,
-    BookingStatus.CANCELLED,
-  ],
-  [BookingStatus.CONFIRMED]: [
-    BookingStatus.COMPLETED,
-    BookingStatus.CANCELLED,
-  ],
-  [BookingStatus.CANCELLED]: [],
-  [BookingStatus.COMPLETED]: [],
-  [BookingStatus.REJECTED]: [],
-};
 
 const notificationTypeByStatus: Readonly<
   Record<BookingStatus, NotificationType>
@@ -63,6 +48,7 @@ export type ChangeBookingStatusDependencies = Readonly<{
   now?: () => Date;
   requestId?: () => string;
   transactionRuntime?: BookingTransactionRuntime;
+  transaction?: Prisma.TransactionClient;
 }>;
 
 function normalizeManagerComment(
@@ -125,10 +111,7 @@ export async function changeBookingStatusByManager(
     requestId,
   );
 
-  return runBookingTransaction(
-    prisma,
-    requestId,
-    async (transaction) => {
+  const operation = async (transaction: Prisma.TransactionClient): Promise<Booking> => {
       const actor = await lockUserById(transaction, command.actorUserId);
       assertActiveLockedUser(
         actor,
@@ -208,7 +191,8 @@ export async function changeBookingStatusByManager(
       });
 
       return updated;
-    },
-    dependencies.transactionRuntime,
-  );
+  };
+  return dependencies.transaction
+    ? operation(dependencies.transaction)
+    : runBookingTransaction(prisma, requestId, operation, dependencies.transactionRuntime);
 }

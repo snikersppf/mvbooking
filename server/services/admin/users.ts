@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { UserRole, UserStatus, type PrismaClient } from "@prisma/client";
+import { UserRole, UserStatus, type Prisma, type PrismaClient } from "@prisma/client";
 import { getPrismaClient } from "@/server/db/prisma";
 import {
   adminEventRepository,
@@ -35,6 +35,7 @@ export type AdminUserDependencies = Readonly<{
   repository?: AdminUserRepository;
   events?: AdminEventRepository;
   requestId?: () => string;
+  transaction?: Prisma.TransactionClient;
 }>;
 
 type UserMutationCommand = AdminActorCommand & Readonly<{ userId: unknown }>;
@@ -161,7 +162,7 @@ export async function changeAdminUserRole(
       },
     });
     return updated;
-  });
+  }, dependencies.transaction);
   return toAdminUserDto(user);
 }
 
@@ -214,6 +215,6 @@ export async function changeAdminUserStatus(
       },
     });
     return updated;
-  });
+  }, dependencies.transaction);
   return toAdminUserDto(user);
 }

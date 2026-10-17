@@ -6,27 +6,25 @@ import {
   VehicleStatus,
 } from "@prisma/client";
 import { z } from "zod";
+import {
+  ADMIN_DRIVES,
+  ADMIN_FUELS,
+  ADMIN_PAGE_SIZE_MAX,
+  ADMIN_TRANSMISSIONS,
+  ADMIN_VEHICLE_CATEGORIES,
+} from "@/lib/admin-input";
+
+export {
+  ADMIN_DRIVES,
+  ADMIN_FUELS,
+  ADMIN_PAGE_SIZE_MAX,
+  ADMIN_TRANSMISSIONS,
+  ADMIN_VEHICLE_CATEGORIES,
+} from "@/lib/admin-input";
 
 const currentYear = new Date().getUTCFullYear();
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MONEY_PATTERN = /^\d{1,10}(?:\.\d{1,4})?$/;
-
-export const ADMIN_PAGE_SIZE_MAX = 50;
-export const ADMIN_VEHICLE_CATEGORIES = [
-  "ECONOMY",
-  "COMPACT",
-  "SUV",
-  "VAN",
-  "PREMIUM",
-] as const;
-export const ADMIN_TRANSMISSIONS = ["AUTOMATIC", "MANUAL"] as const;
-export const ADMIN_FUELS = [
-  "PETROL",
-  "DIESEL",
-  "HYBRID",
-  "ELECTRIC",
-] as const;
-export const ADMIN_DRIVES = ["FWD", "RWD", "AWD", "4WD"] as const;
 
 const emptyStringToUndefined = (value: unknown): unknown =>
   value === "" ? undefined : value;

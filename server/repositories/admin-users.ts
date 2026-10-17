@@ -63,7 +63,7 @@ export interface AdminUserRepository {
   ): Promise<AdminUserRecord>;
 }
 
-const ADMINISTRATION_LOCK_KEY = "mvbooking:user-role-status";
+export const ADMINISTRATION_LOCK_KEY = "mvbooking:user-role-status";
 
 function userWhere(filters: AdminUserFilters): Prisma.UserWhereInput {
   return {

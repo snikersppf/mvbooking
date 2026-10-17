@@ -41,6 +41,7 @@ export type AdminVehicleDependencies = Readonly<{
   events?: AdminEventRepository;
   now?: () => Date;
   requestId?: () => string;
+  transaction?: Prisma.TransactionClient;
 }>;
 
 type VehicleMutationCommand = AdminActorCommand &
@@ -128,6 +129,17 @@ export async function listAdminVehicles(
   );
 }
 
+export async function getAdminVehicle(
+  idInput: unknown,
+  dependencies: AdminVehicleDependencies = {},
+): Promise<AdminVehicleDto | null> {
+  const id = adminEntityIdSchema.parse(idInput);
+  const vehicle = await (
+    dependencies.repository ?? adminVehicleRepository
+  ).findById(dependencies.prisma ?? getPrismaClient(), id);
+  return vehicle ? toAdminVehicleDto(vehicle) : null;
+}
+
 export async function createAdminVehicle(
   command: AdminActorCommand & Readonly<{ vehicle: unknown }>,
   dependencies: AdminVehicleDependencies = {},
@@ -159,7 +171,7 @@ export async function createAdminVehicle(
         metadata: { requestId, status: created.status },
       });
       return created;
-    });
+    }, dependencies.transaction);
     return toAdminVehicleDto(vehicle);
   } catch (error) {
     mapVehiclePersistenceError(error, requestId);
@@ -200,7 +212,7 @@ export async function updateAdminVehicle(
         metadata: { requestId, fields: Object.keys(input).sort() },
       });
       return updated;
-    });
+    }, dependencies.transaction);
     return toAdminVehicleDto(vehicle);
   } catch (error) {
     mapVehiclePersistenceError(error, requestId);
@@ -268,7 +280,7 @@ export async function archiveAdminVehicle(
       metadata: { requestId, previousStatus: locked.status },
     });
     return archived;
-  });
+  }, dependencies.transaction);
   return toAdminVehicleDto(vehicle);
 }
 
@@ -316,7 +328,7 @@ export async function replaceAdminVehiclePricing(
       );
     }
     return updated;
-  });
+  }, dependencies.transaction);
   return toAdminVehicleDto(vehicle);
 }
 
@@ -358,6 +370,6 @@ export async function replaceAdminVehicleImages(
       );
     }
     return updated;
-  });
+  }, dependencies.transaction);
   return toAdminVehicleDto(vehicle);
 }

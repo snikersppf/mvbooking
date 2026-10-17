@@ -8,12 +8,14 @@ MVP foundation for a car-rental booking platform in Georgia.
 - [Stage 1 architecture plan — approved with decisions and corrections](docs/architecture.md)
 - [Project instructions](AGENTS.md)
 
-The foundation page, Prisma schema, three SQL migrations and sample seed exist.
-Stage 3 authentication, registration and temporary auth pages are implemented.
-Stage 4a booking rules and validators, Stage 4b database-backed booking
-services, and Stage 4c catalog and availability are implemented. Stage 5a adds
-the public catalog API and the authenticated customer booking API. Admin API
-and booking forms are still planned.
+The foundation page, Prisma schema, three applied SQL migrations and sample
+seed exist. Stages 3–6 are implemented: registration and login, booking rules
+and transactional services, catalog and availability, public/customer/admin
+APIs, customer booking forms and account pages, and a temporary admin UI.
+The admin UI is currently in the working tree and has not yet been committed.
+Next are payment, notification and map adapters (Stage 7), browser E2E and CI
+(Stage 8), and production deployment (Stage 9). Notifications currently use
+an outbox record with a mock provider; no sender is running.
 
 ## Preview the current application
 
@@ -46,6 +48,10 @@ Before starting, configure the authentication and HTTP origin variables:
 - `TRUST_PROXY_HEADERS` — `false` unless the application runs behind a trusted
   reverse proxy that replaces `X-Forwarded-For`/`X-Real-IP`; set it to `true`
   only in that controlled deployment.
+
+Next.js 16 Route Handlers do not expose the connection IP. In production,
+IP-limited operations return 503 if a trusted ingress does not supply a valid
+forwarded address. Do not enable `TRUST_PROXY_HEADERS` for direct public traffic.
 
 Open http://localhost:3000. The home page itself does not query the database;
 registration requires the local PostgreSQL setup below.
@@ -100,6 +106,13 @@ Migration order: `20261004100000_init` creates schema and indexes;
 exclusions for Booking and PricingRule; `20261009090000_user_email_lowercase`
 enforces canonical lowercase user email addresses. Do not use `prisma db push`
 in place of these migrations.
+
+The Prisma schema also declares `RateLimitCounter` and
+`AdminMutationResult` for production rate limiting and admin idempotency.
+No migration for these new models has been generated or applied yet. Before
+using production rate limiting or sending admin `Idempotency-Key` headers,
+create and review a migration on a disposable database, then deploy it through
+the normal release process. Do not use `prisma db push` on an existing database.
 
 After applying migrations, inspect the constraints:
 
@@ -168,6 +181,10 @@ Booking creation is limited to 10 attempts per minute per user. `POST` and
 `PATCH` require `Content-Type: application/json` and an exact `Origin` matching
 `APP_ORIGIN`. `POST /api/bookings` accepts an optional `Idempotency-Key` header
 (1–128 characters); replaying the same body returns the existing booking.
+Admin mutations also accept this optional header. A repeat by the same actor
+with the same method, path and JSON body returns the saved successful data;
+reusing the key for a different request returns 409. Authorization and rate
+limits still apply to every attempt.
 
 Catalog example:
 
