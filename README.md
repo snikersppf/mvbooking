@@ -7,8 +7,9 @@ MVP foundation for a car-rental booking platform in Georgia.
 - [MVP specification](docs/mvp-spec.md)
 - [Stage 1 architecture plan — approved with decisions and corrections](docs/architecture.md)
 - [Project instructions](AGENTS.md)
+- [Production checklist](docs/production-checklist.md)
 
-The foundation page, Prisma schema, three applied SQL migrations and sample
+The foundation page, Prisma schema, four applied SQL migrations and sample
 seed exist. Stages 3–6 are implemented: registration and login, booking rules
 and transactional services, catalog and availability, public/customer/admin
 APIs, customer booking forms and account pages, and a temporary admin UI.
@@ -21,7 +22,8 @@ wired into booking services. Booking notifications still use an outbox record
 with a mock provider; no sender or manager webhook is running. If a manager
 webhook is added later, its payload must contain only the booking ID and an
 admin-page link, never customer personal data. Broader E2E/CI coverage (Stage
-8) and production deployment (Stage 9) remain.
+8) remains. Stage 9 deployment files and checklist are prepared, but no Docker
+image or production deployment has been verified yet.
 
 ## Preview the current application
 
@@ -78,6 +80,62 @@ Open http://localhost:3000. The home page itself does not query the database;
 registration requires the local PostgreSQL setup below.
 Stop the foreground dev server with Ctrl+C.
 Using npm.cmd avoids PowerShell execution-policy restrictions on npm.ps1.
+
+## Production containers
+
+`Dockerfile` has separate `runner` (standalone Next.js, non-root) and
+`migrator` (Prisma CLI and maintenance) targets. The production stack is
+`compose.prod.yml`; the existing `docker-compose.yml` remains for local
+development. The build copies source files explicitly and `.dockerignore`
+excludes `.env` files. Supply secrets only at container runtime from a protected
+environment file outside the repository. The production image contains no
+seed script, and the migrator target also omits it. Do not run `prisma db seed`
+in production.
+
+| Variable | Use |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL URL for app and migrations; in production Compose its host is `postgres`, not `localhost`. URL-encode special password characters. |
+| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Production Compose PostgreSQL initialization; use unique non-placeholder credentials. Changing these does not update an existing database volume. |
+| `AUTH_SECRET` | Private random value of at least 32 bytes for Auth.js. |
+| `AUTH_URL` | Canonical public HTTPS application URL. |
+| `APP_ORIGIN` | Exact public HTTPS origin for mutation checks; normally equals `AUTH_URL`. |
+| `TRUST_PROXY_HEADERS` | `true` only behind an ingress that replaces client IP headers; otherwise `false`. |
+| `CRON_SECRET` | Private random value of at least 32 bytes for `POST /api/cron/cancel-expired`. |
+| `E2E_DATABASE_URL` | Test runner only, mandatory `_test` database; never a production value. |
+| `SEED_PASSWORD` | Local development seed only; never set or use for production. |
+| `NODE_ENV`, `HOSTNAME`, `PORT` | Set by the Dockerfile to `production`, `0.0.0.0`, `3000` for the app. |
+
+The checked-in `.env.example` is a development template, not a production
+configuration: its sample `DATABASE_URL` points to `localhost` and contains a
+development-only password. Create a separate protected production environment
+file outside this repository with the required values. Do not pass secrets as
+Docker build arguments or save the output of `docker compose config` in logs.
+
+Run these commands manually in order after reviewing the production checklist.
+The migration job is an explicit one-off step; `up` does not run migrations or
+seed automatically:
+
+```bash
+docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml build app migrate maintenance
+docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml up -d postgres
+docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml --profile ops run --rm migrate
+docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml up -d app
+docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml ps
+```
+
+The `migrate` container runs `prisma migrate deploy`; it must finish
+successfully before the app starts. `GET /api/health` is a no-secret liveness
+probe for the app; PostgreSQL has a separate `pg_isready` healthcheck. The app
+port is bound to host loopback only, so place a trusted HTTPS reverse proxy in
+front. Schedule both the authenticated expired-booking cron endpoint and this
+one-off cleanup job at least hourly:
+
+```bash
+docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml --profile ops run --rm maintenance
+```
+
+The cleanup job removes old rate-limit counters and admin idempotency results.
+It does not cancel old bookings; the separate cron endpoint does that.
 
 ## Database setup
 
@@ -227,6 +285,7 @@ and quotes are not stored; catalog responses use a short shared cache.
 | `GET` | `/api/bookings/[id]` | Active session, owner | Read an own booking; another user's ID returns `404` |
 | `PATCH` | `/api/bookings/[id]/cancel` | Active session, owner | Cancel an own unpaid `PENDING` booking |
 | `GET` | `/api/me` | Active session | Current DB-verified user profile |
+| `GET` | `/api/health` | Public | Minimal liveness, no database details or secrets |
 
 Catalog filters are `category`, `minPrice`, `maxPrice`, `seats`,
 `transmission`, `fuel`, `drive`, `sort`, `page` and `pageSize` (maximum 50).
