@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { BookingStatusForm } from "@/components/admin/booking-status-form";
@@ -30,7 +31,7 @@ export default async function AdminBookingPage({
       title="Booking details"
       description={`Booking ID: ${booking.id}`}
     >
-      <section className="admin-panel" aria-labelledby="booking-summary-title">
+      <Card as="section" className="admin-panel" aria-labelledby="booking-summary-title">
         <h2 id="booking-summary-title">Summary</h2>
         <dl className="admin-detail-list">
           <div>
@@ -102,9 +103,9 @@ export default async function AdminBookingPage({
             <p>{booking.managerComment ?? "No manager comment."}</p>
           </div>
         </div>
-      </section>
+      </Card>
 
-      <section className="admin-panel" aria-labelledby="booking-status-title">
+      <Card as="section" className="admin-panel" aria-labelledby="booking-status-title">
         <h2 id="booking-status-title">Change status</h2>
         {allowedTransitions.length > 0 ? (
           <BookingStatusForm
@@ -116,7 +117,7 @@ export default async function AdminBookingPage({
         ) : (
           <p className="empty-state">No status transitions are available.</p>
         )}
-      </section>
+      </Card>
     </AdminPageShell>
   );
 }

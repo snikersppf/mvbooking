@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -36,14 +37,14 @@ export function ArchiveVehicleButton({ vehicleId }: Readonly<{ vehicleId: string
 
   return (
     <div>
-      <button
+      <Button
         className="button button-danger"
         type="button"
         disabled={pending}
         onClick={archive}
       >
         {pending ? "Archiving…" : "Archive vehicle"}
-      </button>
+      </Button>
       <MutationFeedback error={error} success={success} />
     </div>
   );

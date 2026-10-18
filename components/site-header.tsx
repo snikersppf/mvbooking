@@ -2,6 +2,8 @@
 
 import { UserRole } from "@prisma/client";
 import Link from "next/link";
+import Image from "next/image";
+import Header from "@/components/ui/header";
 import { SessionProvider, useSession } from "next-auth/react";
 import { SignOutButton } from "@/components/sign-out-button";
 
@@ -13,9 +15,11 @@ type SiteHeaderProps = Readonly<{
 
 export function SiteHeaderNavigation({ signedIn, canAccessAdmin, loading = false }: SiteHeaderProps) {
   return (
-    <header className="site-header">
+    <Header>
       <div className="site-header-inner">
-        <Link className="site-header-brand" href="/">MVBooking</Link>
+        <Link className="site-header-brand" href="/" aria-label="MVBooking">
+          <Image src="/design/MASTER-VADYA-PNG-logo@2x.png" alt="MVBooking" width={444} height={69} priority />
+        </Link>
         <nav className="site-header-nav" aria-label="Main navigation">
           <Link href="/">Home</Link>
           <Link href="/vehicles">Vehicles</Link>
@@ -33,7 +37,7 @@ export function SiteHeaderNavigation({ signedIn, canAccessAdmin, loading = false
           )}
         </nav>
       </div>
-    </header>
+    </Header>
   );
 }
 

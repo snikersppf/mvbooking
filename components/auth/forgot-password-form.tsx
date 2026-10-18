@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -44,7 +46,7 @@ export function ForgotPasswordForm() {
   return (
     <form className="auth-form" onSubmit={onSubmit} noValidate>
       <label htmlFor="forgot-email">Email</label>
-      <input
+      <Input
         id="forgot-email"
         type="email"
         autoComplete="email"
@@ -54,9 +56,9 @@ export function ForgotPasswordForm() {
       {errors.email ? <p className="field-error" role="alert">{errors.email.message}</p> : null}
       {message ? <p className="form-success" role="status">{message}</p> : null}
       {error ? <p className="form-error" role="alert">{error}</p> : null}
-      <button type="submit" disabled={isSubmitting}>
+      <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Sending…" : "Request reset"}
-      </button>
+      </Button>
     </form>
   );
 }

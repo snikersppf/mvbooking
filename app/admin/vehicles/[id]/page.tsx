@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { VehicleStatus } from "@prisma/client";
 import { notFound } from "next/navigation";
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
@@ -43,28 +44,28 @@ export default async function EditAdminVehiclePage({
         <p className="status-message">This vehicle is archived and read-only.</p>
       ) : (
         <>
-          <section className="admin-panel" aria-labelledby="vehicle-details-title">
+          <Card as="section" className="admin-panel" aria-labelledby="vehicle-details-title">
             <h2 id="vehicle-details-title">Vehicle details and status</h2>
             <VehicleForm
               mode="edit"
               vehicleId={vehicle.id}
               defaultValues={adminVehicleDtoToFormValues(vehicle)}
             />
-          </section>
-          <section className="admin-panel" aria-labelledby="pricing-title">
+          </Card>
+          <Card as="section" className="admin-panel" aria-labelledby="pricing-title">
             <h2 id="pricing-title">Pricing tiers</h2>
             <PricingForm
               vehicleId={vehicle.id}
               defaultValues={adminPricingDtoToFormValues(vehicle.pricingRules)}
             />
-          </section>
-          <section className="admin-panel" aria-labelledby="images-title">
+          </Card>
+          <Card as="section" className="admin-panel" aria-labelledby="images-title">
             <h2 id="images-title">Images</h2>
             <ImagesForm
               vehicleId={vehicle.id}
               defaultValues={adminImagesDtoToFormValues(vehicle.images)}
             />
-          </section>
+          </Card>
         </>
       )}
     </AdminPageShell>

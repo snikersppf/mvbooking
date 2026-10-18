@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -50,7 +52,7 @@ export function ResetPasswordForm({ token }: Readonly<{ token: string }>) {
   return (
     <form className="auth-form" onSubmit={onSubmit} noValidate>
       <label htmlFor="reset-password">New password</label>
-      <input
+      <Input
         id="reset-password"
         type="password"
         autoComplete="new-password"
@@ -59,9 +61,9 @@ export function ResetPasswordForm({ token }: Readonly<{ token: string }>) {
       />
       {errors.password ? <p className="field-error" role="alert">{errors.password.message}</p> : null}
       {error ? <p className="form-error" role="alert">{error}</p> : null}
-      <button type="submit" disabled={isSubmitting}>
+      <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Updating…" : "Set new password"}
-      </button>
+      </Button>
     </form>
   );
 }

@@ -1,3 +1,5 @@
+import { Card } from "@/components/ui/card";
+import { PageShell } from "@/components/ui/page-shell";
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
 import { normalizeCallbackPath } from "@/lib/auth/redirect";
@@ -19,8 +21,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const registrationComplete = firstValue(params.registered) === "1";
 
   return (
-    <main className="auth-shell">
-      <section className="auth-card" aria-labelledby="login-title">
+    <PageShell className="auth-shell">
+      <Card as="section" className="auth-card" aria-labelledby="login-title">
         <div className="auth-heading">
           <p className="eyebrow">MVBooking</p>
           <h1 id="login-title">Sign in</h1>
@@ -39,7 +41,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <p className="auth-switch">
           No account yet? <Link href="/register">Create one</Link>
         </p>
-      </section>
-    </main>
+      </Card>
+    </PageShell>
   );
 }

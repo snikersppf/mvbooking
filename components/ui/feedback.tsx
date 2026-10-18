@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 export function FieldError({ message }: Readonly<{ message?: string }>) {
   return message ? (
     <p className="field-error" role="alert">
@@ -7,6 +8,6 @@ export function FieldError({ message }: Readonly<{ message?: string }>) {
 }
 
 export function EmptyState({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <div className="empty-state">{children}</div>;
+  return <Card as="div" className="empty-state">{children}</Card>;
 }
 

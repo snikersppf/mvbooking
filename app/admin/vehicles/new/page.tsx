@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import {
   emptyAdminVehicleFormValues,
@@ -18,13 +19,13 @@ export default async function NewAdminVehiclePage() {
       title="Create vehicle"
       description="Create the vehicle first, then add pricing and images."
     >
-      <section className="admin-panel" aria-labelledby="vehicle-details-title">
+      <Card as="section" className="admin-panel" aria-labelledby="vehicle-details-title">
         <h2 id="vehicle-details-title">Vehicle details</h2>
         <VehicleForm
           mode="create"
           defaultValues={emptyAdminVehicleFormValues()}
         />
-      </section>
+      </Card>
     </AdminPageShell>
   );
 }

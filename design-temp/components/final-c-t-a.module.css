@@ -1,0 +1,294 @@
+.finalCta,
+.illustrationtopographicPatte {
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+.finalCta {
+  align-self: stretch;
+  border-radius: var(--br-20);
+  background-color: var(--color-darkslategray);
+  justify-content: space-between;
+  padding: var(--padding-0) var(--padding-24) var(--padding-0) var(--padding-0);
+  position: relative;
+  isolation: isolate;
+  gap: var(--gap-20);
+  text-align: left;
+  font-size: var(--fs-11);
+  color: var(--color-gainsboro-400);
+  font-family: var(--font-manrope);
+}
+.illustrationtopographicPatte {
+  width: 504px;
+  flex-shrink: 0;
+  flex-direction: column;
+  padding: 8.4px var(--padding-0) 45px var(--padding-40);
+  gap: 16.7px;
+  opacity: 0.6;
+}
+.container {
+  margin-left: -109.3px;
+  width: 759.3px;
+  height: 244.9px;
+  position: relative;
+  max-width: 164%;
+  flex-shrink: 0;
+}
+.groupIcon {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  max-height: 100%;
+  width: 657.7px;
+}
+.eyebrow {
+  top: 27.6px;
+  line-height: 17px;
+  width: 500px;
+}
+.body,
+.eyebrow,
+.title {
+  position: absolute;
+  left: 109.3px;
+  display: inline-block;
+  z-index: 1;
+}
+.title {
+  margin: 0;
+  top: 57.6px;
+  font-size: var(--fs-40);
+  line-height: var(--lh-48);
+  font-weight: 800;
+  font-family: inherit;
+  color: var(--color-white);
+  width: 650px;
+}
+.body {
+  top: 168.6px;
+  font-size: var(--fs-17);
+  line-height: var(--lh-25);
+  color: var(--color-gainsboro-300);
+  width: 446px;
+}
+.container2,
+.container3 {
+  display: flex;
+  align-items: flex-start;
+}
+.container2 {
+  gap: 25px;
+  max-width: 117%;
+  flex-shrink: 0;
+  font-size: var(--fs-14);
+  color: var(--color-white);
+}
+.container3 {
+  gap: var(--gap-10);
+}
+.iconphone {
+  height: var(--height-20);
+  width: var(--width-20);
+}
+.iconbrandTelegram,
+.iconphone,
+.phone {
+  position: relative;
+  z-index: 1;
+}
+.phone {
+  width: 195px;
+  line-height: var(--lh-20);
+  font-weight: 600;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.iconbrandTelegram {
+  height: 21px;
+  width: var(--width-21);
+}
+.telegram {
+  width: 260px;
+  position: relative;
+  line-height: var(--lh-20);
+  font-weight: 600;
+  display: inline-block;
+  flex-shrink: 0;
+  z-index: 3;
+}
+.vehicleOnGraphicBackground {
+  height: 197px;
+  width: 350px;
+  position: absolute;
+  margin: 0 !important;
+  bottom: 31px;
+  left: 460px;
+  object-fit: cover;
+  z-index: 2;
+}
+.container5,
+.enquiryForm {
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.container5 {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--padding-24) var(--padding-0) var(--padding-0);
+  min-width: 438px;
+  max-width: 100%;
+}
+.enquiryForm {
+  margin: 0;
+  border-radius: var(--br-16);
+  background-color: var(--color-white);
+  padding: var(--padding-16);
+  gap: var(--gap-18);
+}
+.container6,
+.enquiryForm,
+.field {
+  align-self: stretch;
+  display: flex;
+  align-items: flex-start;
+  max-width: 100%;
+}
+.container6 {
+  flex-direction: column;
+  gap: var(--gap-10);
+}
+.field {
+  height: var(--height-42);
+  border-radius: var(--br-8);
+  background-color: var(--color-white);
+  border: var(--border-3);
+  box-sizing: border-box;
+  padding: var(--padding-8) var(--padding-13) var(--padding-7);
+}
+.placeholder {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  font-family: var(--font-manrope);
+  font-size: var(--fs-16);
+  background-color: transparent;
+  position: relative;
+  line-height: var(--lh-23);
+  color: var(--color-dimgray);
+  text-align: left;
+  display: inline-block;
+  padding: var(--padding-01);
+  max-width: 100%;
+}
+.field2 {
+  align-self: stretch;
+  border-radius: var(--br-8);
+  background-color: var(--color-white);
+  border: var(--border-3);
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  padding: var(--padding-8) var(--padding-13) var(--padding-7);
+  gap: var(--gap-20);
+  min-height: 42px;
+  max-width: 100%;
+}
+.placeholder3 {
+  width: calc(100% - 44px);
+  border: 0;
+  outline: 0;
+  font-family: var(--font-manrope);
+  font-size: var(--fs-16);
+  background-color: transparent;
+  flex: 1;
+  position: relative;
+  line-height: var(--lh-23);
+  color: var(--color-dimgray);
+  text-align: left;
+  display: inline-block;
+  min-width: 221px;
+  padding: var(--padding-01);
+  max-width: 100%;
+}
+.container7 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--padding-2) var(--padding-0) var(--padding-0);
+}
+.iconcalendarDays {
+  width: 100%;
+  height: var(--height-18);
+  position: relative;
+}
+.button {
+  cursor: pointer;
+  border: var(--border-1);
+  padding: var(--padding-7) var(--padding-7) var(--padding-8);
+  background-color: var(--color-seagreen-200);
+  align-self: stretch;
+  border-radius: var(--br-10);
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  min-height: var(--min-h-40);
+  max-width: 100%;
+}
+.button:hover {
+  background-color: var(--color-seagreen-100);
+  border: var(--border-2);
+  box-sizing: border-box;
+}
+.label {
+  flex: 1;
+  position: relative;
+  font-size: var(--fs-14);
+  line-height: var(--lh-21);
+  display: inline-block;
+  font-family: var(--font-manrope);
+  color: var(--color-white);
+  white-space: pre-wrap;
+  text-align: center;
+  max-width: 100%;
+}
+@media screen and (max-width: 1300px) {
+  .finalCta {
+    flex-wrap: wrap;
+    padding-left: var(--padding-20);
+    padding-right: var(--padding-20);
+    padding-bottom: var(--padding-20);
+    box-sizing: border-box;
+  }
+  .container5,
+  .illustrationtopographicPatte {
+    flex: 1;
+  }
+}
+@media screen and (max-width: 800px) {
+  .illustrationtopographicPatte {
+    min-width: 100%;
+  }
+  .title {
+    font-size: var(--fs-32);
+    line-height: 38px;
+  }
+  .container2 {
+    flex-wrap: wrap;
+  }
+  .container5 {
+    min-width: 100%;
+  }
+}
+@media screen and (max-width: 450px) {
+  .title {
+    font-size: var(--fs-24);
+    line-height: var(--lh-29);
+  }
+  .field2 {
+    flex-wrap: wrap;
+  }
+}

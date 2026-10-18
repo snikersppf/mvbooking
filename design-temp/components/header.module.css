@@ -1,0 +1,185 @@
+.container,
+.header {
+  align-self: stretch;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+.header {
+  background-color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--padding-17) var(--padding-0) var(--padding-1);
+  gap: var(--gap-12);
+  top: 0;
+  z-index: 99;
+  position: sticky;
+  text-align: left;
+  font-size: var(--fs-14);
+  color: var(--color-gray);
+  font-family: var(--font-manrope);
+}
+.container {
+  padding: var(--padding-0) var(--padding-80);
+}
+.container,
+.content,
+.wrapper {
+  display: flex;
+  align-items: flex-start;
+}
+.wrapper {
+  flex: 1;
+  gap: 35px;
+  max-width: 100%;
+}
+.content {
+  width: 270px;
+  flex-direction: column;
+  padding: var(--padding-7) var(--padding-0) var(--padding-0);
+  box-sizing: border-box;
+}
+.masterVadyaPngLogo {
+  width: 100%;
+  height: 34.1px;
+  position: relative;
+  object-fit: cover;
+}
+.navMenu,
+.navigation {
+  display: flex;
+  align-items: flex-start;
+}
+.navigation {
+  flex: 1;
+  flex-direction: column;
+  padding: var(--padding-15) var(--padding-0) var(--padding-0);
+  box-sizing: border-box;
+  max-width: 100%;
+}
+.navMenu {
+  align-self: stretch;
+}
+.nav {
+  width: 125px;
+  position: relative;
+  line-height: var(--lh-20);
+  font-weight: 500;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.navItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--padding-0) var(--padding-15) var(--padding-0) var(--padding-0);
+}
+.nav2 {
+  align-self: stretch;
+  position: relative;
+  line-height: var(--lh-20);
+  font-weight: 500;
+}
+.navItem2 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--padding-0) var(--padding-20) var(--padding-0) var(--padding-0);
+}
+.nav3 {
+  width: var(--width-150);
+  line-height: var(--lh-20);
+  font-weight: 500;
+  display: inline-block;
+}
+.actions,
+.nav3,
+.nav4 {
+  position: relative;
+}
+.nav4 {
+  width: var(--width-150);
+  line-height: var(--lh-20);
+  font-weight: 500;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.actions {
+  height: var(--height-56);
+  width: 325px;
+  max-width: 100%;
+}
+.contactContainer {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  width: 179px;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-8);
+}
+.iconphone {
+  height: 21px;
+  width: var(--width-21);
+  position: relative;
+}
+.phone {
+  flex: 1;
+  position: relative;
+  line-height: var(--lh-20);
+}
+.buttonsecondary {
+  cursor: pointer;
+  border: var(--border-1);
+  padding: var(--padding-15) var(--padding-19) var(--padding-17);
+  background-color: var(--color-white);
+  position: absolute;
+  top: 0;
+  left: 150px;
+  border-radius: var(--br-14);
+  box-sizing: border-box;
+  width: 175px;
+  height: var(--height-56);
+  display: flex;
+  align-items: flex-start;
+}
+.buttonsecondary:hover {
+  background-color: var(--color-gainsboro-100);
+  border: var(--border-2);
+  box-sizing: border-box;
+}
+.divider,
+.label {
+  position: relative;
+}
+.label {
+  flex: 1;
+  font-size: var(--fs-15);
+  line-height: var(--lh-20);
+  font-family: var(--font-manrope);
+  color: var(--color-gray);
+  text-align: center;
+}
+.divider {
+  align-self: stretch;
+  height: var(--height-1);
+  border-top: var(--border-3);
+  box-sizing: border-box;
+}
+@media screen and (max-width: 1300px) {
+  .navMenu {
+    display: none;
+  }
+}
+@media screen and (max-width: 800px) {
+  .container {
+    padding-left: var(--padding-40);
+    padding-right: var(--padding-40);
+    box-sizing: border-box;
+  }
+  .wrapper {
+    gap: var(--gap-17);
+  }
+}

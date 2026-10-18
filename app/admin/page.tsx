@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { adminDashboardItems } from "@/lib/admin-navigation";
@@ -16,11 +17,11 @@ export default async function AdminPage() {
     >
       <section className="admin-card-grid" aria-label="Administration areas">
         {dashboardItems.map((item) => (
-          <article key={item.href} className="admin-card">
+          <Card as="article" key={item.href} className="admin-card">
             <h2>{item.label}</h2>
             <p>{item.description}</p>
             <Link href={item.href}>{item.actionLabel}</Link>
-          </article>
+          </Card>
         ))}
       </section>
     </AdminPageShell>

@@ -1,3 +1,4 @@
+import { PageShell } from "@/components/ui/page-shell";
 import Link from "next/link";
 import { ZodError } from "zod";
 import { CatalogFilterForm } from "@/components/catalog/catalog-filter-form";
@@ -45,7 +46,7 @@ export default async function VehiclesPage({
 
   if (!result.catalog) {
     return (
-      <main className="catalog-shell">
+      <PageShell className="catalog-shell">
         <header className="catalog-header">
           <Link href="/">MVBooking</Link>
           <h1>Vehicle catalog</h1>
@@ -55,7 +56,7 @@ export default async function VehiclesPage({
         {result.invalidFilters ? (
           <p className="error-message">The catalog filters are invalid.</p>
         ) : null}
-      </main>
+      </PageShell>
     );
   }
 
@@ -68,7 +69,7 @@ export default async function VehiclesPage({
     : null;
 
   return (
-    <main className="catalog-shell">
+    <PageShell className="catalog-shell">
       <header className="catalog-header">
         <Link href="/">MVBooking</Link>
         <h1>Vehicle catalog</h1>
@@ -97,6 +98,6 @@ export default async function VehiclesPage({
         previousHref={previousHref}
         nextHref={nextHref}
       />
-    </main>
+    </PageShell>
   );
 }

@@ -1,3 +1,4 @@
+import { PageShell } from "@/components/ui/page-shell";
 import Link from "next/link";
 import { adminNavigationItems } from "@/lib/admin-navigation";
 
@@ -19,7 +20,7 @@ export function AdminPageShell({
   const navigationItems = adminNavigationItems(role);
 
   return (
-    <main className="admin-shell">
+    <PageShell className="admin-shell">
       <header className="admin-header">
         <div>
           <Link href="/">MVBooking</Link>
@@ -37,7 +38,7 @@ export function AdminPageShell({
         ))}
       </nav>
       {children}
-    </main>
+    </PageShell>
   );
 }
 

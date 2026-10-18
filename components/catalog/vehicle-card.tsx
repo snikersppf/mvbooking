@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import type { CatalogListItem } from "@/server/services/catalog/types";
 
@@ -7,7 +8,7 @@ type VehicleCardProps = Readonly<{
 
 export function VehicleCard({ vehicle }: VehicleCardProps) {
   return (
-    <article className="vehicle-card">
+    <Card as="article" className="vehicle-card">
       {vehicle.image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={vehicle.image.url} alt={vehicle.image.alt} width="640" height="360" />
@@ -48,6 +49,6 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
           <p className="muted-text">Rate for the selected period.</p>
         )}
       </div>
-    </article>
+    </Card>
   );
 }

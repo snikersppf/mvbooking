@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { QuoteSummary } from "@/components/booking/quote-summary";
@@ -24,7 +25,7 @@ export function BookingCard({
   );
 
   return (
-    <article className="booking-card" aria-labelledby={titleId}>
+    <Card as="article" className="booking-card" aria-labelledby={titleId}>
       <header className="booking-card-header">
         <div>
           <p className="eyebrow">Booking</p>
@@ -75,6 +76,6 @@ export function BookingCard({
       {cancellable ? (
         <CancelBookingButton bookingId={booking.id} />
       ) : null}
-    </article>
+    </Card>
   );
 }

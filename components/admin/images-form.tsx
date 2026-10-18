@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -70,7 +72,7 @@ export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
               <div className="admin-form-grid">
                 <label>
                   URL
-                  <input
+                  <Input
                     aria-invalid={Boolean(errors.images?.[index]?.url)}
                     {...register(`images.${index}.url`)}
                   />
@@ -78,7 +80,7 @@ export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
                 </label>
                 <label>
                   Alternative text
-                  <input
+                  <Input
                     aria-invalid={Boolean(errors.images?.[index]?.alt)}
                     {...register(`images.${index}.alt`)}
                   />
@@ -86,7 +88,7 @@ export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
                 </label>
                 <label>
                   Sort order
-                  <input
+                  <Input
                     type="number"
                     aria-invalid={Boolean(errors.images?.[index]?.sortOrder)}
                     {...register(`images.${index}.sortOrder`)}
@@ -94,13 +96,13 @@ export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
                   <FieldError message={errors.images?.[index]?.sortOrder?.message} />
                 </label>
               </div>
-              <button
+              <Button
                 className="button button-secondary"
                 type="button"
                 onClick={() => remove(index)}
               >
                 Remove image
-              </button>
+              </Button>
             </fieldset>
           ))}
         </div>
@@ -109,16 +111,16 @@ export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
       )}
       <FieldError message={errors.images?.message} />
       <div className="form-actions">
-        <button
+        <Button
           className="button button-secondary"
           type="button"
           onClick={() => append({ url: "", alt: "", sortOrder: String(fields.length) })}
         >
           Add image
-        </button>
-        <button className="button" type="submit" disabled={isSubmitting}>
+        </Button>
+        <Button className="button" type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving…" : "Save images"}
-        </button>
+        </Button>
       </div>
       <MutationFeedback error={error} success={success} />
     </form>

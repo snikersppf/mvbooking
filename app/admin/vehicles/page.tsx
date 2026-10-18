@@ -1,3 +1,4 @@
+import { ButtonLink } from "@/components/ui/button-link";
 import Link from "next/link";
 import { ZodError } from "zod";
 import { AdminListFilterForm } from "@/components/admin/list-filter-form";
@@ -52,9 +53,9 @@ export default async function AdminVehiclesPage({
       title="Vehicles"
       description="Manage public catalog records and availability status."
       actions={
-        <Link className="button" href="/admin/vehicles/new">
+        <ButtonLink className="button" href="/admin/vehicles/new">
           Create vehicle
-        </Link>
+        </ButtonLink>
       }
     >
       <AdminListFilterForm

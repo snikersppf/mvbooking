@@ -1,3 +1,5 @@
+import { Card } from "@/components/ui/card";
+import { PageShell } from "@/components/ui/page-shell";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookingForm } from "@/components/booking/booking-form";
@@ -15,7 +17,7 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
   if (!vehicle) notFound();
 
   return (
-    <main className="vehicle-page-shell">
+    <PageShell className="vehicle-page-shell">
       <nav className="vehicle-breadcrumb" aria-label="Breadcrumb">
         <Link href="/vehicles">Vehicle catalog</Link>
       </nav>
@@ -29,7 +31,7 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
 
       <VehicleDetail vehicle={vehicle} />
 
-      <section className="availability-panel" aria-labelledby="booking-title">
+      <Card as="section" className="availability-panel" aria-labelledby="booking-title">
         <h2 id="booking-title">Availability and booking</h2>
         <BookingForm
           vehicleId={vehicle.id}
@@ -38,7 +40,7 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
           displayTimeZone={BOOKING_CONFIG.displayTimeZone}
           maxDurationDays={BOOKING_CONFIG.maxDurationDays}
         />
-      </section>
-    </main>
+      </Card>
+    </PageShell>
   );
 }

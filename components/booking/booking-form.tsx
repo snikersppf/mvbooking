@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input, Textarea } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -199,7 +201,7 @@ export function BookingForm({
       <div className="booking-form-grid">
         <label>
           Pickup date and time
-          <input
+          <Input
             type="datetime-local"
             step="60"
             aria-invalid={Boolean(errors.startDate)}
@@ -209,7 +211,7 @@ export function BookingForm({
         </label>
         <label>
           Return date and time
-          <input
+          <Input
             type="datetime-local"
             step="60"
             aria-invalid={Boolean(errors.endDate)}
@@ -219,7 +221,7 @@ export function BookingForm({
         </label>
         <label>
           Pickup location
-          <input
+          <Input
             autoComplete="street-address"
             aria-invalid={Boolean(errors.pickupLocation)}
             {...register("pickupLocation")}
@@ -228,7 +230,7 @@ export function BookingForm({
         </label>
         <label>
           Return location
-          <input
+          <Input
             autoComplete="street-address"
             aria-invalid={Boolean(errors.returnLocation)}
             {...register("returnLocation")}
@@ -239,7 +241,7 @@ export function BookingForm({
 
       <label>
         Comment
-        <textarea
+        <Textarea
           rows={4}
           aria-invalid={Boolean(errors.customerComment)}
           {...register("customerComment")}
@@ -248,21 +250,21 @@ export function BookingForm({
       </label>
 
       <div className="form-actions">
-        <button
+        <Button
           className="button button-secondary"
           type="button"
           disabled={quoteState.status === "loading"}
           onClick={checkQuote}
         >
           {quoteState.status === "loading" ? "Checking…" : "Check price"}
-        </button>
-        <button
+        </Button>
+        <Button
           className="button"
           type="submit"
           disabled={!canSubmit || isSubmitting}
         >
           {isSubmitting ? "Submitting…" : "Request booking"}
-        </button>
+        </Button>
       </div>
 
       <div aria-live="polite">

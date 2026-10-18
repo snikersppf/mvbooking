@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Input, Select } from "@/components/ui/input";
 import Form from "next/form";
 import Link from "next/link";
 import type { CatalogFilterValues } from "@/server/services/catalog/types";
@@ -11,11 +13,11 @@ export function CatalogFilterForm({ filters }: CatalogFilterFormProps) {
     <Form action="/vehicles" className="catalog-filter-form">
       <label>
         Category
-        <input name="category" defaultValue={filters.category} placeholder="SUV" />
+        <Input name="category" defaultValue={filters.category} placeholder="SUV" />
       </label>
       <label>
         Minimum daily price
-        <input
+        <Input
           name="minPrice"
           type="number"
           min="0"
@@ -25,7 +27,7 @@ export function CatalogFilterForm({ filters }: CatalogFilterFormProps) {
       </label>
       <label>
         Maximum daily price
-        <input
+        <Input
           name="maxPrice"
           type="number"
           min="0"
@@ -35,7 +37,7 @@ export function CatalogFilterForm({ filters }: CatalogFilterFormProps) {
       </label>
       <label>
         Minimum seats
-        <input
+        <Input
           name="seats"
           type="number"
           min="1"
@@ -45,7 +47,7 @@ export function CatalogFilterForm({ filters }: CatalogFilterFormProps) {
       </label>
       <label>
         Transmission
-        <input
+        <Input
           name="transmission"
           defaultValue={filters.transmission}
           placeholder="AUTOMATIC"
@@ -53,15 +55,15 @@ export function CatalogFilterForm({ filters }: CatalogFilterFormProps) {
       </label>
       <label>
         Fuel
-        <input name="fuel" defaultValue={filters.fuel} placeholder="PETROL" />
+        <Input name="fuel" defaultValue={filters.fuel} placeholder="PETROL" />
       </label>
       <label>
         Drive
-        <input name="drive" defaultValue={filters.drive} placeholder="AWD" />
+        <Input name="drive" defaultValue={filters.drive} placeholder="AWD" />
       </label>
       <label>
         Start date with offset
-        <input
+        <Input
           name="startDate"
           defaultValue={filters.startDate}
           placeholder="2026-11-10T10:00:00+04:00"
@@ -69,7 +71,7 @@ export function CatalogFilterForm({ filters }: CatalogFilterFormProps) {
       </label>
       <label>
         End date with offset
-        <input
+        <Input
           name="endDate"
           defaultValue={filters.endDate}
           placeholder="2026-11-13T10:00:00+04:00"
@@ -77,26 +79,26 @@ export function CatalogFilterForm({ filters }: CatalogFilterFormProps) {
       </label>
       <label>
         Sort
-        <select name="sort" defaultValue={filters.sort}>
+        <Select name="sort" defaultValue={filters.sort}>
           <option value="price_asc">Price: low to high</option>
           <option value="price_desc">Price: high to low</option>
           <option value="year_desc">Year: newest first</option>
           <option value="year_asc">Year: oldest first</option>
           <option value="brand_asc">Brand: A to Z</option>
           <option value="brand_desc">Brand: Z to A</option>
-        </select>
+        </Select>
       </label>
       <label>
         Items per page
-        <select name="pageSize" defaultValue={String(filters.pageSize)}>
+        <Select name="pageSize" defaultValue={String(filters.pageSize)}>
           <option value="6">6</option>
           <option value="12">12</option>
           <option value="24">24</option>
           <option value="50">50</option>
-        </select>
+        </Select>
       </label>
       <div className="catalog-filter-actions">
-        <button type="submit">Apply filters</button>
+        <Button type="submit">Apply filters</Button>
         <Link href="/vehicles">Reset</Link>
       </div>
     </Form>

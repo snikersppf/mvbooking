@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Select, Textarea } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -72,27 +74,27 @@ export function BookingStatusForm({
     <form className="admin-form" onSubmit={onSubmit} noValidate>
       <label>
         New status
-        <select {...register("status")}>
+        <Select {...register("status")}>
           {allowedStatuses.map((status) => (
             <option key={status} value={status}>
               {formatAdminEnum(status)}
             </option>
           ))}
-        </select>
+        </Select>
         <FieldError message={errors.status?.message} />
       </label>
       <label>
         Manager comment
-        <textarea
+        <Textarea
           rows={5}
           aria-invalid={Boolean(errors.managerComment)}
           {...register("managerComment")}
         />
         <FieldError message={errors.managerComment?.message} />
       </label>
-      <button className="button" type="submit" disabled={isSubmitting}>
+      <Button className="button" type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Updating…" : "Update status"}
-      </button>
+      </Button>
       <MutationFeedback error={error} success={success} />
     </form>
   );

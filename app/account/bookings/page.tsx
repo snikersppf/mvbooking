@@ -1,3 +1,5 @@
+import { Card } from "@/components/ui/card";
+import { PageShell } from "@/components/ui/page-shell";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ZodError } from "zod";
@@ -56,7 +58,7 @@ export default async function AccountBookingsPage({
 
   if (!bookings) {
     return (
-      <main className="account-shell">
+      <PageShell className="account-shell">
         <header className="account-header">
           <Link href="/vehicles">Vehicle catalog</Link>
           <h1>Your bookings</h1>
@@ -64,7 +66,7 @@ export default async function AccountBookingsPage({
         <p className="status-message status-error">
           The page number is invalid.
         </p>
-      </main>
+      </PageShell>
     );
   }
 
@@ -76,7 +78,7 @@ export default async function AccountBookingsPage({
     : null;
 
   return (
-    <main className="account-shell">
+    <PageShell className="account-shell">
       <header className="account-header">
         <Link href="/vehicles">Vehicle catalog</Link>
         <h1>Your bookings</h1>
@@ -94,10 +96,10 @@ export default async function AccountBookingsPage({
           ))}
         </section>
       ) : (
-        <div className="empty-state">
+        <Card as="div" className="empty-state">
           <p>You have no bookings yet.</p>
           <Link href="/vehicles">Browse vehicles</Link>
-        </div>
+        </Card>
       )}
 
       <Pagination
@@ -107,6 +109,6 @@ export default async function AccountBookingsPage({
         previousHref={previousHref}
         nextHref={nextHref}
       />
-    </main>
+    </PageShell>
   );
 }

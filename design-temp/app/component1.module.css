@@ -1,0 +1,47 @@
+.div,
+.mainContent {
+  flex-direction: column;
+}
+.div {
+  width: 100%;
+  position: relative;
+  background-color: var(--color-whitesmoke);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  line-height: normal;
+  letter-spacing: normal;
+}
+.mainContent {
+  align-self: stretch;
+  padding: var(--padding-0) var(--padding-0) 48px;
+  box-sizing: border-box;
+}
+.catalogueContainer,
+.catalogueContainerWrapper,
+.mainContent {
+  display: flex;
+  align-items: flex-start;
+  max-width: 100%;
+}
+.catalogueContainerWrapper {
+  align-self: stretch;
+  padding: var(--padding-0) var(--padding-80) var(--padding-34);
+  box-sizing: border-box;
+}
+.catalogueContainer {
+  flex: 1;
+  flex-direction: column;
+  gap: 29px;
+}
+@media screen and (max-width: 800px) {
+  .mainContent {
+    padding-bottom: 31px;
+    box-sizing: border-box;
+  }
+  .catalogueContainerWrapper {
+    padding-left: var(--padding-40);
+    padding-right: var(--padding-40);
+    box-sizing: border-box;
+  }
+}

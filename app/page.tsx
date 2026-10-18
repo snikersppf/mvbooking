@@ -1,15 +1,34 @@
-import Link from "next/link";
+import HomeHero from "@/components/ui/home-hero";
+import FrameComponent from "@/components/ui/frame-component";
+import CatalogueWrapper from "@/components/ui/catalogue-wrapper";
+import FrameComponent1 from "@/components/ui/frame-component1";
+import FrameComponent11 from "@/components/ui/frame-component11";
+import FrameComponent111 from "@/components/ui/frame-component111";
+import FrameComponent1111 from "@/components/ui/frame-component1111";
+import FinalCTA from "@/components/ui/final-c-t-a";
+import Footer from "@/components/ui/footer";
+import styles from "./page.module.css";
 
 export default function HomePage() {
   return (
-    <main className="page-shell">
-      <h1>MVBooking</h1>
-      <p>Browse available rental vehicles in Georgia.</p>
-      <nav className="home-actions" aria-label="Main navigation">
-        <Link href="/vehicles">Vehicle catalog</Link>
-        <Link href="/login">Sign in</Link>
-        <Link href="/register">Create account</Link>
-      </nav>
-    </main>
+    <div className={styles.div} lang="ru">
+      <main>
+      <div className={styles.mainContent}>
+        <HomeHero />
+        <FrameComponent />
+      </div>
+      <div className={styles.catalogueContainerWrapper}>
+        <section className={styles.catalogueContainer}>
+          <CatalogueWrapper />
+          <FrameComponent1 />
+          <FrameComponent11 />
+          <FrameComponent111 />
+          <FrameComponent1111 />
+          <FinalCTA />
+        </section>
+      </div>
+      </main>
+      <Footer />
+    </div>
   );
 }

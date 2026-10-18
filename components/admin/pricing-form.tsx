@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -69,7 +71,7 @@ export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
             <div className="admin-form-grid">
               <label>
                 Minimum days
-                <input
+                <Input
                   type="number"
                   aria-invalid={Boolean(errors.rules?.[index]?.minDays)}
                   {...register(`rules.${index}.minDays`)}
@@ -78,7 +80,7 @@ export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
               </label>
               <label>
                 Maximum days
-                <input
+                <Input
                   type="number"
                   placeholder="No limit"
                   aria-invalid={Boolean(errors.rules?.[index]?.maxDays)}
@@ -88,7 +90,7 @@ export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
               </label>
               <label>
                 Price per day, GEL
-                <input
+                <Input
                   inputMode="decimal"
                   aria-invalid={Boolean(errors.rules?.[index]?.pricePerDay)}
                   {...register(`rules.${index}.pricePerDay`)}
@@ -96,30 +98,30 @@ export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
                 <FieldError message={errors.rules?.[index]?.pricePerDay?.message} />
               </label>
             </div>
-            <button
+            <Button
               className="button button-secondary"
               type="button"
               disabled={fields.length === 1}
               onClick={() => remove(index)}
             >
               Remove tier
-            </button>
+            </Button>
           </fieldset>
         ))}
       </div>
       <FieldError message={errors.rules?.root?.message} />
       <FieldError message={errors.rules?.message} />
       <div className="form-actions">
-        <button
+        <Button
           className="button button-secondary"
           type="button"
           onClick={() => append({ minDays: "", maxDays: "", pricePerDay: "" })}
         >
           Add tier
-        </button>
-        <button className="button" type="submit" disabled={isSubmitting}>
+        </Button>
+        <Button className="button" type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving…" : "Save pricing"}
-        </button>
+        </Button>
       </div>
       <MutationFeedback error={error} success={success} />
     </form>

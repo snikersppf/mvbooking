@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Input, Select } from "@/components/ui/input";
 import Link from "next/link";
 
 export type AdminFilterField = Readonly<{
@@ -22,23 +24,23 @@ export function AdminListFilterForm({
         <label key={field.name}>
           {field.label}
           {field.options ? (
-            <select name={field.name} defaultValue={field.value ?? ""}>
+            <Select name={field.name} defaultValue={field.value ?? ""}>
               <option value="">All</option>
               {field.options.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
-            </select>
+            </Select>
           ) : (
-            <input name={field.name} defaultValue={field.value ?? ""} />
+            <Input name={field.name} defaultValue={field.value ?? ""} />
           )}
         </label>
       ))}
       <div className="admin-filter-actions">
-        <button className="button" type="submit">
+        <Button className="button" type="submit">
           Apply filters
-        </button>
+        </Button>
         <Link href={action}>Clear</Link>
       </div>
     </form>

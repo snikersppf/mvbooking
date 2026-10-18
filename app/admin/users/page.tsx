@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { ZodError } from "zod";
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { AdminListFilterForm } from "@/components/admin/list-filter-form";
@@ -82,7 +83,7 @@ export default async function AdminUsersPage({
       ) : users.items.length > 0 ? (
         <div className="admin-user-list">
           {users.items.map((user) => (
-            <article key={user.id} className="admin-panel admin-user-card">
+            <Card as="article" key={user.id} className="admin-panel admin-user-card">
               <header>
                 <div>
                   <h2>{user.name}</h2>
@@ -96,7 +97,7 @@ export default async function AdminUsersPage({
                 <AdminUserRoleForm key={`${user.id}:${user.role}`} userId={user.id} role={user.role} />
                 <AdminUserStatusForm key={`${user.id}:${user.status}`} userId={user.id} status={user.status} />
               </div>
-            </article>
+            </Card>
           ))}
         </div>
       ) : (

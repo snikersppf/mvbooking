@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -72,18 +74,18 @@ export function AdminUserRoleForm({
     <form className="admin-inline-form" onSubmit={onSubmit}>
       <label>
         Role
-        <select {...register("role")}>
+        <Select {...register("role")}>
           {ADMIN_USER_ROLES.map((value) => (
             <option key={value} value={value}>
               {formatAdminEnum(value)}
             </option>
           ))}
-        </select>
+        </Select>
         <FieldError message={errors.role?.message} />
       </label>
-      <button className="button button-secondary" type="submit" disabled={!isDirty || isSubmitting}>
+      <Button className="button button-secondary" type="submit" disabled={!isDirty || isSubmitting}>
         {isSubmitting ? "Saving…" : "Save role"}
-      </button>
+      </Button>
       <MutationFeedback error={state.error} success={state.success} />
     </form>
   );
@@ -136,18 +138,18 @@ export function AdminUserStatusForm({
     <form className="admin-inline-form" onSubmit={onSubmit}>
       <label>
         Status
-        <select {...register("status")}>
+        <Select {...register("status")}>
           {ADMIN_USER_STATUSES.map((value) => (
             <option key={value} value={value}>
               {formatAdminEnum(value)}
             </option>
           ))}
-        </select>
+        </Select>
         <FieldError message={errors.status?.message} />
       </label>
-      <button className="button button-secondary" type="submit" disabled={!isDirty || isSubmitting}>
+      <Button className="button button-secondary" type="submit" disabled={!isDirty || isSubmitting}>
         {isSubmitting ? "Saving…" : "Save status"}
-      </button>
+      </Button>
       <MutationFeedback error={state.error} success={state.success} />
     </form>
   );

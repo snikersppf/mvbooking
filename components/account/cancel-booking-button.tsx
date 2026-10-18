@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -48,14 +49,14 @@ export function CancelBookingButton({
 
   return (
     <div className="booking-card-action">
-      <button
+      <Button
         className="button button-danger"
         type="button"
         disabled={submitting}
         onClick={cancelBooking}
       >
         {submitting ? "Cancelling…" : "Cancel booking"}
-      </button>
+      </Button>
       {failure ? (
         <p className="status-message status-error" role="alert">
           {failure.message}{" "}

@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -63,7 +65,7 @@ export function RegisterForm() {
   return (
     <form className="auth-form" onSubmit={onSubmit} noValidate>
       <label htmlFor="register-name">Name</label>
-      <input
+      <Input
         id="register-name"
         autoComplete="name"
         aria-invalid={Boolean(errors.name)}
@@ -76,7 +78,7 @@ export function RegisterForm() {
       ) : null}
 
       <label htmlFor="register-email">Email</label>
-      <input
+      <Input
         id="register-email"
         type="email"
         autoComplete="email"
@@ -90,7 +92,7 @@ export function RegisterForm() {
       ) : null}
 
       <label htmlFor="register-phone">Phone (optional)</label>
-      <input
+      <Input
         id="register-phone"
         type="tel"
         autoComplete="tel"
@@ -104,7 +106,7 @@ export function RegisterForm() {
       ) : null}
 
       <label htmlFor="register-password">Password</label>
-      <input
+      <Input
         id="register-password"
         type="password"
         autoComplete="new-password"
@@ -123,9 +125,9 @@ export function RegisterForm() {
         </p>
       ) : null}
 
-      <button type="submit" disabled={isSubmitting}>
+      <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Creating account…" : "Create account"}
-      </button>
+      </Button>
     </form>
   );
 }

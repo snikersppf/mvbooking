@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Form from "next/form";
 
 type AvailabilityFormProps = Readonly<{
@@ -15,7 +17,7 @@ export function AvailabilityForm({
     <Form action={action} className="availability-form">
       <label>
         Start date with offset
-        <input
+        <Input
           name="startDate"
           defaultValue={startDate}
           placeholder="2026-11-10T10:00:00+04:00"
@@ -24,14 +26,14 @@ export function AvailabilityForm({
       </label>
       <label>
         End date with offset
-        <input
+        <Input
           name="endDate"
           defaultValue={endDate}
           placeholder="2026-11-13T10:00:00+04:00"
           required
         />
       </label>
-      <button type="submit">Check availability</button>
+      <Button type="submit">Check availability</Button>
       <p className="muted-text">This check does not reserve the vehicle.</p>
     </Form>
   );

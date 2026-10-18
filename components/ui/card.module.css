@@ -1,0 +1,6 @@
+.card {
+  min-width: 0;
+  border: var(--border-3);
+  border-radius: var(--br-16);
+  background: var(--color-white);
+}

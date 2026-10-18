@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -62,7 +64,7 @@ export function LoginForm({
       ) : null}
 
       <label htmlFor="login-email">Email</label>
-      <input
+      <Input
         id="login-email"
         type="email"
         autoComplete="email"
@@ -76,7 +78,7 @@ export function LoginForm({
       ) : null}
 
       <label htmlFor="login-password">Password</label>
-      <input
+      <Input
         id="login-password"
         type="password"
         autoComplete="current-password"
@@ -95,9 +97,9 @@ export function LoginForm({
         </p>
       ) : null}
 
-      <button type="submit" disabled={isSubmitting}>
+      <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Signing in…" : "Sign in"}
-      </button>
+      </Button>
     </form>
   );
 }

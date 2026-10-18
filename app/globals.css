@@ -843,3 +843,382 @@ a {
     flex-direction: column;
   }
 }
+
+/* Design tokens and base styles imported from design-temp/app/global.css. */
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/manrope/manrope-400.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/manrope/manrope-500.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/manrope/manrope-600.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/manrope/manrope-700.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url(/fonts/manrope/manrope-800.ttf) format('truetype');
+}
+
+
+body {
+  margin: 0;
+  line-height: normal;
+}
+:root {
+  /* Common Style Variables */
+
+  /* Color */
+  --color-darkslategray: #064c35;
+  --color-dimgray: #66706a;
+  --color-gainsboro-100: #e6e6e6;
+  --color-gainsboro-200: #e3e8e1;
+  --color-gainsboro-300: #d9e7dd;
+  --color-gainsboro-400: #c9dfd3;
+  --color-gray: #171a18;
+  --color-mintcream: #eaf4ef;
+  --color-seagreen-100: #309675;
+  --color-seagreen-200: #0a704e;
+  --color-white: #fff;
+  --color-whitesmoke: #f8f9f6;
+
+  /* Gap */
+  --gap-1: 1px;
+  --gap-2: 2px;
+  --gap-3: 3px;
+  --gap-4: 4px;
+  --gap-5: 5px;
+  --gap-6: 6px;
+  --gap-7: 7px;
+  --gap-8: 8px;
+  --gap-10: 10px;
+  --gap-11: 11px;
+  --gap-12: 12px;
+  --gap-13: 13px;
+  --gap-15: 15px;
+  --gap-16: 16px;
+  --gap-17: 17px;
+  --gap-18: 18px;
+  --gap-19: 19px;
+  --gap-20: 20px;
+  --gap-22: 22px;
+  --gap-23: 23px;
+  --gap-24: 24px;
+  --gap-30: 30px;
+  --gap-36: 36px;
+  --gap-46: 46px;
+  --gap-60: 60px;
+  --gap-16_5: 16.5px;
+
+  /* Padding */
+  --padding-0: 0px;
+  --padding-01: 0;
+  --padding-1: 1px;
+  --padding-2: 2px;
+  --padding-3: 3px;
+  --padding-4: 4px;
+  --padding-5: 5px;
+  --padding-6: 6px;
+  --padding-7: 7px;
+  --padding-8: 8px;
+  --padding-10: 10px;
+  --padding-11: 11px;
+  --padding-12: 12px;
+  --padding-13: 13px;
+  --padding-14: 14px;
+  --padding-15: 15px;
+  --padding-16: 16px;
+  --padding-17: 17px;
+  --padding-18: 18px;
+  --padding-19: 19px;
+  --padding-20: 20px;
+  --padding-22: 22px;
+  --padding-24: 24px;
+  --padding-25: 25px;
+  --padding-26: 26px;
+  --padding-28: 28px;
+  --padding-30: 30px;
+  --padding-34: 34px;
+  --padding-36: 36px;
+  --padding-40: 40px;
+  --padding-66: 66px;
+  --padding-80: 80px;
+  --padding-136: 136px;
+  --padding-10_4: 10.4px;
+  --padding-104_6: 104.6px;
+
+  /* BorderRadius */
+  --br-8: 8px;
+  --br-10: 10px;
+  --br-11: 11px;
+  --br-12: 12px;
+  --br-14: 14px;
+  --br-16: 16px;
+  --br-18: 18px;
+  --br-19: 19px;
+  --br-20: 20px;
+  --br-36: 36px;
+
+  /* Font */
+  --font-manrope: Manrope, Arial, sans-serif;
+
+  /* FontSize */
+  --fs-10: 10px;
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-17: 17px;
+  --fs-18: 18px;
+  --fs-19: 19px;
+  --fs-20: 20px;
+  --fs-21: 21px;
+  --fs-22: 22px;
+  --fs-23: 23px;
+  --fs-24: 24px;
+  --fs-26: 26px;
+  --fs-27: 27px;
+  --fs-32: 32px;
+  --fs-40: 40px;
+  --fs-64: 64px;
+
+  /* Borders */
+  --border-1: 1px solid var(--color-seagreen-200);
+  --border-2: 1px solid var(--color-seagreen-100);
+  --border-3: 1px solid var(--color-gainsboro-200);
+
+  /* Shadows */
+  --shadow-drop: 0px 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-drop-1: 0px 10px 28px rgba(0, 0, 0, 0.08);
+
+  /* Gradients */
+  --gradient-1: linear-gradient(
+    90deg,
+    var(--color-white),
+    rgba(255, 255, 255, 0.98) 70%,
+    rgba(255, 255, 255, 0.76) 84%,
+    rgba(255, 255, 255, 0)
+  );
+  --gradient-2: linear-gradient(
+    180deg,
+    rgba(12, 24, 18, 0),
+    rgba(12, 24, 18, 0.85)
+  );
+
+  /* WidthHeights */
+  --height-1: 1px;
+  --height-14: 14px;
+  --height-17: 17px;
+  --height-18: 18px;
+  --height-20: 20px;
+  --height-22: 22px;
+  --height-24: 24px;
+  --height-26: 26px;
+  --height-37: 37px;
+  --height-38: 38px;
+  --height-40: 40px;
+  --height-42: 42px;
+  --height-56: 56px;
+  --height-72: 72px;
+  --height-113_4: 113.4px;
+  --min-h-40: 40px;
+  --min-h-62: 62px;
+  --min-h-120: 120px;
+  --min-h-132: 132px;
+  --min-w-57: 57px;
+  --min-w-89: 89px;
+  --min-w-111: 111px;
+  --min-w-118: 118px;
+  --min-w-156: 156px;
+  --min-w-312: 312px;
+  --min-w-389: 389px;
+  --min-w-409: 409px;
+  --width-1: 1px;
+  --width-18: 18px;
+  --width-20: 20px;
+  --width-21: 21px;
+  --width-24: 24px;
+  --width-26: 26px;
+  --width-36: 36px;
+  --width-37: 37px;
+  --width-38: 38px;
+  --width-45: 45px;
+  --width-119: 119px;
+  --width-123: 123px;
+  --width-149: 149px;
+  --width-150: 150px;
+  --width-152: 152px;
+  --width-170: 170px;
+  --width-374: 374px;
+  --width-392: 392px;
+  --width-410: 410px;
+  --width-800: 800px;
+  --width-1140: 1140px;
+
+  /* LineHeights */
+  --lh-14: 14px;
+  --lh-15: 15px;
+  --lh-16: 16px;
+  --lh-18: 18px;
+  --lh-19: 19px;
+  --lh-20: 20px;
+  --lh-21: 21px;
+  --lh-22: 22px;
+  --lh-23: 23px;
+  --lh-24: 24px;
+  --lh-25: 25px;
+  --lh-26: 26px;
+  --lh-27: 27px;
+  --lh-28: 28px;
+  --lh-29: 29px;
+  --lh-30: 30px;
+  --lh-31: 31px;
+  --lh-34: 34px;
+  --lh-39: 39px;
+  --lh-48: 48px;
+  --lh-49: 49px;
+  --lh-72: 72px;
+
+  /* LetterSpacings */
+  --ls-1_8: 1.8px;
+
+  --left-0: 0px;
+  --left-80: 80px;
+  --left-109_3: 109.3px;
+  --top-0: 0px;
+  --top-14: 14px;
+  --top-479: 479px;
+}
+
+/* Application surfaces use the imported design tokens; existing rules above are retained. */
+:root {
+  font-family: var(--font-manrope);
+  color: var(--color-gray);
+  background: var(--color-whitesmoke);
+}
+body { font-family: var(--font-manrope); line-height: 1.6; }
+a { color: var(--color-seagreen-200); text-underline-offset: 3px; }
+a:hover { color: var(--color-darkslategray); }
+a:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--color-seagreen-100);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+main { min-width: 0; }
+h1, h2, h3 { line-height: 1.25; letter-spacing: -0.025em; }
+.site-header { padding: 0; border-color: var(--color-gainsboro-200); }
+.site-header-inner { width: min(100% - 40px, 1280px); min-height: 88px; padding: 16px 0; gap: 16px 32px; }
+.site-header-brand { display: inline-flex; align-items: center; flex-shrink: 0; }
+.site-header-brand img { display: block; width: 222px; height: auto; }
+.site-header-nav { gap: 8px 24px; font-size: 14px; font-weight: 600; }
+.site-header-nav a { color: var(--color-gray); text-decoration: none; padding: 8px 0; }
+.site-header-nav a:hover { color: var(--color-seagreen-200); }
+.site-header-nav a[href="/register"] { padding: 10px 18px; border: var(--border-1); border-radius: var(--br-14); color: var(--color-seagreen-200); }
+.catalog-shell, .vehicle-page-shell, .account-shell, .admin-shell {
+  width: min(100% - 40px, 1280px);
+  padding: 48px 0 64px;
+}
+.catalog-header, .vehicle-page-header, .account-header, .admin-header { margin-bottom: 32px; }
+.catalog-header h1, .vehicle-page-header h1, .account-header h1, .admin-header h1 {
+  margin: 12px 0;
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 800;
+}
+.catalog-header p, .vehicle-page-header p, .account-header p, .admin-header p { color: var(--color-dimgray); }
+.eyebrow { color: var(--color-seagreen-200); letter-spacing: 1.8px; }
+.auth-shell { min-height: calc(100svh - 88px); padding: 56px 20px; background: radial-gradient(ellipse at top, var(--color-mintcream), transparent 68%); }
+.auth-card { width: min(100%, 480px); padding: 36px; border: var(--border-3); border-radius: var(--br-20); box-shadow: var(--shadow-drop-1); }
+.auth-heading { margin-bottom: 28px; }
+.auth-heading h1 { font-size: 32px; font-weight: 800; }
+.auth-heading > p:last-child, .auth-switch { color: var(--color-dimgray); }
+.auth-form { gap: 8px; }
+.auth-form label { color: var(--color-gray); margin-top: 8px; }
+.auth-switch { line-height: 1.7; }
+.catalog-filter-form, .admin-filter-form { gap: 20px; padding: 24px; border: var(--border-3); border-radius: var(--br-16); }
+.catalog-filter-form label, .availability-form label, .booking-form label,
+.admin-filter-form label, .admin-form label, .admin-inline-form label { gap: 8px; color: var(--color-gray); }
+.catalog-filter-actions { align-items: end; flex-wrap: wrap; }
+.vehicle-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 24px; }
+.vehicle-card { border: var(--border-3); border-radius: var(--br-16); }
+.vehicle-card img { aspect-ratio: 408 / 200; }
+.vehicle-card-content { padding: 24px; }
+.vehicle-card-content h2 { font-size: 23px; margin: 14px 0; }
+.vehicle-card-content h2 a { color: var(--color-gray); text-decoration: none; }
+.vehicle-card-content h2 a:hover { color: var(--color-seagreen-200); }
+.vehicle-card-content > .eyebrow { display: inline-block; padding: 4px 10px; border-radius: var(--br-11); background: var(--color-mintcream); font-size: 11px; letter-spacing: .06em; }
+.vehicle-price { padding-top: 16px; border-top: var(--border-3); font-size: 22px; font-weight: 800; color: var(--color-seagreen-200); }
+.vehicle-summary { gap: 12px; font-size: 13px; grid-template-columns: 1fr; }
+.vehicle-image-placeholder, .vehicle-detail-placeholder { background: var(--color-mintcream); color: var(--color-darkslategray); }
+.vehicle-gallery { grid-template-columns: repeat(auto-fit, minmax(min(100%, 288px), 1fr)); gap: 20px; }
+.vehicle-gallery img { border-radius: var(--br-16); }
+.vehicle-detail-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 288px), 1fr)); gap: 32px; }
+.availability-panel, .booking-card, .admin-card, .admin-panel, .admin-user-card {
+  padding: 24px;
+  border: var(--border-3);
+  border-radius: var(--br-16);
+}
+.availability-form, .booking-form-grid, .admin-detail-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 256px), 1fr)); }
+.booking-form { gap: 20px; }
+.booking-list, .admin-card-grid, .admin-user-list { gap: 24px; }
+.booking-details { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.booking-details div, .admin-detail-list div { padding: 16px; border-radius: var(--br-10); background: var(--color-whitesmoke); overflow-wrap: anywhere; }
+.booking-details dt, .admin-detail-list dt, .muted-text,
+.vehicle-summary dt, .vehicle-specifications dt, .quote-summary dt { color: var(--color-dimgray); }
+.booking-card-header h2 { font-size: 23px; }
+.booking-card-header { flex-wrap: wrap; }
+.admin-navigation { gap: 8px; padding: 12px; border: var(--border-3); border-radius: var(--br-14); background: white; }
+.admin-navigation a { padding: 8px 14px; border-radius: var(--br-8); text-decoration: none; font-size: 14px; font-weight: 700; }
+.admin-navigation a:hover { background: var(--color-mintcream); }
+.admin-repeat-item { border-color: var(--color-gainsboro-200); border-radius: var(--br-12); min-width: 0; }
+.admin-table-wrap { border: var(--border-3); border-radius: var(--br-14); }
+.admin-table th, .pricing-table th { background: var(--color-mintcream); color: var(--color-darkslategray); }
+.admin-table th, .admin-table td, .pricing-table th, .pricing-table td { padding: 16px; border-color: var(--color-gainsboro-200); font-size: 14px; }
+.admin-table tbody tr:hover { background: var(--color-whitesmoke); }
+.pricing-table { table-layout: fixed; }
+.pricing-table th, .pricing-table td { overflow-wrap: anywhere; }
+.empty-state, .error-message, .availability-result, .status-message { padding: 20px; border-radius: var(--br-12); }
+.empty-state { border: var(--border-3); color: var(--color-dimgray); }
+.status-success, .form-success, .availability-result { background: var(--color-mintcream); border-color: var(--color-gainsboro-400); color: var(--color-darkslategray); }
+.page-shell { min-height: calc(100svh - 88px); padding: 40px 20px; }
+.pagination { gap: 16px; padding-top: 20px; border-top: var(--border-3); }
+.pagination a { font-weight: 700; text-decoration: none; }
+@media (max-width: 800px) {
+  .site-header-inner { justify-content: center; gap: 12px; }
+  .site-header-nav { justify-content: center; gap: 4px 16px; }
+  .admin-header { flex-direction: column; }
+}
+@media (max-width: 600px) {
+  .site-header { position: relative; }
+  .site-header-inner { min-height: 80px; }
+  .site-header-brand img { width: 196px; }
+  .catalog-shell, .vehicle-page-shell, .account-shell, .admin-shell { padding-top: 32px; }
+  .auth-shell { padding: 32px 20px; }
+  .auth-card { padding: 24px; }
+  .catalog-filter-form, .admin-filter-form, .availability-panel, .booking-card, .admin-panel, .admin-user-card { padding: 20px; }
+  .catalog-filter-form, .admin-filter-form, .admin-form-grid { grid-template-columns: 1fr; }
+  .pagination { gap: 8px; font-size: 13px; }
+  .booking-card-header { flex-direction: column; }
+}
