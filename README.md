@@ -12,13 +12,16 @@ The foundation page, Prisma schema, three applied SQL migrations and sample
 seed exist. Stages 3–6 are implemented: registration and login, booking rules
 and transactional services, catalog and availability, public/customer/admin
 APIs, customer booking forms and account pages, and a temporary admin UI.
-The admin UI is currently in the working tree and has not yet been committed.
 The booking workflow no longer plans online payment: a manager contacts the
 customer and confirms the `PENDING` request manually. The existing Payment
 table and payment-status fields remain as legacy schema until a separately
-reviewed migration can remove them. Stage 7 is in progress; browser E2E and CI
-(Stage 8) and production deployment (Stage 9) remain. Booking notifications
-still use an outbox record with a mock provider; no sender is running.
+reviewed migration can remove them. Stage 7 now includes mock-only payment,
+notification and map adapters, plus a browser E2E booking flow. They are not
+wired into booking services. Booking notifications still use an outbox record
+with a mock provider; no sender or manager webhook is running. If a manager
+webhook is added later, its payload must contain only the booking ID and an
+admin-page link, never customer personal data. Broader E2E/CI coverage (Stage
+8) and production deployment (Stage 9) remain.
 
 ## Preview the current application
 
@@ -172,7 +175,36 @@ DATABASE_URL='postgresql://mvbooking:mvbooking_dev@localhost:5432/mvbooking_test
 DATABASE_URL='postgresql://mvbooking:mvbooking_dev@localhost:5432/mvbooking_test?schema=public' npm run test:integration
 ```
 
-Booking/auth E2E tests are still planned.
+### Browser E2E
+
+The Playwright test covers registration, login, choosing a catalog vehicle,
+checking its quote, creating a booking, viewing it in the account, manager
+confirmation, and the customer seeing `CONFIRMED`. It seeds one temporary
+manager and one available vehicle with tariffs; the customer is registered
+through the UI. Test credentials are generated at runtime, and the test cleans
+its uniquely prefixed users, vehicle, booking, outbox and audit records in a
+`finally` block. No development seed or development database is used.
+
+First install Chromium and prepare a separate database whose name ends in
+`_test`. Use a distinct database for E2E if you also run integration tests in
+parallel. Run migrations yourself before the browser test:
+
+```bash
+npx playwright install chromium
+docker compose exec postgres createdb -U mvbooking -O mvbooking mvbooking_e2e_test
+DATABASE_URL='postgresql://mvbooking:mvbooking_dev@localhost:5432/mvbooking_e2e_test?schema=public' npm run prisma:migrate:test
+E2E_DATABASE_URL='postgresql://mvbooking:mvbooking_dev@localhost:5432/mvbooking_e2e_test?schema=public' npm run test:e2e
+```
+
+`E2E_DATABASE_URL` is mandatory. The Playwright config rejects any database
+name without the `_test` suffix before starting Next.js or Prisma. It starts a
+dedicated local server on `127.0.0.1:3107`, passes that URL as `DATABASE_URL`
+to the server, and generates disposable Auth.js and cron secrets in memory.
+Playwright does not load application `.env` files; Next.js may load them when
+starting the app, but the explicit E2E database and auth variables take
+precedence. The port must be free; `reuseExistingServer` is disabled to avoid
+testing another instance.
+Use `npm run test:e2e:list` to check discovery without opening a browser.
 If a check cannot run due to environment permissions or missing PostgreSQL,
 report it as unverified rather than passed.
 

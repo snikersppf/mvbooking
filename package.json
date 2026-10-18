@@ -13,6 +13,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:list": "playwright test --list",
     "maintenance:cleanup": "tsx scripts/cleanup-expired-records.ts",
     "prisma:format": "prisma format",
     "prisma:validate": "prisma validate",
