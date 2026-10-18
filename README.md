@@ -45,7 +45,8 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-Before starting, configure the authentication and HTTP origin variables:
+The `.env.example` template intentionally contains no values. Fill in
+`DATABASE_URL` and the authentication/HTTP origin variables before starting:
 
 - `AUTH_SECRET` — a private random value of at least 32 bytes. Never commit it.
 - `AUTH_URL` — the canonical Auth.js URL, including the scheme and port when
@@ -81,13 +82,20 @@ registration requires the local PostgreSQL setup below.
 Stop the foreground dev server with Ctrl+C.
 Using npm.cmd avoids PowerShell execution-policy restrictions on npm.ps1.
 
-## Production containers
+## Deployment
 
 `Dockerfile` has separate `runner` (standalone Next.js, non-root) and
 `migrator` (Prisma CLI and maintenance) targets. The production stack is
-`compose.prod.yml`; the existing `docker-compose.yml` remains for local
-development. The build copies source files explicitly and `.dockerignore`
-excludes `.env` files. Supply secrets only at container runtime from a protected
+`docker-compose.prod.yml`; the existing `docker-compose.yml` remains for local
+development. The production Compose project is named `mvbooking-prod`, so its
+containers, network and database volume are separate from the local stack.
+The build copies source files explicitly and `.dockerignore`
+excludes `.env`, `.git`, and host `node_modules`, including nested copies.
+The `deps`/`build` stages generate Prisma Client, compile the app and include
+`types/` and `public/`; the runner serves both public assets and `.next/static`.
+Auth.js validates `AUTH_SECRET` when handling requests, so the image builds
+without database access, `.env`, or build-time secrets.
+Supply secrets only at container runtime from a protected
 environment file outside the repository. The production image contains no
 seed script, and the migrator target also omits it. Do not run `prisma db seed`
 in production.
@@ -104,11 +112,15 @@ in production.
 | `E2E_DATABASE_URL` | Test runner only, mandatory `_test` database; never a production value. |
 | `SEED_PASSWORD` | Local development seed only; never set or use for production. |
 | `NODE_ENV`, `HOSTNAME`, `PORT` | Set by the Dockerfile to `production`, `0.0.0.0`, `3000` for the app. |
+| `NEXT_TELEMETRY_DISABLED` | Set to `1` by the Dockerfile. |
+| `NEXT_PHASE` | Internal Next.js build marker; never set in the production runtime. Setting the build phase manually would select the in-memory rate limiter. |
 
-The checked-in `.env.example` is a development template, not a production
-configuration: its sample `DATABASE_URL` points to `localhost` and contains a
-development-only password. Create a separate protected production environment
-file outside this repository with the required values. Do not pass secrets as
+The checked-in `.env.example` is a blank variable inventory, not a ready-to-run
+configuration. Create a protected production environment file outside this
+repository with only the runtime and Compose variables above. Do not include
+`SEED_PASSWORD`, `E2E_DATABASE_URL` or `NEXT_PHASE`. Real payment, notification,
+map and manager-webhook providers are not connected; there are no active
+provider credentials to configure. Do not pass secrets as
 Docker build arguments or save the output of `docker compose config` in logs.
 
 Run these commands manually in order after reviewing the production checklist.
@@ -116,11 +128,11 @@ The migration job is an explicit one-off step; `up` does not run migrations or
 seed automatically:
 
 ```bash
-docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml build app migrate maintenance
-docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml up -d postgres
-docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml --profile ops run --rm migrate
-docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml up -d app
-docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml ps
+docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml --profile ops build app migrate maintenance
+docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml up -d postgres
+docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml --profile ops run --rm migrate
+docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml up -d app
+docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml ps
 ```
 
 The `migrate` container runs `prisma migrate deploy`; it must finish
@@ -131,17 +143,34 @@ front. Schedule both the authenticated expired-booking cron endpoint and this
 one-off cleanup job at least hourly:
 
 ```bash
-docker compose --env-file /path/to/mvbooking.production.env -f compose.prod.yml --profile ops run --rm maintenance
+docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml --profile ops run --rm maintenance
 ```
 
-The cleanup job removes old rate-limit counters and admin idempotency results.
+The cleanup job removes counters with `resetAt` more than one hour in the past
+and admin idempotency responses with `createdAt` more than 24 hours in the past.
 It does not cancel old bookings; the separate cron endpoint does that.
+
+Schedule the cleanup command at `15 * * * *` and the following authenticated
+POST at `0 * * * *` (UTC). Inject `APP_ORIGIN` and `CRON_SECRET` through the
+scheduler's secret environment, without enabling shell tracing. Pass the
+authorization header over stdin so the token is not part of the curl arguments:
+
+```bash
+printf 'Authorization: Bearer %s\n' "$CRON_SECRET" |
+  curl --fail --silent --show-error --max-time 60 --request POST \
+    --header @- "$APP_ORIGIN/api/cron/cancel-expired"
+```
+
+Alert on non-zero exit codes. See the [production checklist](docs/production-checklist.md)
+for HTTPS/proxy requirements, backups, dependency review and remaining blockers
+(including unavailable production password-reset email delivery).
 
 ## Database setup
 
 Use a single local `.env` file for Next.js, Prisma CLI and the seed.
 `dotenv/config` loads `.env`. Existing shell environment variables take
-precedence. Do not commit secrets. Edit `SEED_PASSWORD` before seeding;
+precedence. Do not commit secrets. Fill `DATABASE_URL` for your local database
+and `SEED_PASSWORD` before running the commands below;
 the same password is used for all three local example users. The seed rejects
 the documented placeholder and passwords shorter than 12 characters.
 

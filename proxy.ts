@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
+import type { NextAuthRequest } from "next-auth";
 import { auth } from "@/auth";
 import { getProxyRedirectPath } from "@/server/auth/proxy-routing";
 
-export const proxy = auth((request) => {
+const authenticatedProxy = auth((request: NextAuthRequest, _event: NextFetchEvent) => {
   const redirectPath = getProxyRedirectPath({
     pathname: request.nextUrl.pathname,
     search: request.nextUrl.search,
@@ -15,6 +17,12 @@ export const proxy = auth((request) => {
 
   return NextResponse.next();
 });
+
+export async function proxy(request: NextRequest, event: NextFetchEvent) {
+  // Auth.js beta's lazy configuration can return the wrapper asynchronously.
+  const handler = await authenticatedProxy;
+  return handler(request, event);
+}
 
 export const config = {
   matcher: [

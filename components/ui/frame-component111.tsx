@@ -18,7 +18,7 @@ const FrameComponent111: NextPage<FrameComponent111Type> = async ({
         <Image
           className={styles.cohesiveCoastalPhoto}
           fill
-          sizes="100vw"
+          sizes="(max-width: 600px) calc(100vw - 40px), (max-width: 800px) calc(100vw - 80px), (max-width: 1440px) calc(100vw - 160px), 1280px"
           alt=""
           src="/design/Editorial-photo1@2x.png"
         />

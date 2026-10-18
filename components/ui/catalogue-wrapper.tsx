@@ -43,7 +43,7 @@ const CatalogueWrapper: NextPage<CatalogueWrapperType> = async ({
           <Image
             className={styles.editorialPhotoIcon}
             fill
-            sizes="100vw"
+            sizes="(max-width: 600px) calc(100vw - 40px), (max-width: 800px) calc(100vw - 80px), (max-width: 1153px) calc(100vw - 160px), (max-width: 1239px) calc(100vw - 710px), (max-width: 1300px) calc(50vw - 90px), 444px"
             alt=""
             src="/design/Editorial-photo3@2x.png"
           />
@@ -74,7 +74,7 @@ const CatalogueWrapper: NextPage<CatalogueWrapperType> = async ({
               <Image
                 className={styles.editorialPhotoIcon}
                 fill
-                sizes="100vw"
+                sizes="(max-width: 600px) calc(100vw - 40px), (max-width: 800px) calc(50vw - 50px), (max-width: 1153px) calc(50vw - 90px), (max-width: 1239px) 259px, (max-width: 1300px) calc(25vw - 55px), (max-width: 1440px) calc(50vw - 322px), 398px"
                 alt=""
                 src="/design/Editorial-photo2@2x.png"
               />
@@ -101,7 +101,7 @@ const CatalogueWrapper: NextPage<CatalogueWrapperType> = async ({
               <Image
                 className={styles.editorialPhotoIcon}
                 fill
-                sizes="100vw"
+                sizes="(max-width: 600px) calc(100vw - 40px), (max-width: 800px) calc(50vw - 50px), (max-width: 1153px) calc(50vw - 90px), (max-width: 1239px) 259px, (max-width: 1300px) calc(25vw - 55px), (max-width: 1440px) calc(50vw - 322px), 398px"
                 alt=""
                 src="/design/Editorial-photo@2x.png"
               />
@@ -129,7 +129,7 @@ const CatalogueWrapper: NextPage<CatalogueWrapperType> = async ({
             <Image
               className={styles.editorialPhotoIcon}
               fill
-              sizes="100vw"
+              sizes="(max-width: 600px) calc(100vw - 40px), (max-width: 800px) calc(100vw - 80px), (max-width: 1153px) calc(100vw - 160px), (max-width: 1239px) 530px, (max-width: 1300px) calc(50vw - 90px), (max-width: 1440px) calc(100vw - 624px), 816px"
               alt=""
               src="/design/Editorial-photo1@2x.png"
             />

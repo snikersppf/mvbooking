@@ -1,6 +1,9 @@
 .git
+**/.git
 .next
+**/.next
 node_modules
+**/node_modules
 .env
 .env.*
 **/.env
@@ -9,11 +12,16 @@ node_modules
 **/.npmrc
 *.pem
 *.key
+**/*.pem
+**/*.key
 coverage
 playwright-report
 test-results
 tests
 docs
+design-temp
+.agents
+.codex
 prisma/seed.ts
 prisma/verify-constraints.sql
 *.log

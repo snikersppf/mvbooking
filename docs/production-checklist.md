@@ -2,7 +2,7 @@
 
 Use this checklist before exposing MVBooking to real customers. The Compose
 files and standalone build are deployment scaffolding, not proof of production
-readiness. See [README](../README.md#production-containers) for explicit
+readiness. See [README](../README.md#deployment) for explicit
 build, migration and start commands. Do not run the local development seed or
 `prisma migrate dev`, `prisma db push`, or a reset against production.
 
@@ -12,11 +12,15 @@ build, migration and start commands. Do not run the local development seed or
   in a restricted production secret store or an environment file outside the
   repository. Generate independent random Auth.js and cron secrets of at least
   32 bytes; do not reuse development values or pass secrets via build args.
+  Replace all development/default credentials before first deployment.
   Restrict read access, rotate on exposure, and review container/log output for
   accidental disclosure.
 - [ ] Set `AUTH_URL` and `APP_ORIGIN` to the same canonical public HTTPS
-  origin. Terminate TLS at a trusted ingress. The Compose application binds
+  origin. Configure domain DNS, certificate renewal and an HTTP-to-HTTPS
+  redirect at the trusted ingress. The Compose application binds
   only to `127.0.0.1:3000`; PostgreSQL exposes no host port.
+- [ ] Preserve same-origin mutation checks and current CORS behavior. Do not
+  add wildcard origins or credentialed cross-origin access for deployment.
 - [ ] Set `TRUST_PROXY_HEADERS=true` only if the ingress removes client-supplied
   `X-Forwarded-For` and `X-Real-IP` and writes a verified client address.
   Otherwise leave it `false`; production IP-limited operations fail closed
@@ -35,6 +39,9 @@ build, migration and start commands. Do not run the local development seed or
   `CREATE EXTENSION IF NOT EXISTS btree_gist` before applying the exclusion
   constraints. Verify `booking_no_active_overlap` and
   `pricing_no_overlapping_tiers` after migration.
+  If extension installation requires provider administration, have it installed
+  before the migration job. Give the migration role the required schema/DDL
+  privileges; use a separate least-privilege runtime role where supported.
 - [ ] Take an encrypted backup or managed snapshot before each schema release;
   configure recurring backups and retention, and test a full restore to an
   isolated database. Monitor disk and backup failures. Never treat the Compose
@@ -46,7 +53,9 @@ build, migration and start commands. Do not run the local development seed or
 - [ ] Do not run seed in production. Neither production image target includes
   `prisma/seed.ts`, and the seed code itself rejects `NODE_ENV=production`.
   Create initial staff accounts through a reviewed operational procedure,
-  not the example seed users.
+  not the example seed users. Do not import development/test users or fixtures.
+  Check that no seeded accounts remain active, and omit `SEED_PASSWORD` and
+  `E2E_DATABASE_URL` from the production environment.
 - [ ] Check `GET /api/health` (app liveness) and the PostgreSQL container's
   healthcheck after deployment. Liveness does not prove database readiness;
   also run a guarded smoke flow against the deployed database before traffic.
@@ -54,18 +63,23 @@ build, migration and start commands. Do not run the local development seed or
 ## Scheduled jobs and integrations
 
 - [ ] Set a strong, private `CRON_SECRET`. Call
-  `POST /api/cron/cancel-expired` at least hourly with
+  `POST /api/cron/cancel-expired` hourly (`0 * * * *`, UTC) with
   `Authorization: Bearer <CRON_SECRET>` over HTTPS. Restrict the scheduler's
   access and never put the token in a URL or logs. This cancels `PENDING`
   bookings older than 24 hours and frees availability.
 - [ ] Run the Compose `maintenance` one-off service at least hourly from a
-  trusted scheduler. It deletes expired `RateLimitCounter` rows and old
-  `AdminMutationResult` responses; those responses may contain customer
-  contact details and comments. Alert on job failures.
+  trusted scheduler (`15 * * * *`, UTC; command in README). It deletes
+  `RateLimitCounter` rows whose `resetAt` is over one hour old and
+  `AdminMutationResult` rows whose `createdAt` is over 24 hours old. Stored
+  responses may contain customer contact details and comments. The script has
+  no public endpoint: run it only as a trusted job with database credentials.
+  Alert on job failures and a missing successful run for more than two hours.
 - [ ] Confirm production uses the PostgreSQL-backed atomic rate-limit store,
   not process memory. Deploy the `RateLimitCounter` migration before traffic,
   monitor 429/503 rates, and keep the cleanup job running. A database failure
   must not silently disable limits.
+  Do not supply `NEXT_PHASE` in runtime environment; only Next.js sets its build
+  phase, which intentionally bypasses the database store during compilation.
 - [ ] Manager notifications currently remain mock outbox records. Do not
   enable a manager webhook until a sender, retry policy and destination
   authentication are reviewed. Its payload must contain only booking ID and
@@ -74,8 +88,13 @@ build, migration and start commands. Do not run the local development seed or
   payment webhooks merely because legacy Payment columns or mock interfaces
   exist. If payments are introduced later, require provider signatures,
   replay/idempotency protection, reconciliation, and verified refund flows.
-  Replace development-only password-reset link logging with private delivery
-  before offering password reset in production.
+- [ ] Password reset has no real email delivery. The current production
+  request returns 503 rather than logging a reset token. Connect and verify a
+  private delivery provider before offering this flow to customers; never
+  enable mock token/link logging in production.
+- [ ] Email, Telegram, SMS, WhatsApp and map providers are still mocks. Do not
+  present them as live integrations or configure real credentials until their
+  delivery, retries and failure behavior have been implemented and tested.
 
 ## Dependency and operational review
 
@@ -94,3 +113,8 @@ build, migration and start commands. Do not run the local development seed or
 - [ ] Review application logs, audit logs, database alerts, cron results and
   backup restoration regularly. Re-run lint, typecheck, unit, integration,
   E2E and a container smoke test for each release candidate.
+- [ ] Configure error tracking and uptime alerts before public launch. No
+  external error-tracking provider is currently connected. Preserve request
+  IDs and redact passwords, tokens, cookies, authorization headers and customer
+  personal data from reports; verify that an intentional test error alerts the
+  operator without exposing these values.

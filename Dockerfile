@@ -11,15 +11,17 @@ COPY package.json package-lock.json prisma.config.ts ./
 COPY prisma/schema.prisma ./prisma/schema.prisma
 RUN npm ci --no-audit --no-fund
 
-FROM base AS builder
+FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
-COPY package.json package-lock.json next.config.ts next-env.d.ts tsconfig.json auth.ts proxy.ts ./
+COPY package.json package-lock.json prisma.config.ts next.config.ts next-env.d.ts tsconfig.json auth.ts proxy.ts ./
 COPY app ./app
 COPY components ./components
 COPY lib ./lib
 COPY server ./server
-RUN npm run build
+COPY types ./types
+COPY public ./public
+RUN npm run prisma:generate && npm run build
 
 # The CLI and maintenance job live in a separate, non-public image target.
 # No seed source or application .env file is copied into this target.
@@ -39,8 +41,9 @@ FROM base AS runner
 ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     PORT=3000
-COPY --from=builder --chown=node:node /app/.next/standalone ./
-COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+COPY --from=build --chown=node:node /app/.next/standalone ./
+COPY --from=build --chown=node:node /app/.next/static ./.next/static
+COPY --from=build --chown=node:node /app/public ./public
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \

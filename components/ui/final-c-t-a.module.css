@@ -307,6 +307,7 @@
 .formNotice { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-dimgray); }
 .formNotice a { color: var(--color-seagreen-200); }
 .disabledFields { border: 0; padding: 0; margin: 0; min-width: 0; width: 100%; display: grid; gap: 16px; }
+.disabledFields input { caret-color: transparent; }
 .field, .field2 { padding: 0; border: 0; height: auto; }
 .placeholder3 { min-width: 0; }
 .container7 { display: none; }

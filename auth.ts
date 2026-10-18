@@ -4,7 +4,8 @@ import { jwtCallback, sessionCallback } from "@/server/auth/callbacks";
 import { authorizeCredentials } from "@/server/auth/credentials";
 import { requireAuthSecret } from "@/server/config/auth";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+// Validate runtime secrets on requests; image builds do not receive secrets.
+export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
   secret: requireAuthSecret(),
   pages: {
     signIn: "/login",
@@ -31,4 +32,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt: jwtCallback,
     session: sessionCallback,
   },
-});
+}));
