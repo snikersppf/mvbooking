@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 
 type PaginationProps = Readonly<{
@@ -8,20 +9,21 @@ type PaginationProps = Readonly<{
   nextHref: string | null;
 }>;
 
-export function Pagination({
+export async function Pagination({
   ariaLabel,
   page,
   totalPages,
   previousHref,
   nextHref,
 }: PaginationProps) {
+  const t = await getTranslations();
   return (
-    <nav className="pagination" aria-label={ariaLabel}>
-      {previousHref ? <Link href={previousHref}>Previous</Link> : <span />}
+    <nav className="pagination" aria-label={t(ariaLabel)}>
+      {previousHref ? <Link href={previousHref}>{t("Previous")}</Link> : <span />}
       <span>
-        Page {page} of {totalPages}
+        {t("Page ")}{page} {t(" of ")}{totalPages}
       </span>
-      {nextHref ? <Link href={nextHref}>Next</Link> : <span />}
+      {nextHref ? <Link href={nextHref}>{t("Next")}</Link> : <span />}
     </nav>
   );
 }

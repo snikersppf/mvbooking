@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -26,6 +28,7 @@ type PricingFormProps = Readonly<{
 }>;
 
 export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
+  const t = useTranslations();
   const router = useRouter();
   const requestAdminMutation = useAdminMutationRequest();
   const [error, setError] = useState<string | null>(null);
@@ -67,11 +70,10 @@ export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
       <div className="admin-repeat-list">
         {fields.map((field, index) => (
           <fieldset key={field.id} className="admin-repeat-item">
-            <legend>Tier {index + 1}</legend>
+            <legend>{t("Tier ")}{index + 1}</legend>
             <div className="admin-form-grid">
               <label>
-                Minimum days
-                <Input
+                {t("Minimum days")}<Input
                   type="number"
                   aria-invalid={Boolean(errors.rules?.[index]?.minDays)}
                   {...register(`rules.${index}.minDays`)}
@@ -79,18 +81,16 @@ export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
                 <FieldError message={errors.rules?.[index]?.minDays?.message} />
               </label>
               <label>
-                Maximum days
-                <Input
+                {t("Maximum days")}<Input
                   type="number"
-                  placeholder="No limit"
+                  placeholder={t("No limit")}
                   aria-invalid={Boolean(errors.rules?.[index]?.maxDays)}
                   {...register(`rules.${index}.maxDays`)}
                 />
                 <FieldError message={errors.rules?.[index]?.maxDays?.message} />
               </label>
               <label>
-                Price per day, GEL
-                <Input
+                {t("Price per day, GEL")}<Input
                   inputMode="decimal"
                   aria-invalid={Boolean(errors.rules?.[index]?.pricePerDay)}
                   {...register(`rules.${index}.pricePerDay`)}
@@ -104,8 +104,7 @@ export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
               disabled={fields.length === 1}
               onClick={() => remove(index)}
             >
-              Remove tier
-            </Button>
+              {t("Remove tier")}</Button>
           </fieldset>
         ))}
       </div>
@@ -117,10 +116,9 @@ export function PricingForm({ vehicleId, defaultValues }: PricingFormProps) {
           type="button"
           onClick={() => append({ minDays: "", maxDays: "", pricePerDay: "" })}
         >
-          Add tier
-        </Button>
+          {t("Add tier")}</Button>
         <Button className="button" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Save pricing"}
+          {isSubmitting ? t("Saving…") : t("Save pricing")}
         </Button>
       </div>
       <MutationFeedback error={error} success={success} />

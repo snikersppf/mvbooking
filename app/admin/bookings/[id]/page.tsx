@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { Card } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
@@ -16,6 +17,7 @@ type AdminBookingPageProps = Readonly<{
 export default async function AdminBookingPage({
   params,
 }: AdminBookingPageProps) {
+  const t = await getTranslations();
   const actor = await requireAdminPageRole(
     MANAGER_ADMIN_ROLES,
     "/admin/bookings",
@@ -28,85 +30,79 @@ export default async function AdminBookingPage({
   return (
     <AdminPageShell
       role={actor.role}
-      title="Booking details"
-      description={`Booking ID: ${booking.id}`}
+      title={t("Booking details")}
+      description={`${t("Booking ID")}: ${booking.id}`}
     >
       <Card as="section" className="admin-panel" aria-labelledby="booking-summary-title">
-        <h2 id="booking-summary-title">Summary</h2>
+        <h2 id="booking-summary-title">{t("Summary")}</h2>
         <dl className="admin-detail-list">
           <div>
-            <dt>Status</dt>
-            <dd>{formatAdminEnum(booking.status)}</dd>
+            <dt>{t("Status")}</dt>
+            <dd>{t(formatAdminEnum(booking.status))}</dd>
           </div>
           <div>
-            <dt>Payment</dt>
-            <dd>{formatAdminEnum(booking.paymentStatus)}</dd>
+            <dt>{t("Payment")}</dt>
+            <dd>{t(formatAdminEnum(booking.paymentStatus))}</dd>
           </div>
           <div>
-            <dt>Customer</dt>
+            <dt>{t("Customer")}</dt>
             <dd>
               {booking.user.name} ({booking.user.email})
             </dd>
           </div>
           <div>
-            <dt>Vehicle</dt>
+            <dt>{t("Vehicle")}</dt>
             <dd>
               {booking.vehicle.brand} {booking.vehicle.model}
             </dd>
           </div>
           <div>
-            <dt>Pickup</dt>
+            <dt>{t("Pickup")}</dt>
             <dd>
-              {formatAdminDateTime(
-                booking.startDate,
-                BOOKING_CONFIG.displayTimeZone,
-              )}
-              , {booking.pickupLocation}
+              {formatAdminDateTime(booking.startDate, BOOKING_CONFIG.displayTimeZone, t.locale)}
+              , {t(booking.pickupLocation)}
             </dd>
           </div>
           <div>
-            <dt>Return</dt>
+            <dt>{t("Return")}</dt>
             <dd>
-              {formatAdminDateTime(
-                booking.endDate,
-                BOOKING_CONFIG.displayTimeZone,
-              )}
-              , {booking.returnLocation}
+              {formatAdminDateTime(booking.endDate, BOOKING_CONFIG.displayTimeZone, t.locale)}
+              , {t(booking.returnLocation)}
             </dd>
           </div>
           <div>
-            <dt>Rental amount</dt>
+            <dt>{t("Rental amount")}</dt>
             <dd>
-              {booking.totalAmount} {booking.currency}
+              {booking.totalAmount} {t(booking.currency)}
             </dd>
           </div>
           <div>
-            <dt>Deposit</dt>
+            <dt>{t("Deposit")}</dt>
             <dd>
-              {booking.depositAmount} {booking.currency}
+              {booking.depositAmount} {t(booking.currency)}
             </dd>
           </div>
           <div>
-            <dt>Total due</dt>
+            <dt>{t("Total due")}</dt>
             <dd>
-              {booking.totalDue} {booking.currency}
+              {booking.totalDue} {t(booking.currency)}
             </dd>
           </div>
         </dl>
         <div className="admin-comment-grid">
           <div>
-            <h3>Customer comment</h3>
-            <p>{booking.customerComment ?? "No customer comment."}</p>
+            <h3>{t("Customer comment")}</h3>
+            <p>{booking.customerComment ?? t("No customer comment.")}</p>
           </div>
           <div>
-            <h3>Manager comment</h3>
-            <p>{booking.managerComment ?? "No manager comment."}</p>
+            <h3>{t("Manager comment")}</h3>
+            <p>{booking.managerComment ?? t("No manager comment.")}</p>
           </div>
         </div>
       </Card>
 
       <Card as="section" className="admin-panel" aria-labelledby="booking-status-title">
-        <h2 id="booking-status-title">Change status</h2>
+        <h2 id="booking-status-title">{t("Change status")}</h2>
         {allowedTransitions.length > 0 ? (
           <BookingStatusForm
             key={booking.status}
@@ -115,7 +111,7 @@ export default async function AdminBookingPage({
             managerComment={booking.managerComment}
           />
         ) : (
-          <p className="empty-state">No status transitions are available.</p>
+          <p className="empty-state">{t("No status transitions are available.")}</p>
         )}
       </Card>
     </AdminPageShell>

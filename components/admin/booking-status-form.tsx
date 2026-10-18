@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 import { Select, Textarea } from "@/components/ui/input";
 
@@ -32,6 +34,7 @@ export function BookingStatusForm({
   allowedStatuses,
   managerComment,
 }: BookingStatusFormProps) {
+  const t = useTranslations();
   const router = useRouter();
   const requestAdminMutation = useAdminMutationRequest();
   const [error, setError] = useState<string | null>(null);
@@ -73,19 +76,17 @@ export function BookingStatusForm({
   return (
     <form className="admin-form" onSubmit={onSubmit} noValidate>
       <label>
-        New status
-        <Select {...register("status")}>
+        {t("New status")}<Select {...register("status")}>
           {allowedStatuses.map((status) => (
             <option key={status} value={status}>
-              {formatAdminEnum(status)}
+              {t(formatAdminEnum(status))}
             </option>
           ))}
         </Select>
         <FieldError message={errors.status?.message} />
       </label>
       <label>
-        Manager comment
-        <Textarea
+        {t("Manager comment")}<Textarea
           rows={5}
           aria-invalid={Boolean(errors.managerComment)}
           {...register("managerComment")}
@@ -93,7 +94,7 @@ export function BookingStatusForm({
         <FieldError message={errors.managerComment?.message} />
       </label>
       <Button className="button" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Updating…" : "Update status"}
+        {isSubmitting ? t("Updating…") : t("Update status")}
       </Button>
       <MutationFeedback error={error} success={success} />
     </form>

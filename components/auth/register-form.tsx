@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -12,6 +14,7 @@ import {
 } from "@/components/auth/form-schemas";
 
 export function RegisterForm() {
+  const t = useTranslations();
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -64,7 +67,7 @@ export function RegisterForm() {
 
   return (
     <form className="auth-form" onSubmit={onSubmit} noValidate>
-      <label htmlFor="register-name">Name</label>
+      <label htmlFor="register-name">{t("Name")}</label>
       <Input
         id="register-name"
         autoComplete="name"
@@ -73,11 +76,11 @@ export function RegisterForm() {
       />
       {errors.name ? (
         <p className="field-error" role="alert">
-          {errors.name.message}
+          {t.error(errors.name.message)}
         </p>
       ) : null}
 
-      <label htmlFor="register-email">Email</label>
+      <label htmlFor="register-email">{t("Email")}</label>
       <Input
         id="register-email"
         type="email"
@@ -87,11 +90,11 @@ export function RegisterForm() {
       />
       {errors.email ? (
         <p className="field-error" role="alert">
-          {errors.email.message}
+          {t.error(errors.email.message)}
         </p>
       ) : null}
 
-      <label htmlFor="register-phone">Phone (optional)</label>
+      <label htmlFor="register-phone">{t("Phone (optional)")}</label>
       <Input
         id="register-phone"
         type="tel"
@@ -101,11 +104,11 @@ export function RegisterForm() {
       />
       {errors.phone ? (
         <p className="field-error" role="alert">
-          {errors.phone.message}
+          {t.error(errors.phone.message)}
         </p>
       ) : null}
 
-      <label htmlFor="register-password">Password</label>
+      <label htmlFor="register-password">{t("Password")}</label>
       <Input
         id="register-password"
         type="password"
@@ -115,18 +118,18 @@ export function RegisterForm() {
       />
       {errors.password ? (
         <p className="field-error" role="alert">
-          {errors.password.message}
+          {t.error(errors.password.message)}
         </p>
       ) : null}
 
       {submitError ? (
         <p className="form-error" role="alert">
-          {submitError}
+          {t.error(submitError)}
         </p>
       ) : null}
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Creating account…" : "Create account"}
+        {isSubmitting ? t("Creating account…") : t("Create account")}
       </Button>
     </form>
   );

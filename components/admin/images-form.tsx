@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -26,6 +28,7 @@ type ImagesFormProps = Readonly<{
 }>;
 
 export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
+  const t = useTranslations();
   const router = useRouter();
   const requestAdminMutation = useAdminMutationRequest();
   const [error, setError] = useState<string | null>(null);
@@ -68,27 +71,24 @@ export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
         <div className="admin-repeat-list">
           {fields.map((field, index) => (
             <fieldset key={field.id} className="admin-repeat-item">
-              <legend>Image {index + 1}</legend>
+              <legend>{t("Image ")}{index + 1}</legend>
               <div className="admin-form-grid">
                 <label>
-                  URL
-                  <Input
+                  {t("URL")}<Input
                     aria-invalid={Boolean(errors.images?.[index]?.url)}
                     {...register(`images.${index}.url`)}
                   />
                   <FieldError message={errors.images?.[index]?.url?.message} />
                 </label>
                 <label>
-                  Alternative text
-                  <Input
+                  {t("Alternative text")}<Input
                     aria-invalid={Boolean(errors.images?.[index]?.alt)}
                     {...register(`images.${index}.alt`)}
                   />
                   <FieldError message={errors.images?.[index]?.alt?.message} />
                 </label>
                 <label>
-                  Sort order
-                  <Input
+                  {t("Sort order")}<Input
                     type="number"
                     aria-invalid={Boolean(errors.images?.[index]?.sortOrder)}
                     {...register(`images.${index}.sortOrder`)}
@@ -101,13 +101,12 @@ export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
                 type="button"
                 onClick={() => remove(index)}
               >
-                Remove image
-              </Button>
+                {t("Remove image")}</Button>
             </fieldset>
           ))}
         </div>
       ) : (
-        <p className="empty-state">No images configured.</p>
+        <p className="empty-state">{t("No images configured.")}</p>
       )}
       <FieldError message={errors.images?.message} />
       <div className="form-actions">
@@ -116,10 +115,9 @@ export function ImagesForm({ vehicleId, defaultValues }: ImagesFormProps) {
           type="button"
           onClick={() => append({ url: "", alt: "", sortOrder: String(fields.length) })}
         >
-          Add image
-        </Button>
+          {t("Add image")}</Button>
         <Button className="button" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Save images"}
+          {isSubmitting ? t("Saving…") : t("Save images")}
         </Button>
       </div>
       <MutationFeedback error={error} success={success} />

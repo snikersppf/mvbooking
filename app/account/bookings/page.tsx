@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/ui/page-shell";
 import Link from "next/link";
@@ -54,18 +55,18 @@ async function loadBookings(
 export default async function AccountBookingsPage({
   searchParams,
 }: AccountBookingsPageProps) {
+  const t = await getTranslations();
   const bookings = await loadBookings(await searchParams);
 
   if (!bookings) {
     return (
       <PageShell className="account-shell">
         <header className="account-header">
-          <Link href="/vehicles">Vehicle catalog</Link>
-          <h1>Your bookings</h1>
+          <Link href="/vehicles">{t("Vehicle catalog")}</Link>
+          <h1>{t("Your bookings")}</h1>
         </header>
         <p className="status-message status-error">
-          The page number is invalid.
-        </p>
+          {t("The page number is invalid.")}</p>
       </PageShell>
     );
   }
@@ -80,13 +81,13 @@ export default async function AccountBookingsPage({
   return (
     <PageShell className="account-shell">
       <header className="account-header">
-        <Link href="/vehicles">Vehicle catalog</Link>
-        <h1>Your bookings</h1>
-        <p>Dates and times are shown in {BOOKING_CONFIG.displayTimeZone}.</p>
+        <Link href="/vehicles">{t("Vehicle catalog")}</Link>
+        <h1>{t("Your bookings")}</h1>
+        <p>{t("Dates and times are shown in ")}{t(BOOKING_CONFIG.displayTimeZone)}.</p>
       </header>
 
       {bookings.items.length > 0 ? (
-        <section className="booking-list" aria-label="Your bookings">
+        <section className="booking-list" aria-label={t("Your bookings")}>
           {bookings.items.map((booking) => (
             <BookingCard
               key={booking.id}
@@ -97,13 +98,13 @@ export default async function AccountBookingsPage({
         </section>
       ) : (
         <Card as="div" className="empty-state">
-          <p>You have no bookings yet.</p>
-          <Link href="/vehicles">Browse vehicles</Link>
+          <p>{t("You have no bookings yet.")}</p>
+          <Link href="/vehicles">{t("Browse vehicles")}</Link>
         </Card>
       )}
 
       <Pagination
-        ariaLabel="Booking pages"
+        ariaLabel={t("Booking pages")}
         page={bookings.page}
         totalPages={bookings.totalPages}
         previousHref={previousHref}

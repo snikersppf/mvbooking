@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { Card } from "@/components/ui/card";
 import { VehicleStatus } from "@prisma/client";
 import { notFound } from "next/navigation";
@@ -22,6 +23,7 @@ type EditAdminVehiclePageProps = Readonly<{
 export default async function EditAdminVehiclePage({
   params,
 }: EditAdminVehiclePageProps) {
+  const t = await getTranslations();
   const actor = await requireAdminPageRole(
     MANAGER_ADMIN_ROLES,
     "/admin/vehicles",
@@ -37,15 +39,15 @@ export default async function EditAdminVehiclePage({
     <AdminPageShell
       role={actor.role}
       title={`${vehicle.brand} ${vehicle.model}`}
-      description={`Vehicle ID: ${vehicle.id}`}
+      description={`${t("Vehicle ID")}: ${vehicle.id}`}
       actions={canArchive ? <ArchiveVehicleButton vehicleId={vehicle.id} /> : undefined}
     >
       {isArchived ? (
-        <p className="status-message">This vehicle is archived and read-only.</p>
+        <p className="status-message">{t("This vehicle is archived and read-only.")}</p>
       ) : (
         <>
           <Card as="section" className="admin-panel" aria-labelledby="vehicle-details-title">
-            <h2 id="vehicle-details-title">Vehicle details and status</h2>
+            <h2 id="vehicle-details-title">{t("Vehicle details and status")}</h2>
             <VehicleForm
               mode="edit"
               vehicleId={vehicle.id}
@@ -53,14 +55,14 @@ export default async function EditAdminVehiclePage({
             />
           </Card>
           <Card as="section" className="admin-panel" aria-labelledby="pricing-title">
-            <h2 id="pricing-title">Pricing tiers</h2>
+            <h2 id="pricing-title">{t("Pricing tiers")}</h2>
             <PricingForm
               vehicleId={vehicle.id}
               defaultValues={adminPricingDtoToFormValues(vehicle.pricingRules)}
             />
           </Card>
           <Card as="section" className="admin-panel" aria-labelledby="images-title">
-            <h2 id="images-title">Images</h2>
+            <h2 id="images-title">{t("Images")}</h2>
             <ImagesForm
               vehicleId={vehicle.id}
               defaultValues={adminImagesDtoToFormValues(vehicle.images)}

@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 import { Input, Select, Textarea } from "@/components/ui/input";
 
@@ -40,6 +42,7 @@ export function VehicleForm({
   vehicleId,
   defaultValues,
 }: VehicleFormProps) {
+  const t = useTranslations();
   const router = useRouter();
   const requestAdminMutation = useAdminMutationRequest();
   const [error, setError] = useState<string | null>(null);
@@ -91,111 +94,96 @@ export function VehicleForm({
     <form className="admin-form" onSubmit={onSubmit} noValidate>
       <div className="admin-form-grid">
         <label>
-          Slug
-          <Input aria-invalid={Boolean(errors.slug)} {...register("slug")} />
+          {t("Slug")}<Input aria-invalid={Boolean(errors.slug)} {...register("slug")} />
           <FieldError message={errors.slug?.message} />
         </label>
         <label>
-          Brand
-          <Input aria-invalid={Boolean(errors.brand)} {...register("brand")} />
+          {t("Brand")}<Input aria-invalid={Boolean(errors.brand)} {...register("brand")} />
           <FieldError message={errors.brand?.message} />
         </label>
         <label>
-          Model
-          <Input aria-invalid={Boolean(errors.model)} {...register("model")} />
+          {t("Model")}<Input aria-invalid={Boolean(errors.model)} {...register("model")} />
           <FieldError message={errors.model?.message} />
         </label>
         <label>
-          Year
-          <Input type="number" aria-invalid={Boolean(errors.year)} {...register("year")} />
+          {t("Year")}<Input type="number" aria-invalid={Boolean(errors.year)} {...register("year")} />
           <FieldError message={errors.year?.message} />
         </label>
         <label>
-          Category
-          <Select {...register("category")}>
+          {t("Category")}<Select {...register("category")}>
             {ADMIN_VEHICLE_CATEGORIES.map((value) => (
               <option key={value} value={value}>
-                {formatAdminEnum(value)}
+                {t(formatAdminEnum(value))}
               </option>
             ))}
           </Select>
         </label>
         <label>
-          Seats
-          <Input type="number" aria-invalid={Boolean(errors.seats)} {...register("seats")} />
+          {t("Seats")}<Input type="number" aria-invalid={Boolean(errors.seats)} {...register("seats")} />
           <FieldError message={errors.seats?.message} />
         </label>
         <label>
-          Transmission
-          <Select {...register("transmission")}>
+          {t("Transmission")}<Select {...register("transmission")}>
             {ADMIN_TRANSMISSIONS.map((value) => (
               <option key={value} value={value}>
-                {formatAdminEnum(value)}
+                {t(formatAdminEnum(value))}
               </option>
             ))}
           </Select>
         </label>
         <label>
-          Fuel
-          <Select {...register("fuel")}>
+          {t("Fuel")}<Select {...register("fuel")}>
             {ADMIN_FUELS.map((value) => (
               <option key={value} value={value}>
-                {formatAdminEnum(value)}
+                {t(formatAdminEnum(value))}
               </option>
             ))}
           </Select>
         </label>
         <label>
-          Drive
-          <Select {...register("drive")}>
+          {t("Drive")}<Select {...register("drive")}>
             {ADMIN_DRIVES.map((value) => (
               <option key={value} value={value}>
-                {formatAdminEnum(value)}
+                {t(formatAdminEnum(value))}
               </option>
             ))}
           </Select>
         </label>
         <label>
-          Engine
-          <Input aria-invalid={Boolean(errors.engine)} {...register("engine")} />
+          {t("Engine")}<Input aria-invalid={Boolean(errors.engine)} {...register("engine")} />
           <FieldError message={errors.engine?.message} />
         </label>
         <label>
-          Deposit, GEL
-          <Input inputMode="decimal" aria-invalid={Boolean(errors.depositAmount)} {...register("depositAmount")} />
+          {t("Deposit, GEL")}<Input inputMode="decimal" aria-invalid={Boolean(errors.depositAmount)} {...register("depositAmount")} />
           <FieldError message={errors.depositAmount?.message} />
         </label>
         <label>
-          Status
-          <Select {...register("status")}>
+          {t("Status")}<Select {...register("status")}>
             {ADMIN_EDITABLE_VEHICLE_STATUSES.map((value) => (
               <option key={value} value={value}>
-                {formatAdminEnum(value)}
+                {t(formatAdminEnum(value))}
               </option>
             ))}
           </Select>
         </label>
         <label>
-          Location
-          <Input aria-invalid={Boolean(errors.location)} {...register("location")} />
+          {t("Location")}<Input aria-invalid={Boolean(errors.location)} {...register("location")} />
           <FieldError message={errors.location?.message} />
         </label>
         <label className="admin-checkbox-field">
           <Input type="checkbox" {...register("insuranceIncluded")} />
-          Insurance included
-        </label>
+          {t("Insurance included")}</label>
       </div>
       <label>
-        Description
-        <Textarea rows={5} aria-invalid={Boolean(errors.description)} {...register("description")} />
+        {t("Description")}<Textarea rows={5} aria-invalid={Boolean(errors.description)} {...register("description")} />
         <FieldError message={errors.description?.message} />
       </label>
       <Button className="button" type="submit" disabled={isSubmitting}>
         {isSubmitting
-          ? "Saving…"
+          ? t("Saving…")
           : mode === "create"
-            ? "Create vehicle"
-            : "Save vehicle"}
+            ? t("Create vehicle")
+            : t("Save vehicle")}
       </Button>
       <MutationFeedback error={error} success={success} />
     </form>

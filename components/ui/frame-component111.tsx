@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,9 +8,10 @@ export type FrameComponent111Type = {
   className?: string;
 };
 
-const FrameComponent111: NextPage<FrameComponent111Type> = ({
+const FrameComponent111: NextPage<FrameComponent111Type> = async ({
   className = "",
 }) => {
+  const t = await getTranslations();
   return (
     <div className={[styles.georgiaStoryWrapper, className].join(" ")}>
       <div className={styles.georgiaStory}>
@@ -21,25 +23,19 @@ const FrameComponent111: NextPage<FrameComponent111Type> = ({
           src="/design/Editorial-photo1@2x.png"
         />
         <section className={styles.storyContent}>
-          <b className={styles.eyebrow}>БОЛЬШЕ, ЧЕМ ПРОСТО АРЕНДА</b>
+          <b className={styles.eyebrow}>{t("БОЛЬШЕ, ЧЕМ ПРОСТО АРЕНДА")}</b>
           <div className={styles.container}>
             <h2 className={styles.title}>
-              Грузия ближе,
-              <br />
-              когда вы за рулём
-            </h2>
+              {t("Грузия ближе,")}<br />
+              {t("когда вы за рулём")}</h2>
             <div className={styles.description}>
-              Остановитесь там, где захотите.
-              <br />
-              Меняйте маршрут по пути. Открывайте
-              <br />
-              города, горы и побережье
-              <br />в собственном ритме.
-            </div>
+              {t("Остановитесь там, где захотите.")}<br />
+              {t("Меняйте маршрут по пути. Открывайте")}<br />
+              {t("города, горы и побережье")}<br />{t("в собственном ритме.")}</div>
           </div>
           <Link href="/vehicles" className={styles.buttonprimary}>
             <div className={styles.container2}>
-              <b className={styles.label}>Выбрать автомобиль</b>
+              <b className={styles.label}>{t("Выбрать автомобиль")}</b>
             </div>
             <Image
               className={styles.iconarrowRight}

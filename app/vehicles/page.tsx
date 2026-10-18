@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { PageShell } from "@/components/ui/page-shell";
 import { ZodError } from "zod";
 import { CatalogFilterForm } from "@/components/catalog/catalog-filter-form";
@@ -44,6 +45,7 @@ async function loadCatalog(
 export default async function VehiclesPage({
   searchParams,
 }: VehiclesPageProps) {
+  const t = await getTranslations();
   const result = await loadCatalog(await searchParams);
 
   if (!result.catalog) {
@@ -53,10 +55,10 @@ export default async function VehiclesPage({
         <div className={styles.content}>
           <CatalogFilterForm
             filters={EMPTY_FILTERS}
-            summary={<><h2>Доступные автомобили</h2><p>Choose valid filters and try again.</p></>}
+            summary={<><h2>{t("Доступные автомобили")}</h2><p>{t("Choose valid filters and try again.")}</p></>}
           >
             {result.invalidFilters ? (
-              <p className="error-message">The catalog filters are invalid.</p>
+              <p className="error-message">{t("The catalog filters are invalid.")}</p>
             ) : null}
           </CatalogFilterForm>
         </div>
@@ -82,19 +84,19 @@ export default async function VehiclesPage({
           filters={catalog.filters}
           summary={
             <>
-              <h2>Доступные автомобили</h2>
-              <p>Найдено автомобилей: {catalog.totalItems}</p>
+              <h2>{t("Доступные автомобили")}</h2>
+              <p>{t("Найдено автомобилей: ")}{catalog.totalItems}</p>
             </>
           }
         >
           {catalog.items.length > 0 ? (
-            <section className={`${styles.vehicleGrid} vehicle-grid`} aria-label="Vehicles">
+            <section className={`${styles.vehicleGrid} vehicle-grid`} aria-label={t("Vehicles")}>
               {catalog.items.map((vehicle) => (
                 <VehicleCard key={vehicle.id} vehicle={vehicle} />
               ))}
             </section>
           ) : (
-            <p className="empty-state">No vehicles match these filters.</p>
+            <p className="empty-state">{t("No vehicles match these filters.")}</p>
           )}
 
           <CatalogPagination

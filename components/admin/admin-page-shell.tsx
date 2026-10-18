@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { PageShell } from "@/components/ui/page-shell";
 import Link from "next/link";
 import { adminNavigationItems } from "@/lib/admin-navigation";
@@ -10,13 +11,14 @@ type AdminPageShellProps = Readonly<{
   children: React.ReactNode;
 }>;
 
-export function AdminPageShell({
+export async function AdminPageShell({
   role,
   title,
   description,
   actions,
   children,
 }: AdminPageShellProps) {
+  const t = await getTranslations();
   const navigationItems = adminNavigationItems(role);
 
   return (
@@ -24,16 +26,16 @@ export function AdminPageShell({
       <header className="admin-header">
         <div>
           <Link href="/">MVBooking</Link>
-          <p className="eyebrow">Administration</p>
-          <h1>{title}</h1>
-          {description ? <p>{description}</p> : null}
+          <p className="eyebrow">{t("Administration")}</p>
+          <h1>{t(title)}</h1>
+          {description ? <p>{t(description)}</p> : null}
         </div>
         {actions ? <div className="admin-header-actions">{actions}</div> : null}
       </header>
-      <nav className="admin-navigation" aria-label="Administration">
+      <nav className="admin-navigation" aria-label={t("Administration")}>
         {navigationItems.map((item) => (
           <Link key={item.href} href={item.href}>
-            {item.label}
+            {t(item.label)}
           </Link>
         ))}
       </nav>

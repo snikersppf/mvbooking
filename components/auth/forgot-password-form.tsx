@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -11,6 +13,7 @@ import {
 } from "@/components/auth/form-schemas";
 
 export function ForgotPasswordForm() {
+  const t = useTranslations();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -45,7 +48,7 @@ export function ForgotPasswordForm() {
 
   return (
     <form className="auth-form" onSubmit={onSubmit} noValidate>
-      <label htmlFor="forgot-email">Email</label>
+      <label htmlFor="forgot-email">{t("Email")}</label>
       <Input
         id="forgot-email"
         type="email"
@@ -53,11 +56,11 @@ export function ForgotPasswordForm() {
         aria-invalid={Boolean(errors.email)}
         {...register("email")}
       />
-      {errors.email ? <p className="field-error" role="alert">{errors.email.message}</p> : null}
-      {message ? <p className="form-success" role="status">{message}</p> : null}
-      {error ? <p className="form-error" role="alert">{error}</p> : null}
+      {errors.email ? <p className="field-error" role="alert">{t.error(errors.email.message)}</p> : null}
+      {message ? <p className="form-success" role="status">{t(message)}</p> : null}
+      {error ? <p className="form-error" role="alert">{t.error(error)}</p> : null}
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Sending…" : "Request reset"}
+        {isSubmitting ? t("Sending…") : t("Request reset")}
       </Button>
     </form>
   );

@@ -1,13 +1,14 @@
 export function formatBookingDateTime(
   value: string,
   timeZone: string,
+  locale: "ru" | "en" = "en",
 ): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     throw new RangeError("Cannot format an invalid booking date.");
   }
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(locale, {
     timeZone,
     dateStyle: "medium",
     timeStyle: "short",

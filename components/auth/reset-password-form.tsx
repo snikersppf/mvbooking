@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -12,6 +14,7 @@ import {
 } from "@/components/auth/form-schemas";
 
 export function ResetPasswordForm({ token }: Readonly<{ token: string }>) {
+  const t = useTranslations();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -46,12 +49,12 @@ export function ResetPasswordForm({ token }: Readonly<{ token: string }>) {
   });
 
   if (success) {
-    return <p className="form-success" role="status">Password updated. <Link href="/login">Sign in</Link>.</p>;
+    return <p className="form-success" role="status">{t("Password updated. ")}<Link href="/login">{t("Sign in")}</Link>.</p>;
   }
 
   return (
     <form className="auth-form" onSubmit={onSubmit} noValidate>
-      <label htmlFor="reset-password">New password</label>
+      <label htmlFor="reset-password">{t("New password")}</label>
       <Input
         id="reset-password"
         type="password"
@@ -59,10 +62,10 @@ export function ResetPasswordForm({ token }: Readonly<{ token: string }>) {
         aria-invalid={Boolean(errors.password)}
         {...register("password")}
       />
-      {errors.password ? <p className="field-error" role="alert">{errors.password.message}</p> : null}
-      {error ? <p className="form-error" role="alert">{error}</p> : null}
+      {errors.password ? <p className="field-error" role="alert">{t.error(errors.password.message)}</p> : null}
+      {error ? <p className="form-error" role="alert">{t.error(error)}</p> : null}
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Updating…" : "Set new password"}
+        {isSubmitting ? t("Updating…") : t("Set new password")}
       </Button>
     </form>
   );

@@ -1,0 +1,97 @@
+.page.page {
+  width: 100%;
+  margin: 0;
+  padding: var(--padding-24) 0 0;
+  background: var(--color-whitesmoke);
+  color: var(--color-gray);
+  font-family: var(--font-manrope);
+}
+.content { width: min(100% - 2 * var(--padding-28), var(--width-1140) + var(--padding-80) + var(--gap-60)); margin: 0 auto var(--gap-46); }
+.breadcrumb { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--gap-10); margin-bottom: var(--gap-20); color: var(--color-dimgray); font-size: var(--fs-12); }
+.breadcrumb a { color: inherit; text-decoration: none; }
+.breadcrumb a::after { content: "/"; margin-left: var(--gap-10); }
+.breadcrumb p { margin: 0; }
+.detail { display: grid; gap: var(--gap-46); }
+.overview { display: grid; grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr); align-items: start; gap: var(--gap-24); }
+.gallery.gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap-10); margin: 0; }
+.gallery.gallery img { width: 100%; height: auto; aspect-ratio: 1.42; border-radius: var(--br-10); object-fit: cover; }
+.gallery.gallery img:first-child { grid-column: 1 / -1; aspect-ratio: 1.58; border-radius: var(--br-16); }
+.galleryPlaceholder { aspect-ratio: 1.58; min-height: 0; border-radius: var(--br-16); }
+.summary { display: grid; align-content: start; gap: var(--gap-18); padding: var(--padding-24); border: 0; box-shadow: var(--shadow-drop); }
+.summary h1 { margin: 0; font-size: var(--fs-32); font-weight: 800; line-height: var(--lh-39); overflow-wrap: anywhere; }
+.description { margin: 0; color: var(--color-dimgray); font-size: var(--fs-14); line-height: var(--lh-22); }
+.highlights { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap-10); margin: var(--gap-4) 0; }
+.highlights > div { min-width: 0; }
+.highlights dt { display: grid; gap: var(--gap-6); font-size: var(--fs-10); color: var(--color-dimgray); overflow-wrap: anywhere; }
+.highlights dd { margin: var(--gap-8) 0 0; font-size: var(--fs-11); line-height: var(--lh-18); overflow-wrap: anywhere; }
+.highlights dt::before, .specificationGrid dt::before, .conditionGrid dt::before { content: ""; display: block; width: var(--width-24); height: var(--height-24); background-position: center; background-size: contain; background-repeat: no-repeat; }
+.year::before { background-image: url("/design/Icon-calendar-days.svg"); }
+.transmission::before, .engine::before { background-image: url("/design/Icon-cog.svg"); }
+.drive::before { background-image: url("/design/Icon-mountain-snow.svg"); }
+.fuel::before, .category::before { background-image: url("/design/Icon-car-front.svg"); }
+.seats::before { background-image: url("/design/Icon-users.svg"); }
+.location::before { background-image: url("/design/Icon-map-pin.svg"); }
+.deposit::before { background-image: url("/design/Icon-file-text.svg"); }
+.insurance::before { background-image: url("/design/Icon-shield-check.svg"); }
+.summaryRate p { margin: 0; color: var(--color-dimgray); font-size: var(--fs-12); line-height: var(--lh-20); }
+.summaryRate p + p { margin-top: var(--gap-4); }
+.summaryRate strong { color: var(--color-seagreen-200); font-size: var(--fs-27); line-height: var(--lh-34); font-weight: 800; }
+.summaryActions { display: grid; gap: var(--gap-10); }
+.summaryActions a { width: 100%; }
+.summaryNote { margin: 0; color: var(--color-dimgray); font-size: var(--fs-11); line-height: var(--lh-18); }
+.sectionHeading { margin-bottom: var(--gap-20); }
+.eyebrow { margin: 0 0 var(--gap-6); color: var(--color-seagreen-200); font-size: var(--fs-11); font-weight: 800; letter-spacing: var(--ls-1_8); line-height: var(--lh-18); }
+.sectionHeading h2 { margin: 0; font-size: var(--fs-27); font-weight: 800; line-height: var(--lh-34); }
+.sectionHeading > p:not(.eyebrow) { margin: var(--gap-6) 0 0; color: var(--color-dimgray); font-size: var(--fs-14); line-height: var(--lh-22); }
+.specificationContent:has(> img) { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--gap-16); align-items: stretch; }
+.specificationPhoto { display: block; width: 100%; height: 100%; max-height: calc(var(--padding-80) * 4); min-height: 0; object-fit: cover; border-radius: var(--br-12); }
+.specificationGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap-12); margin: 0; }
+.specificationGrid > div, .conditionGrid > div { position: relative; padding: var(--padding-20) var(--padding-16) var(--padding-20) var(--padding-66); border: 0; border-radius: var(--br-10); }
+.specificationGrid dt, .conditionGrid dt { color: var(--color-dimgray); font-size: var(--fs-12); line-height: var(--lh-18); }
+.specificationGrid dt::before, .conditionGrid dt::before { position: absolute; top: var(--padding-20); left: var(--padding-20); }
+.specificationGrid dd, .conditionGrid dd { margin: var(--gap-4) 0 0; font-size: var(--fs-14); line-height: var(--lh-22); font-weight: 700; overflow-wrap: anywhere; }
+.rates, .conditions { scroll-margin-top: calc(var(--height-56) * 2); }
+.rateGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--width-150)), 1fr)); gap: var(--gap-12); margin: 0; }
+.rateCard { padding: var(--padding-24) var(--padding-12); border: 0; border-radius: var(--br-10); text-align: center; }
+.rateCard dt { font-size: var(--fs-14); line-height: var(--lh-20); }
+.rateCard dd { display: grid; gap: var(--gap-4); margin: var(--gap-16) 0 0; }
+.rateCard strong { color: var(--color-seagreen-200); font-size: var(--fs-24); line-height: var(--lh-30); overflow-wrap: anywhere; }
+.rateCard small { color: var(--color-dimgray); font-size: var(--fs-12); line-height: var(--lh-18); }
+.conditionGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap-12); margin: 0; }
+.conditionGrid dd { color: var(--color-seagreen-200); font-size: var(--fs-20); line-height: var(--lh-28); }
+.srOnly { position: absolute; width: var(--width-1); height: var(--height-1); margin: calc(-1 * var(--gap-1)); overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 1100px) {
+  .overview { gap: var(--gap-16); }
+  .summary { gap: var(--gap-12); padding: var(--padding-12); }
+  .summary h1 { font-size: var(--fs-18); line-height: var(--lh-24); }
+  .description { font-size: var(--fs-11); line-height: var(--lh-16); }
+  .summaryNote { font-size: var(--fs-10); line-height: var(--lh-16); }
+  .summaryRate p { font-size: var(--fs-10); line-height: var(--lh-16); }
+  .highlights { grid-template-columns: minmax(0, .6fr) minmax(0, 1.4fr) repeat(2, minmax(0, 1fr)); gap: var(--gap-6); }
+  .highlights dd { font-size: var(--fs-10); line-height: var(--lh-16); }
+  .summaryRate strong { font-size: var(--fs-22); line-height: var(--lh-28); }
+  .summary .summaryActions a { min-height: var(--height-40); padding: var(--padding-10); font-size: var(--fs-12); }
+  .detail { gap: var(--gap-36); }
+  .sectionHeading h2 { font-size: var(--fs-20); line-height: var(--lh-26); }
+  .specificationGrid > div, .conditionGrid > div { padding: var(--padding-12) var(--padding-10) var(--padding-12) calc(var(--padding-40) + var(--padding-4)); }
+  .specificationGrid dt, .conditionGrid dt { font-size: var(--fs-10); line-height: var(--lh-14); }
+  .specificationGrid dd { font-size: var(--fs-12); line-height: var(--lh-18); }
+  .specificationGrid dt::before, .conditionGrid dt::before { top: var(--padding-12); left: var(--padding-12); width: var(--width-20); height: var(--height-20); }
+  .specificationContent:has(> img) .specificationGrid > div { padding: var(--padding-8); }
+  .specificationContent:has(> img) .specificationGrid dd { font-size: var(--fs-10); line-height: var(--lh-16); }
+  .specificationContent:has(> img) .specificationGrid dt::before { position: static; margin-bottom: var(--gap-4); }
+  .specificationGrid dt { overflow-wrap: anywhere; }
+}
+@media (max-width: 650px) {
+  .content { width: calc(100% - 2 * var(--padding-16)); }
+  .overview { grid-template-columns: 1fr; }
+  .highlights { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .summary h1 { font-size: var(--fs-27); line-height: var(--lh-34); }
+  .specificationContent:has(> img) { grid-template-columns: 1fr; }
+  .specificationPhoto { height: auto; aspect-ratio: 1.58; }
+  .specificationGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .conditionGrid { grid-template-columns: 1fr; }
+  .highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

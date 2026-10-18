@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,13 +8,14 @@ export type HomeHeroType = {
   className?: string;
 };
 
-const HomeHero: NextPage<HomeHeroType> = ({ className = "" }) => {
+const HomeHero: NextPage<HomeHeroType> = async ({ className = "" }) => {
+  const t = await getTranslations();
   return (
     <div className={[styles.homeHero, className].join(" ")}>
       <div className={styles.heroContainer}>
-        <h1 className={styles.heroTitle}>Грузия начинается<br /><span>с дороги</span></h1>
+        <h1 className={styles.heroTitle}>{t("Грузия начинается")}<br /><span>{t("с дороги")}</span></h1>
         <section className={styles.heroContent}>
-          <b className={styles.eyebrow}>АРЕНДА АВТОМОБИЛЕЙ В ГРУЗИИ</b>
+          <b className={styles.eyebrow}>{t("АРЕНДА АВТОМОБИЛЕЙ В ГРУЗИИ")}</b>
           <div className={styles.featureIcons}>
             <div className={styles.readingArea} />
             <Image
@@ -43,34 +45,26 @@ const HomeHero: NextPage<HomeHeroType> = ({ className = "" }) => {
           </div>
           <div className={styles.heroActions}>
             <h3 className={styles.lead}>
-              Выберите автомобиль для города,
-              <br />
-              горных маршрутов и поездок к морю.
-            </h3>
+              {t("Выберите автомобиль для города,")}<br />
+              {t("горных маршрутов и поездок к морю.")}</h3>
             <div className={styles.buttonprimaryParent}>
               <Link href="/vehicles" className={styles.buttonprimary}>
-                <b className={styles.label}>Выбрать автомобиль</b>
+                <b className={styles.label}>{t("Выбрать автомобиль")}</b>
               </Link>
               <Link href="#rental-conditions" className={styles.buttonsecondary}>
-                <b className={styles.label2}>Условия аренды</b>
+                <b className={styles.label2}>{t("Условия аренды")}</b>
               </Link>
             </div>
             <div className={styles.trustContainerWrapper}>
               <div className={styles.trustContainer}>
                 <div className={styles.trust}>
-                  Без скрытых
-                  <br />
-                  платежей
-                </div>
+                  {t("Без скрытых")}<br />
+                  {t("платежей")}</div>
                 <div className={styles.trust}>
-                  Поддержка
-                  <br />в поездке
-                </div>
+                  {t("Поддержка")}<br />{t("в поездке")}</div>
                 <div className={styles.trust}>
-                  Доставка
-                  <br />
-                  автомобиля
-                </div>
+                  {t("Доставка")}<br />
+                  {t("автомобиля")}</div>
               </div>
             </div>
           </div>
@@ -79,7 +73,7 @@ const HomeHero: NextPage<HomeHeroType> = ({ className = "" }) => {
           <Link href="/vehicles" className={styles.featuredVehicle}>
             <div className={styles.cardContainer}>
               <div className={styles.category}>
-                <b className={styles.label3}>В ПУТЬ ПО ГРУЗИИ</b>
+                <b className={styles.label3}>{t("В ПУТЬ ПО ГРУЗИИ")}</b>
                 <Image
                   className={styles.productPhotoIcon}
                   width={636}
@@ -93,12 +87,12 @@ const HomeHero: NextPage<HomeHeroType> = ({ className = "" }) => {
             </div>
             <div className={styles.infoContainer}>
               <div className={styles.detailsWrapper}>
-                <h3 className={styles.model}>Ваш маршрут по Грузии</h3>
-                <div className={styles.specs}>Город · Горы · Побережье</div>
+                <h3 className={styles.model}>{t("Ваш маршрут по Грузии")}</h3>
+                <div className={styles.specs}>{t("Город · Горы · Побережье")}</div>
                 <div className={styles.dividerWrapper}>
                   <div className={styles.divider} />
                   <div className={styles.priceWrapper}>
-                    <h3 className={styles.price}>Смотреть автопарк</h3>
+                    <h3 className={styles.price}>{t("Смотреть автопарк")}</h3>
                     <Image
                       className={styles.iconarrowRight}
                       width={24}

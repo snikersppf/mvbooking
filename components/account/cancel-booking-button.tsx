@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
@@ -18,6 +20,7 @@ type CancelBookingButtonProps = Readonly<{
 export function CancelBookingButton({
   bookingId,
 }: CancelBookingButtonProps) {
+  const t = useTranslations();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [failure, setFailure] = useState<BookingRequestFailure | null>(null);
@@ -42,8 +45,7 @@ export function CancelBookingButton({
   if (cancelled) {
     return (
       <p className="status-message status-success" role="status">
-        Booking cancelled.
-      </p>
+        {t("Booking cancelled.")}</p>
     );
   }
 
@@ -55,13 +57,13 @@ export function CancelBookingButton({
         disabled={submitting}
         onClick={cancelBooking}
       >
-        {submitting ? "Cancelling…" : "Cancel booking"}
+        {submitting ? t("Cancelling…") : t("Cancel booking")}
       </Button>
       {failure ? (
         <p className="status-message status-error" role="alert">
-          {failure.message}{" "}
+          {t.error(failure.message)}{" "}
           {failure.requiresSignIn ? (
-            <Link href={buildLoginHref("/account/bookings")}>Sign in</Link>
+            <Link href={buildLoginHref("/account/bookings")}>{t("Sign in")}</Link>
           ) : null}
         </p>
       ) : null}

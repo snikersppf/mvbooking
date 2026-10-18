@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Form from "next/form";
@@ -8,16 +9,16 @@ type AvailabilityFormProps = Readonly<{
   endDate: string;
 }>;
 
-export function AvailabilityForm({
+export async function AvailabilityForm({
   action,
   startDate,
   endDate,
 }: AvailabilityFormProps) {
+  const t = await getTranslations();
   return (
     <Form action={action} className="availability-form">
       <label>
-        Start date with offset
-        <Input
+        {t("Start date with offset")}<Input
           name="startDate"
           defaultValue={startDate}
           placeholder="2026-11-10T10:00:00+04:00"
@@ -25,16 +26,15 @@ export function AvailabilityForm({
         />
       </label>
       <label>
-        End date with offset
-        <Input
+        {t("End date with offset")}<Input
           name="endDate"
           defaultValue={endDate}
           placeholder="2026-11-13T10:00:00+04:00"
           required
         />
       </label>
-      <Button type="submit">Check availability</Button>
-      <p className="muted-text">This check does not reserve the vehicle.</p>
+      <Button type="submit">{t("Check availability")}</Button>
+      <p className="muted-text">{t("This check does not reserve the vehicle.")}</p>
     </Form>
   );
 }

@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 import { ZodError } from "zod";
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
@@ -24,6 +25,7 @@ type AdminBookingsPageProps = Readonly<{
 export default async function AdminBookingsPage({
   searchParams,
 }: AdminBookingsPageProps) {
+  const t = await getTranslations();
   const actor = await requireAdminPageRole(
     MANAGER_ADMIN_ROLES,
     "/admin/bookings",
@@ -43,8 +45,8 @@ export default async function AdminBookingsPage({
   return (
     <AdminPageShell
       role={actor.role}
-      title="Bookings"
-      description={`Dates and times are shown in ${BOOKING_CONFIG.displayTimeZone}.`}
+      title={t("Bookings")}
+      description={`${t("Dates and times are shown in")} ${t(BOOKING_CONFIG.displayTimeZone)}.`}
     >
       <AdminListFilterForm
         action="/admin/bookings"
@@ -63,20 +65,19 @@ export default async function AdminBookingsPage({
 
       {!bookings ? (
         <p className="status-message status-error" role="alert">
-          The booking filters are invalid.
-        </p>
+          {t("The booking filters are invalid.")}</p>
       ) : bookings.items.length > 0 ? (
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Booking</th>
-                <th>Customer</th>
-                <th>Vehicle</th>
-                <th>Period</th>
-                <th>Status</th>
-                <th>Total due</th>
-                <th>Action</th>
+                <th>{t("Booking")}</th>
+                <th>{t("Customer")}</th>
+                <th>{t("Vehicle")}</th>
+                <th>{t("Period")}</th>
+                <th>{t("Status")}</th>
+                <th>{t("Total due")}</th>
+                <th>{t("Action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -92,24 +93,17 @@ export default async function AdminBookingsPage({
                     {booking.vehicle.brand} {booking.vehicle.model}
                   </td>
                   <td>
-                    {formatAdminDateTime(
-                      booking.startDate,
-                      BOOKING_CONFIG.displayTimeZone,
-                    )}
+                    {formatAdminDateTime(booking.startDate, BOOKING_CONFIG.displayTimeZone, t.locale)}
                     <br />
-                    {formatAdminDateTime(
-                      booking.endDate,
-                      BOOKING_CONFIG.displayTimeZone,
-                    )}
+                    {formatAdminDateTime(booking.endDate, BOOKING_CONFIG.displayTimeZone, t.locale)}
                   </td>
-                  <td>{formatAdminEnum(booking.status)}</td>
+                  <td>{t(formatAdminEnum(booking.status))}</td>
                   <td>
-                    {booking.totalDue} {booking.currency}
+                    {booking.totalDue} {t(booking.currency)}
                   </td>
                   <td>
                     <Link href={`/admin/bookings/${encodeURIComponent(booking.id)}`}>
-                      Review
-                    </Link>
+                      {t("Review")}</Link>
                   </td>
                 </tr>
               ))}
@@ -117,12 +111,12 @@ export default async function AdminBookingsPage({
           </table>
         </div>
       ) : (
-        <EmptyState>No bookings match this status.</EmptyState>
+        <EmptyState>{t("No bookings match this status.")}</EmptyState>
       )}
 
       {bookings ? (
         <Pagination
-          ariaLabel="Booking pages"
+          ariaLabel={t("Booking pages")}
           page={bookings.page}
           totalPages={bookings.totalPages}
           previousHref={

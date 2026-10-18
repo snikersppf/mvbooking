@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/ui/page-shell";
 import Link from "next/link";
@@ -16,6 +17,7 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const t = await getTranslations();
   const params = await searchParams;
   const callbackUrl = normalizeCallbackPath(firstValue(params.callbackUrl));
   const registrationComplete = firstValue(params.registered) === "1";
@@ -25,8 +27,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <Card as="section" className="auth-card" aria-labelledby="login-title">
         <div className="auth-heading">
           <p className="eyebrow">MVBooking</p>
-          <h1 id="login-title">Sign in</h1>
-          <p>Use your account to continue.</p>
+          <h1 id="login-title">{t("Sign in")}</h1>
+          <p>{t("Use your account to continue.")}</p>
         </div>
 
         <LoginForm
@@ -35,11 +37,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         />
 
         <p className="auth-switch">
-          <Link href="/forgot-password">Forgot your password?</Link>
+          <Link href="/forgot-password">{t("Forgot your password?")}</Link>
         </p>
 
         <p className="auth-switch">
-          No account yet? <Link href="/register">Create one</Link>
+          {t("No account yet? ")}<Link href="/register">{t("Create one")}</Link>
         </p>
       </Card>
     </PageShell>

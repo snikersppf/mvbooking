@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { ZodError } from "zod";
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { AdminListFilterForm } from "@/components/admin/list-filter-form";
@@ -26,6 +27,7 @@ type AdminAuditLogsPageProps = Readonly<{
 export default async function AdminAuditLogsPage({
   searchParams,
 }: AdminAuditLogsPageProps) {
+  const t = await getTranslations();
   const actor = await requireAdminPageRole(
     ADMIN_ONLY_ROLES,
     "/admin/audit-logs",
@@ -47,8 +49,8 @@ export default async function AdminAuditLogsPage({
   return (
     <AdminPageShell
       role={actor.role}
-      title="Audit logs"
-      description="Administrative changes recorded by the application."
+      title={t("Audit logs")}
+      description={t("Administrative changes recorded by the application.")}
     >
       <AdminListFilterForm
         action="/admin/audit-logs"
@@ -60,34 +62,33 @@ export default async function AdminAuditLogsPage({
 
       {!logs ? (
         <p className="status-message status-error" role="alert">
-          The audit log filters are invalid.
-        </p>
+          {t("The audit log filters are invalid.")}</p>
       ) : logs.items.length > 0 ? (
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Time</th>
-                <th>Actor</th>
-                <th>Action</th>
-                <th>Entity</th>
-                <th>Metadata</th>
+                <th>{t("Time")}</th>
+                <th>{t("Actor")}</th>
+                <th>{t("Action")}</th>
+                <th>{t("Entity")}</th>
+                <th>{t("Metadata")}</th>
               </tr>
             </thead>
             <tbody>
               {logs.items.map((log) => (
                 <tr key={log.id}>
                   <td>
-                    {formatAdminDateTime(log.createdAt, BOOKING_CONFIG.displayTimeZone)}
+                    {formatAdminDateTime(log.createdAt, BOOKING_CONFIG.displayTimeZone, t.locale)}
                   </td>
                   <td>
                     {log.user.name}
                     <br />
                     <span className="muted-text">{log.user.email}</span>
                   </td>
-                  <td>{formatAdminEnum(log.action)}</td>
+                  <td>{t(formatAdminEnum(log.action))}</td>
                   <td>
-                    {log.entity}: {log.entityId}
+                    {t(log.entity)}: {log.entityId}
                   </td>
                   <td>
                     <pre className="admin-metadata">{formatAuditMetadata(log.metadata)}</pre>
@@ -98,12 +99,12 @@ export default async function AdminAuditLogsPage({
           </table>
         </div>
       ) : (
-        <EmptyState>No audit logs match these filters.</EmptyState>
+        <EmptyState>{t("No audit logs match these filters.")}</EmptyState>
       )}
 
       {logs ? (
         <Pagination
-          ariaLabel="Audit log pages"
+          ariaLabel={t("Audit log pages")}
           page={logs.page}
           totalPages={logs.totalPages}
           previousHref={

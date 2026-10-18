@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
@@ -14,10 +15,11 @@ type BookingCardProps = Readonly<{
   displayTimeZone: string;
 }>;
 
-export function BookingCard({
+export async function BookingCard({
   booking,
   displayTimeZone,
 }: BookingCardProps) {
+  const t = await getTranslations();
   const titleId = "booking-" + booking.id;
   const cancellable = canCustomerCancelBooking(
     booking.status,
@@ -28,38 +30,38 @@ export function BookingCard({
     <Card as="article" className="booking-card" aria-labelledby={titleId}>
       <header className="booking-card-header">
         <div>
-          <p className="eyebrow">Booking</p>
+          <p className="eyebrow">{t("Booking")}</p>
           <h2 id={titleId}>
             {booking.vehicle ? (
               <Link href={"/vehicles/" + booking.vehicle.slug}>
                 {booking.vehicle.brand} {booking.vehicle.model}
               </Link>
             ) : (
-              "Vehicle " + booking.vehicleId
+              t("Vehicle ") + booking.vehicleId
             )}
           </h2>
         </div>
         <p>
-          {formatBookingStatus(booking.status)} ·{" "}
-          {formatBookingStatus(booking.paymentStatus)}
+          {t(formatBookingStatus(booking.status))} ·{" "}
+          {t(formatBookingStatus(booking.paymentStatus))}
         </p>
       </header>
 
       <dl className="booking-details">
         <div>
-          <dt>Pickup</dt>
+          <dt>{t("Pickup")}</dt>
           <dd>
-            {formatBookingDateTime(booking.startDate, displayTimeZone)}
+            {formatBookingDateTime(booking.startDate, displayTimeZone, t.locale)}
             <br />
-            {booking.pickupLocation}
+            {t(booking.pickupLocation)}
           </dd>
         </div>
         <div>
-          <dt>Return</dt>
+          <dt>{t("Return")}</dt>
           <dd>
-            {formatBookingDateTime(booking.endDate, displayTimeZone)}
+            {formatBookingDateTime(booking.endDate, displayTimeZone, t.locale)}
             <br />
-            {booking.returnLocation}
+            {t(booking.returnLocation)}
           </dd>
         </div>
       </dl>
@@ -68,7 +70,7 @@ export function BookingCard({
 
       {booking.customerComment ? (
         <div className="booking-comment">
-          <h3>Comment</h3>
+          <h3>{t("Comment")}</h3>
           <p>{booking.customerComment}</p>
         </div>
       ) : null}

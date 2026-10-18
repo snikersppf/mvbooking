@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/input";
 
@@ -34,6 +36,7 @@ export function AdminUserRoleForm({
   userId,
   role,
 }: Readonly<{ userId: string; role: AdminUserRoleFormValues["role"] }>) {
+  const t = useTranslations();
   const router = useRouter();
   const requestAdminMutation = useAdminMutationRequest();
   const [state, setState] = useState<UserMutationState>(EMPTY_STATE);
@@ -73,18 +76,17 @@ export function AdminUserRoleForm({
   return (
     <form className="admin-inline-form" onSubmit={onSubmit}>
       <label>
-        Role
-        <Select {...register("role")}>
+        {t("Role")}<Select {...register("role")}>
           {ADMIN_USER_ROLES.map((value) => (
             <option key={value} value={value}>
-              {formatAdminEnum(value)}
+              {t(formatAdminEnum(value))}
             </option>
           ))}
         </Select>
         <FieldError message={errors.role?.message} />
       </label>
       <Button className="button button-secondary" type="submit" disabled={!isDirty || isSubmitting}>
-        {isSubmitting ? "Saving…" : "Save role"}
+        {isSubmitting ? t("Saving…") : t("Save role")}
       </Button>
       <MutationFeedback error={state.error} success={state.success} />
     </form>
@@ -98,6 +100,7 @@ export function AdminUserStatusForm({
   userId: string;
   status: AdminUserStatusFormValues["status"];
 }>) {
+  const t = useTranslations();
   const router = useRouter();
   const requestAdminMutation = useAdminMutationRequest();
   const [state, setState] = useState<UserMutationState>(EMPTY_STATE);
@@ -137,18 +140,17 @@ export function AdminUserStatusForm({
   return (
     <form className="admin-inline-form" onSubmit={onSubmit}>
       <label>
-        Status
-        <Select {...register("status")}>
+        {t("Status")}<Select {...register("status")}>
           {ADMIN_USER_STATUSES.map((value) => (
             <option key={value} value={value}>
-              {formatAdminEnum(value)}
+              {t(formatAdminEnum(value))}
             </option>
           ))}
         </Select>
         <FieldError message={errors.status?.message} />
       </label>
       <Button className="button button-secondary" type="submit" disabled={!isDirty || isSubmitting}>
-        {isSubmitting ? "Saving…" : "Save status"}
+        {isSubmitting ? t("Saving…") : t("Save status")}
       </Button>
       <MutationFeedback error={state.error} success={state.success} />
     </form>

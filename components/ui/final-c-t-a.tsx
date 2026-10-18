@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,7 +10,8 @@ export type FinalCTAType = {
   className?: string;
 };
 
-const FinalCTA: NextPage<FinalCTAType> = ({ className = "" }) => {
+const FinalCTA: NextPage<FinalCTAType> = async ({ className = "" }) => {
+  const t = await getTranslations();
   return (
     <section className={[styles.finalCta, className].join(" ")}>
       <div className={styles.illustrationtopographicPatte}>
@@ -22,20 +24,16 @@ const FinalCTA: NextPage<FinalCTAType> = ({ className = "" }) => {
             alt=""
             src="/design/Group.svg"
           />
-          <b className={styles.eyebrow}>ПОМОЖЕМ С ВЫБОРОМ</b>
+          <b className={styles.eyebrow}>{t("ПОМОЖЕМ С ВЫБОРОМ")}</b>
           <h2 className={styles.title}>
-            Не нашли подходящий
-            <br />
-            автомобиль?
-          </h2>
+            {t("Не нашли подходящий")}<br />
+            {t("автомобиль?")}</h2>
           <div className={styles.body}>
-            Начните с выбора автомобиля в каталоге.
-            <br />
-            Сравните варианты для вашего путешествия.
-          </div>
+            {t("Начните с выбора автомобиля в каталоге.")}<br />
+            {t("Сравните варианты для вашего путешествия.")}</div>
         </div>
         {/* TODO: check connection. Add verified contact links when they are provided. */}
-        <Link href="/vehicles" className={styles.catalogueAction}>Перейти в каталог →</Link>
+        <Link href="/vehicles" className={styles.catalogueAction}>{t("Перейти в каталог →")}</Link>
       </div>
       <Image
         className={styles.vehicleOnGraphicBackground}
@@ -49,27 +47,27 @@ const FinalCTA: NextPage<FinalCTAType> = ({ className = "" }) => {
       <div className={styles.container5}>
         {/* TODO: check connection. No enquiry endpoint exists; enable only after connecting the approved form handler. */}
         <div className={styles.enquiryForm}>
-          <p className={styles.formNotice}>Подбор по запросу пока недоступен. <Link href="/vehicles">Выберите автомобиль в каталоге.</Link></p>
-          <fieldset disabled aria-label="Подбор автомобиля — пока недоступен" className={styles.disabledFields}>
+          <p className={styles.formNotice}>{t("Подбор по запросу пока недоступен. ")}<Link href="/vehicles">{t("Выберите автомобиль в каталоге.")}</Link></p>
+          <fieldset disabled aria-label={t("Подбор автомобиля — пока недоступен")} className={styles.disabledFields}>
           <div className={styles.container6}>
             <div className={styles.field}>
               <Input
                 className={styles.placeholder}
-                aria-label="Ваше имя" placeholder="Ваше имя"
+                aria-label={t("Ваше имя")} placeholder={t("Ваше имя")}
                 type="text"
               />
             </div>
             <div className={styles.field}>
               <Input
                 className={styles.placeholder}
-                aria-label="Телефон или Telegram" placeholder="Телефон или Telegram"
+                aria-label={t("Телефон или Telegram")} placeholder={t("Телефон или Telegram")}
                 type="text"
               />
             </div>
             <div className={styles.field2}>
               <Input
                 className={styles.placeholder3}
-                aria-label="Даты поездки" placeholder="Даты поездки"
+                aria-label={t("Даты поездки")} placeholder={t("Даты поездки")}
                 type="text"
               />
               <div className={styles.container7}>
@@ -86,13 +84,13 @@ const FinalCTA: NextPage<FinalCTAType> = ({ className = "" }) => {
             <div className={styles.field}>
               <Input
                 className={styles.placeholder}
-                aria-label="Комментарий" placeholder="Комментарий"
+                aria-label={t("Комментарий")} placeholder={t("Комментарий")}
                 type="text"
               />
             </div>
           </div>
           <Button className={styles.button} type="button" disabled>
-            <b className={styles.label}>Получить подборку →</b>
+            <b className={styles.label}>{t("Получить подборку →")}</b>
           </Button>
         </fieldset>
         </div>

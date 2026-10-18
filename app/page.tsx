@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import HomeHero from "@/components/ui/home-hero";
 import FrameComponent from "@/components/ui/frame-component";
 import CatalogueWrapper from "@/components/ui/catalogue-wrapper";
@@ -11,7 +12,7 @@ import styles from "./page.module.css";
 
 export default function HomePage() {
   return (
-    <div className={styles.div} lang="ru">
+    <div className={styles.div}>
       <main>
       <div className={styles.mainContent}>
         <HomeHero />

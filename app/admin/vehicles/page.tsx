@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { ButtonLink } from "@/components/ui/button-link";
 import Link from "next/link";
 import { ZodError } from "zod";
@@ -29,6 +30,7 @@ type AdminVehiclesPageProps = Readonly<{
 export default async function AdminVehiclesPage({
   searchParams,
 }: AdminVehiclesPageProps) {
+  const t = await getTranslations();
   const actor = await requireAdminPageRole(
     MANAGER_ADMIN_ROLES,
     "/admin/vehicles",
@@ -50,12 +52,11 @@ export default async function AdminVehiclesPage({
   return (
     <AdminPageShell
       role={actor.role}
-      title="Vehicles"
-      description="Manage public catalog records and availability status."
+      title={t("Vehicles")}
+      description={t("Manage public catalog records and availability status.")}
       actions={
         <ButtonLink className="button" href="/admin/vehicles/new">
-          Create vehicle
-        </ButtonLink>
+          {t("Create vehicle")}</ButtonLink>
       }
     >
       <AdminListFilterForm
@@ -84,19 +85,18 @@ export default async function AdminVehiclesPage({
 
       {!vehicles ? (
         <p className="status-message status-error" role="alert">
-          The vehicle filters are invalid.
-        </p>
+          {t("The vehicle filters are invalid.")}</p>
       ) : vehicles.items.length > 0 ? (
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Vehicle</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th>Location</th>
-                <th>Pricing</th>
-                <th>Action</th>
+                <th>{t("Vehicle")}</th>
+                <th>{t("Category")}</th>
+                <th>{t("Status")}</th>
+                <th>{t("Location")}</th>
+                <th>{t("Pricing")}</th>
+                <th>{t("Action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -109,14 +109,13 @@ export default async function AdminVehiclesPage({
                     <br />
                     <span className="muted-text">{vehicle.slug}</span>
                   </td>
-                  <td>{formatAdminEnum(vehicle.category)}</td>
-                  <td>{formatAdminEnum(vehicle.status)}</td>
-                  <td>{vehicle.location}</td>
-                  <td>{vehicle.pricingRules.length} tiers</td>
+                  <td>{t(formatAdminEnum(vehicle.category))}</td>
+                  <td>{t(formatAdminEnum(vehicle.status))}</td>
+                  <td>{t(vehicle.location)}</td>
+                  <td>{vehicle.pricingRules.length} {t(" tiers")}</td>
                   <td>
                     <Link href={`/admin/vehicles/${encodeURIComponent(vehicle.id)}`}>
-                      Edit
-                    </Link>
+                      {t("Edit")}</Link>
                   </td>
                 </tr>
               ))}
@@ -124,12 +123,12 @@ export default async function AdminVehiclesPage({
           </table>
         </div>
       ) : (
-        <EmptyState>No vehicles match these filters.</EmptyState>
+        <EmptyState>{t("No vehicles match these filters.")}</EmptyState>
       )}
 
       {vehicles ? (
         <Pagination
-          ariaLabel="Vehicle pages"
+          ariaLabel={t("Vehicle pages")}
           page={vehicles.page}
           totalPages={vehicles.totalPages}
           previousHref={

@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { LanguageProvider } from "@/components/i18n/language-provider";
+import { getLocale, getTranslations } from "@/lib/i18n/server";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "MVBooking",
-  description: "Car rental booking platform MVP for Georgia",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return { title: "MVBooking", description: t("Car rental booking platform MVP for Georgia") };
+}
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body>
-        <SiteHeader />
-        {children}
+        <LanguageProvider initialLocale={locale}>
+          <SiteHeader />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

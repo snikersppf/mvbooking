@@ -9,7 +9,12 @@ import {
   it,
   vi,
 } from "vitest";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderLocalizedPage } from "@/tests/helpers/render-localized-page";
+
+vi.mock("@/lib/i18n/server", async () => {
+  const { createTranslator } = await import("@/lib/i18n/translate");
+  return { getTranslations: async () => createTranslator("en") };
+});
 
 const authState = vi.hoisted(() => ({
   session: null as null | {
@@ -155,7 +160,7 @@ describe("admin page access integration", () => {
     const vehicles = await AdminVehiclesPage({
       searchParams: Promise.resolve({}),
     });
-    const rendered = renderToStaticMarkup(vehicles);
+    const rendered = await renderLocalizedPage(vehicles);
     expect(rendered).toContain("Vehicles");
     expect(rendered).toContain("Create vehicle");
 
@@ -178,7 +183,7 @@ describe("admin page access integration", () => {
     const page = await AdminUsersPage({
       searchParams: Promise.resolve({ role: "ADMIN" }),
     });
-    const rendered = renderToStaticMarkup(page);
+    const rendered = await renderLocalizedPage(page);
     expect(rendered).toContain(admin.email);
     expect(rendered).toContain("Save role");
     expect(rendered).toContain("Save status");

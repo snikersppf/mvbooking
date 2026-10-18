@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 
 import { useRouter } from "next/navigation";
@@ -11,6 +13,7 @@ import { MutationFeedback } from "@/components/admin/mutation-feedback";
 import type { AdminVehicleDto } from "@/server/services/admin/dto";
 
 export function ArchiveVehicleButton({ vehicleId }: Readonly<{ vehicleId: string }>) {
+  const t = useTranslations();
   const router = useRouter();
   const requestAdminMutation = useAdminMutationRequest();
   const [pending, setPending] = useState(false);
@@ -43,7 +46,7 @@ export function ArchiveVehicleButton({ vehicleId }: Readonly<{ vehicleId: string
         disabled={pending}
         onClick={archive}
       >
-        {pending ? "Archiving…" : "Archive vehicle"}
+        {pending ? t("Archiving…") : t("Archive vehicle")}
       </Button>
       <MutationFeedback error={error} success={success} />
     </div>

@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { Card } from "@/components/ui/card";
 import { ZodError } from "zod";
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
@@ -28,6 +29,7 @@ type AdminUsersPageProps = Readonly<{
 export default async function AdminUsersPage({
   searchParams,
 }: AdminUsersPageProps) {
+  const t = await getTranslations();
   const actor = await requireAdminPageRole(
     ADMIN_ONLY_ROLES,
     "/admin/users",
@@ -49,8 +51,8 @@ export default async function AdminUsersPage({
   return (
     <AdminPageShell
       role={actor.role}
-      title="Users"
-      description="Role and status changes revoke existing sessions."
+      title={t("Users")}
+      description={t("Role and status changes revoke existing sessions.")}
     >
       <AdminListFilterForm
         action="/admin/users"
@@ -78,8 +80,7 @@ export default async function AdminUsersPage({
 
       {!users ? (
         <p className="status-message status-error" role="alert">
-          The user filters are invalid.
-        </p>
+          {t("The user filters are invalid.")}</p>
       ) : users.items.length > 0 ? (
         <div className="admin-user-list">
           {users.items.map((user) => (
@@ -90,7 +91,7 @@ export default async function AdminUsersPage({
                   <p>{user.email}</p>
                 </div>
                 <p className="muted-text">
-                  Created {formatAdminDateTime(user.createdAt, BOOKING_CONFIG.displayTimeZone)}
+                  {t("Created ")}{formatAdminDateTime(user.createdAt, BOOKING_CONFIG.displayTimeZone, t.locale)}
                 </p>
               </header>
               <div className="admin-user-actions">
@@ -101,12 +102,12 @@ export default async function AdminUsersPage({
           ))}
         </div>
       ) : (
-        <EmptyState>No users match these filters.</EmptyState>
+        <EmptyState>{t("No users match these filters.")}</EmptyState>
       )}
 
       {users ? (
         <Pagination
-          ariaLabel="User pages"
+          ariaLabel={t("User pages")}
           page={users.page}
           totalPages={users.totalPages}
           previousHref={

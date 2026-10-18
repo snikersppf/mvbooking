@@ -19,7 +19,7 @@ describe("admin user access forms", () => {
     const status = renderToStaticMarkup(
       createElement(AdminUserStatusForm, { userId: "user-1", status: "ACTIVE" }),
     );
-    expect(role).toMatch(/<button[^>]*disabled=""[^>]*>Save role<\/button>/);
-    expect(status).toMatch(/<button[^>]*disabled=""[^>]*>Save status<\/button>/);
+    expect(role).toMatch(/<button[^>]*disabled=""[^>]*>Сохранить роль<\/button>/);
+    expect(status).toMatch(/<button[^>]*disabled=""[^>]*>Сохранить статус<\/button>/);
   });
 });

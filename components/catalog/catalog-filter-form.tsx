@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import Form from "next/form";
@@ -13,16 +14,17 @@ type CatalogFilterFormProps = Readonly<{
   summary?: ReactNode;
 }>;
 
-export function CatalogFilterForm({ filters, children, summary }: CatalogFilterFormProps) {
+export async function CatalogFilterForm({ filters, children, summary }: CatalogFilterFormProps) {
+  const t = await getTranslations();
   const categoryField = (
     <label>
-      {children === undefined ? "Category" : "Категория"}
-      <Input name="category" defaultValue={filters.category} placeholder="SUV" />
+      {children === undefined ? t("Category") : t("Категория")}
+      <Input name="category" defaultValue={filters.category} placeholder={t("SUV")} />
     </label>
   );
   const minPriceField = (
     <label>
-      {children === undefined ? "Minimum daily price" : "От"}
+      {children === undefined ? t("Minimum daily price") : t("От")}
       <Input
         name="minPrice"
         type="number"
@@ -34,7 +36,7 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
   );
   const maxPriceField = (
     <label>
-      {children === undefined ? "Maximum daily price" : "До"}
+      {children === undefined ? t("Maximum daily price") : t("До")}
       <Input
         name="maxPrice"
         type="number"
@@ -46,7 +48,7 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
   );
   const seatsField = (
     <label>
-      {children === undefined ? "Minimum seats" : "Количество мест (от)"}
+      {children === undefined ? t("Minimum seats") : t("Количество мест (от)")}
       <Input
         name="seats"
         type="number"
@@ -58,29 +60,29 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
   );
   const transmissionField = (
     <label>
-      {children === undefined ? "Transmission" : "Коробка передач"}
+      {children === undefined ? t("Transmission") : t("Коробка передач")}
       <Input
         name="transmission"
         defaultValue={filters.transmission}
-        placeholder="AUTOMATIC"
+        placeholder={t("AUTOMATIC")}
       />
     </label>
   );
   const fuelField = (
     <label>
-      {children === undefined ? "Fuel" : "Тип топлива"}
-      <Input name="fuel" defaultValue={filters.fuel} placeholder="PETROL" />
+      {children === undefined ? t("Fuel") : t("Тип топлива")}
+      <Input name="fuel" defaultValue={filters.fuel} placeholder={t("PETROL")} />
     </label>
   );
   const driveField = (
     <label>
-      {children === undefined ? "Drive" : "Привод"}
-      <Input name="drive" defaultValue={filters.drive} placeholder="AWD" />
+      {children === undefined ? t("Drive") : t("Привод")}
+      <Input name="drive" defaultValue={filters.drive} placeholder={t("AWD")} />
     </label>
   );
   const startDateField = (
     <label>
-      {children === undefined ? "Start date with offset" : "Начало аренды"}
+      {children === undefined ? t("Start date with offset") : t("Начало аренды")}
       <Input
         name="startDate"
         defaultValue={filters.startDate}
@@ -90,7 +92,7 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
   );
   const endDateField = (
     <label>
-      {children === undefined ? "End date with offset" : "Возврат автомобиля"}
+      {children === undefined ? t("End date with offset") : t("Возврат автомобиля")}
       <Input
         name="endDate"
         defaultValue={filters.endDate}
@@ -100,20 +102,20 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
   );
   const sortField = (
     <label>
-      {children === undefined ? "Sort" : "Сортировка"}
+      {children === undefined ? t("Sort") : t("Сортировка")}
       <Select name="sort" defaultValue={filters.sort}>
-        <option value="price_asc">Price: low to high</option>
-        <option value="price_desc">Price: high to low</option>
-        <option value="year_desc">Year: newest first</option>
-        <option value="year_asc">Year: oldest first</option>
-        <option value="brand_asc">Brand: A to Z</option>
-        <option value="brand_desc">Brand: Z to A</option>
+        <option value="price_asc">{t("Price: low to high")}</option>
+        <option value="price_desc">{t("Price: high to low")}</option>
+        <option value="year_desc">{t("Year: newest first")}</option>
+        <option value="year_asc">{t("Year: oldest first")}</option>
+        <option value="brand_asc">{t("Brand: A to Z")}</option>
+        <option value="brand_desc">{t("Brand: Z to A")}</option>
       </Select>
     </label>
   );
   const pageSizeField = (
     <label>
-      {children === undefined ? "Items per page" : "На странице"}
+      {children === undefined ? t("Items per page") : t("На странице")}
       <Select name="pageSize" defaultValue={String(filters.pageSize)}>
         <option value="6">6</option>
         <option value="12">12</option>
@@ -138,8 +140,8 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
         {sortField}
         {pageSizeField}
         <div className="catalog-filter-actions">
-          <Button type="submit">Apply filters</Button>
-          <Link href="/vehicles">Reset</Link>
+          <Button type="submit">{t("Apply filters")}</Button>
+          <Link href="/vehicles">{t("Reset")}</Link>
         </div>
       </Form>
     );
@@ -147,7 +149,7 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
 
   return (
     <Form action="/vehicles" className={styles.catalogForm}>
-      <div className={styles.searchBar} aria-label="Rental search">
+      <div className={styles.searchBar} aria-label={t("Rental search")}>
         <div className={styles.searchField}>
           <span className={styles.calendarIcon} aria-hidden="true" />
           {startDateField}
@@ -161,7 +163,7 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
           {categoryField}
         </div>
         <Button type="submit" className={styles.searchButton}>
-          Показать автомобили <span aria-hidden="true">→</span>
+          {t("Показать автомобили ")}<span aria-hidden="true">→</span>
         </Button>
       </div>
 
@@ -169,12 +171,12 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
         <aside className={styles.sidebar} aria-labelledby="catalog-filters-title">
           <Card className={styles.filterCard}>
             <div className={styles.filterHeading}>
-              <h2 id="catalog-filters-title">Фильтры</h2>
-              <Link href="/vehicles">Сбросить</Link>
+              <h2 id="catalog-filters-title">{t("Фильтры")}</h2>
+              <Link href="/vehicles">{t("Сбросить")}</Link>
             </div>
-            <p className={styles.availabilityNote}><span aria-hidden="true" />Только доступные</p>
+            <p className={styles.availabilityNote}><span aria-hidden="true" />{t("Только доступные")}</p>
             <fieldset className={styles.priceFields}>
-              <legend>Цена за сутки</legend>
+              <legend>{t("Цена за сутки")}</legend>
               {minPriceField}
               {maxPriceField}
             </fieldset>
@@ -185,8 +187,8 @@ export function CatalogFilterForm({ filters, children, summary }: CatalogFilterF
               {fuelField}
             </div>
             <div className={styles.filterActions}>
-              <Button type="submit">Применить фильтры</Button>
-              <Link href="/vehicles">Очистить всё</Link>
+              <Button type="submit">{t("Применить фильтры")}</Button>
+              <Link href="/vehicles">{t("Очистить всё")}</Link>
             </div>
           </Card>
         </aside>

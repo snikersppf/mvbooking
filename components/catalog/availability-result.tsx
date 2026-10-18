@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import type { VehicleAvailabilityResult } from "@/server/services/availability/check-vehicle";
 
 type AvailabilityResultProps = Readonly<{
@@ -5,15 +6,15 @@ type AvailabilityResultProps = Readonly<{
   validationError: boolean;
 }>;
 
-export function AvailabilityResult({
+export async function AvailabilityResult({
   result,
   validationError,
 }: AvailabilityResultProps) {
+  const t = await getTranslations();
   if (validationError) {
     return (
       <p className="availability-message error-message">
-        Enter valid dates with an explicit offset.
-      </p>
+        {t("Enter valid dates with an explicit offset.")}</p>
     );
   }
 
@@ -21,34 +22,34 @@ export function AvailabilityResult({
 
   return (
     <section className="availability-result" aria-live="polite">
-      <h2>{result.available ? "Available" : "Not available"}</h2>
+      <h2>{result.available ? t("Available") : t("Not available")}</h2>
       <dl className="quote-summary">
         <div>
-          <dt>Rental days</dt>
+          <dt>{t("Rental days")}</dt>
           <dd>{result.quote.totalDays}</dd>
         </div>
         <div>
-          <dt>Daily rate</dt>
+          <dt>{t("Daily rate")}</dt>
           <dd>
-            {result.quote.pricePerDay} {result.quote.currency}
+            {result.quote.pricePerDay} {t(result.quote.currency)}
           </dd>
         </div>
         <div>
-          <dt>Rental amount</dt>
+          <dt>{t("Rental amount")}</dt>
           <dd>
-            {result.quote.totalAmount} {result.quote.currency}
+            {result.quote.totalAmount} {t(result.quote.currency)}
           </dd>
         </div>
         <div>
-          <dt>Deposit</dt>
+          <dt>{t("Deposit")}</dt>
           <dd>
-            {result.quote.depositAmount} {result.quote.currency}
+            {result.quote.depositAmount} {t(result.quote.currency)}
           </dd>
         </div>
         <div>
-          <dt>Total due</dt>
+          <dt>{t("Total due")}</dt>
           <dd>
-            {result.quote.totalDue} {result.quote.currency}
+            {result.quote.totalDue} {t(result.quote.currency)}
           </dd>
         </div>
       </dl>

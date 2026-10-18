@@ -20,8 +20,9 @@ function localDateTime(daysFromNow: number): string {
 }
 
 test("customer books a quoted car and sees manager confirmation", async ({ page, browser }) => {
-  // Flow: register -> sign in -> catalog -> quote -> booking -> account -> manager confirms -> account.
+  // Flow: register -> sign in -> catalog -> vehicle -> booking page -> quote -> booking -> account -> manager confirms -> account.
   const fixture = await seedBookingFlow();
+  await page.context().addCookies([{ name: "mvbooking_locale", value: "en", url: "http://127.0.0.1:3107" }]);
   let managerContext: Awaited<ReturnType<typeof browser.newContext>> | null = null;
   try {
     await page.goto("/register");
@@ -41,6 +42,11 @@ test("customer books a quoted car and sees manager confirmation", async ({ page,
     await expect(page.getByRole("link", { name: fixture.vehicleLabel })).toBeVisible();
     await page.getByRole("link", { name: fixture.vehicleLabel }).click();
     await expect(page).toHaveURL(new RegExp(`/vehicles/${fixture.vehicleSlug}$`));
+    await expect(page.locator(".booking-form")).toHaveCount(0);
+    await page.getByRole("link", { name: "Book this car →" }).click();
+    await expect(page).toHaveURL(new RegExp(`/vehicles/${fixture.vehicleSlug}/booking$`));
+    await expect(page.getByLabel("Pickup location")).toHaveValue("Tbilisi Airport");
+    await expect(page.getByLabel("Return location")).toHaveValue("Tbilisi Airport");
 
     await page.getByLabel("Pickup date and time").fill(localDateTime(30));
     await page.getByLabel("Return date and time").fill(localDateTime(33));
@@ -62,6 +68,7 @@ test("customer books a quoted car and sees manager confirmation", async ({ page,
     await expect(page.locator(".booking-card").filter({ hasText: fixture.vehicleLabel })).toContainText("Pending");
 
     managerContext = await browser.newContext();
+    await managerContext.addCookies([{ name: "mvbooking_locale", value: "en", url: "http://127.0.0.1:3107" }]);
     const managerPage = await managerContext.newPage();
     await managerPage.goto(`/login?callbackUrl=${encodeURIComponent(`/admin/bookings/${bookingId}`)}`);
     await managerPage.getByLabel("Email").fill(fixture.managerEmail);

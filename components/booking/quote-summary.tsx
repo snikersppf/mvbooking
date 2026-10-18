@@ -1,3 +1,5 @@
+"use client";
+import { useTranslations } from "@/components/i18n/language-provider";
 import type { VehicleQuote } from "@/server/services/catalog/types";
 
 type QuoteSummaryProps = Readonly<{
@@ -5,34 +7,35 @@ type QuoteSummaryProps = Readonly<{
 }>;
 
 export function QuoteSummary({ quote }: QuoteSummaryProps) {
+  const t = useTranslations();
   return (
     <dl className="quote-summary">
       <div>
-        <dt>Rental days</dt>
+        <dt>{t("Rental days")}</dt>
         <dd>{quote.totalDays}</dd>
       </div>
       <div>
-        <dt>Daily rate</dt>
+        <dt>{t("Daily rate")}</dt>
         <dd>
-          {quote.pricePerDay} {quote.currency}
+          {quote.pricePerDay} {t(quote.currency)}
         </dd>
       </div>
       <div>
-        <dt>Rental amount</dt>
+        <dt>{t("Rental amount")}</dt>
         <dd>
-          {quote.totalAmount} {quote.currency}
+          {quote.totalAmount} {t(quote.currency)}
         </dd>
       </div>
       <div>
-        <dt>Deposit</dt>
+        <dt>{t("Deposit")}</dt>
         <dd>
-          {quote.depositAmount} {quote.currency}
+          {quote.depositAmount} {t(quote.currency)}
         </dd>
       </div>
       <div>
-        <dt>Total due</dt>
+        <dt>{t("Total due")}</dt>
         <dd>
-          {quote.totalDue} {quote.currency}
+          {quote.totalDue} {t(quote.currency)}
         </dd>
       </div>
     </dl>

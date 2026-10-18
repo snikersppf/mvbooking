@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import type { NextPage } from "next";
 import Image from "next/image";
 import styles from "./frame-component1.module.css";
@@ -6,12 +7,13 @@ export type FrameComponent1Type = {
   className?: string;
 };
 
-const FrameComponent1: NextPage<FrameComponent1Type> = ({ className = "" }) => {
+const FrameComponent1: NextPage<FrameComponent1Type> = async ({ className = "" }) => {
+  const t = await getTranslations();
   return (
     <section className={[styles.headerParent, className].join(" ")}>
       <div className={styles.header}>
-        <b className={styles.eyebrow}>СПОКОЙСТВИЕ В КАЖДОЙ ПОЕЗДКЕ</b>
-        <h2 className={styles.sectionTitle}>Аренда без лишних сложностей</h2>
+        <b className={styles.eyebrow}>{t("СПОКОЙСТВИЕ В КАЖДОЙ ПОЕЗДКЕ")}</b>
+        <h2 className={styles.sectionTitle}>{t("Аренда без лишних сложностей")}</h2>
       </div>
       <div className={styles.benefitGrid}>
         <div className={styles.benefit}>
@@ -26,12 +28,10 @@ const FrameComponent1: NextPage<FrameComponent1Type> = ({ className = "" }) => {
             />
           </div>
           <div className={styles.benefitContent}>
-            <h3 className={styles.title}>Прозрачная стоимость</h3>
+            <h3 className={styles.title}>{t("Прозрачная стоимость")}</h3>
             <div className={styles.description}>
-              Уточняем состав стоимости заранее.
-              <br />
-              Все условия — до подтверждения бронирования.
-            </div>
+              {t("Уточняем состав стоимости заранее.")}<br />
+              {t("Все условия — до подтверждения бронирования.")}</div>
           </div>
         </div>
         <div className={styles.benefit}>
@@ -46,12 +46,10 @@ const FrameComponent1: NextPage<FrameComponent1Type> = ({ className = "" }) => {
             />
           </div>
           <div className={styles.benefitContent}>
-            <h3 className={styles.title}>Помощь в поездке</h3>
+            <h3 className={styles.title}>{t("Помощь в поездке")}</h3>
             <div className={styles.description}>
-              Подскажем по аренде и ответим
-              <br />
-              на вопросы о вашем автомобиле.
-            </div>
+              {t("Подскажем по аренде и ответим")}<br />
+              {t("на вопросы о вашем автомобиле.")}</div>
           </div>
         </div>
       </div>
@@ -68,12 +66,10 @@ const FrameComponent1: NextPage<FrameComponent1Type> = ({ className = "" }) => {
             />
           </div>
           <div className={styles.benefitContent}>
-            <h3 className={styles.title}>Доставка автомобиля</h3>
+            <h3 className={styles.title}>{t("Доставка автомобиля")}</h3>
             <div className={styles.description}>
-              Согласуем получение в аэропорту,
-              <br />
-              отеле или по удобному адресу.
-            </div>
+              {t("Согласуем получение в аэропорту,")}<br />
+              {t("отеле или по удобному адресу.")}</div>
           </div>
         </div>
         <div className={styles.benefit}>
@@ -88,12 +84,10 @@ const FrameComponent1: NextPage<FrameComponent1Type> = ({ className = "" }) => {
             />
           </div>
           <div className={styles.benefitContent}>
-            <h3 className={styles.title}>Подготовленные автомобили</h3>
+            <h3 className={styles.title}>{t("Подготовленные автомобили")}</h3>
             <div className={styles.description}>
-              Обсудим оснащение и состояние
-              <br />
-              автомобиля перед поездкой.
-            </div>
+              {t("Обсудим оснащение и состояние")}<br />
+              {t("автомобиля перед поездкой.")}</div>
           </div>
         </div>
       </div>

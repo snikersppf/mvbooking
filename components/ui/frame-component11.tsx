@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import type { NextPage } from "next";
 import Image from "next/image";
 import Component1111 from "./component1111";
@@ -7,16 +8,16 @@ export type FrameComponent11Type = {
   className?: string;
 };
 
-const FrameComponent11: NextPage<FrameComponent11Type> = ({
+const FrameComponent11: NextPage<FrameComponent11Type> = async ({
   className = "",
 }) => {
+  const t = await getTranslations();
   return (
     <section id="how-it-works" className={[styles.containerParent, className].join(" ")}>
       <div className={styles.container}>
-        <b className={styles.eyebrow}>ВСЁ ПРОСТО</b>
+        <b className={styles.eyebrow}>{t("ВСЁ ПРОСТО")}</b>
         <h2 className={styles.sectionTitle}>
-          От выбора автомобиля до начала путешествия
-        </h2>
+          {t("От выбора автомобиля до начала путешествия")}</h2>
       </div>
       <div className={styles.list}>
         <div className={styles.rentalStep1}>
@@ -35,10 +36,8 @@ const FrameComponent11: NextPage<FrameComponent11Type> = ({
               />
             </div>
             <div className={styles.label}>
-              Выберите
-              <br />
-              автомобиль
-            </div>
+              {t("Выберите")}<br />
+              {t("автомобиль")}</div>
           </div>
         </div>
         <div className={styles.item}>
@@ -47,8 +46,8 @@ const FrameComponent11: NextPage<FrameComponent11Type> = ({
         <Component1111
           number="02"
           iconcalendarDays="/design/Icon-calendar-days.svg"
-          label={`Укажите
-маршрут и даты`}
+          label={t(`Укажите
+маршрут и даты`)}
         />
         <div className={styles.item}>
           <div className={styles.divider3} />
@@ -56,8 +55,8 @@ const FrameComponent11: NextPage<FrameComponent11Type> = ({
         <Component1111
           number="03"
           iconcalendarDays="/design/Icon-file-text.svg"
-          label={`Оставьте
-контакты`}
+          label={t(`Оставьте
+контакты`)}
         />
         <div className={styles.item}>
           <div className={styles.divider4} />
@@ -65,8 +64,8 @@ const FrameComponent11: NextPage<FrameComponent11Type> = ({
         <Component1111
           number="04"
           iconcalendarDays="/design/Icon-circle-check-big.svg"
-          label={`Получите
-подтверждение`}
+          label={t(`Получите
+подтверждение`)}
         />
         <div className={styles.item}>
           <div className={styles.divider5} />
@@ -74,8 +73,8 @@ const FrameComponent11: NextPage<FrameComponent11Type> = ({
         <Component1111
           number="05"
           iconcalendarDays="/design/Icon-send.svg"
-          label={`Отправляйтесь
-в путь`}
+          label={t(`Отправляйтесь
+в путь`)}
         />
       </div>
     </section>

@@ -17,7 +17,12 @@ import {
   it,
   vi,
 } from "vitest";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderLocalizedPage } from "@/tests/helpers/render-localized-page";
+
+vi.mock("@/lib/i18n/server", async () => {
+  const { createTranslator } = await import("@/lib/i18n/translate");
+  return { getTranslations: async () => createTranslator("en") };
+});
 
 const authState = vi.hoisted(() => ({
   session: null as null | {
@@ -64,6 +69,7 @@ vi.mock("@/server/auth/current-user", async (importOriginal) => {
 
 import AccountBookingsPage from "@/app/account/bookings/page";
 import VehiclePage from "@/app/vehicles/[slug]/page";
+import BookingPage from "@/app/vehicles/[slug]/booking/page";
 import {
   createPrismaClient,
   getPrismaClient,
@@ -178,7 +184,7 @@ afterAll(async () => {
 });
 
 describe("customer page access integration", () => {
-  it("renders the public vehicle page and booking form without a session", async () => {
+  it("renders separate public vehicle and booking pages without a session", async () => {
     const prefix = newPrefix();
     const vehicle = await createVehicle(prefix);
     setSession(null);
@@ -186,8 +192,12 @@ describe("customer page access integration", () => {
     const page = await VehiclePage({
       params: Promise.resolve({ slug: vehicle.slug }),
     });
-    const rendered = renderToStaticMarkup(page);
-    expect(rendered).toContain("Availability and booking");
+    const vehicleMarkup = await renderLocalizedPage(page);
+    expect(vehicleMarkup).toContain("Book this car");
+    expect(vehicleMarkup).not.toContain("Check price");
+    const bookingPage = await BookingPage({ params: Promise.resolve({ slug: vehicle.slug }) });
+    const rendered = await renderLocalizedPage(bookingPage);
+    expect(rendered).toContain("Book your car");
     expect(rendered).toContain("Pickup date and time");
     expect(rendered).toContain("Check price");
     expect(rendered).toContain("Asia/Tbilisi");
@@ -221,7 +231,7 @@ describe("customer page access integration", () => {
     const page = await AccountBookingsPage({
       searchParams: Promise.resolve({}),
     });
-    const rendered = renderToStaticMarkup(page);
+    const rendered = await renderLocalizedPage(page);
     expect(rendered).toContain(booking.id);
     expect(rendered).toContain(vehicle.brand);
     expect(rendered).toContain(vehicle.model);

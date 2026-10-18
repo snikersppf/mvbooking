@@ -1,0 +1,16 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  gap: var(--gap-6);
+  padding: var(--padding-4) var(--padding-10);
+  border-radius: var(--br-11);
+  background: var(--color-mintcream);
+  color: var(--color-darkslategray);
+  font-family: var(--font-manrope);
+  font-size: var(--fs-11);
+  font-weight: 800;
+  line-height: var(--lh-16);
+  overflow-wrap: anywhere;
+}

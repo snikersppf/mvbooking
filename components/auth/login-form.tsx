@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n/language-provider";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -21,6 +23,7 @@ export function LoginForm({
   callbackUrl,
   registrationComplete,
 }: LoginFormProps) {
+  const t = useTranslations();
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -59,11 +62,10 @@ export function LoginForm({
     <form className="auth-form" onSubmit={onSubmit} noValidate>
       {registrationComplete ? (
         <p className="form-success" role="status">
-          Account created. You can sign in now.
-        </p>
+          {t("Account created. You can sign in now.")}</p>
       ) : null}
 
-      <label htmlFor="login-email">Email</label>
+      <label htmlFor="login-email">{t("Email")}</label>
       <Input
         id="login-email"
         type="email"
@@ -73,11 +75,11 @@ export function LoginForm({
       />
       {errors.email ? (
         <p className="field-error" role="alert">
-          {errors.email.message}
+          {t.error(errors.email.message)}
         </p>
       ) : null}
 
-      <label htmlFor="login-password">Password</label>
+      <label htmlFor="login-password">{t("Password")}</label>
       <Input
         id="login-password"
         type="password"
@@ -87,18 +89,18 @@ export function LoginForm({
       />
       {errors.password ? (
         <p className="field-error" role="alert">
-          {errors.password.message}
+          {t.error(errors.password.message)}
         </p>
       ) : null}
 
       {submitError ? (
         <p className="form-error" role="alert">
-          {submitError}
+          {t.error(submitError)}
         </p>
       ) : null}
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Signing in…" : "Sign in"}
+        {isSubmitting ? t("Signing in…") : t("Sign in")}
       </Button>
     </form>
   );

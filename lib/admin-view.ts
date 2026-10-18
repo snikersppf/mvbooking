@@ -9,10 +9,11 @@ export function formatAdminEnum(value: string): string {
 export function formatAdminDateTime(
   value: string,
   timeZone: string,
+  locale: "ru" | "en" = "en",
 ): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Invalid date";
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(locale, {
     timeZone,
     dateStyle: "medium",
     timeStyle: "short",

@@ -1,0 +1,28 @@
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--gap-2);
+  padding: var(--padding-3);
+  border: var(--border-3);
+  border-radius: var(--br-10);
+  background: var(--color-white);
+}
+.switcher.switcher button {
+  min-height: var(--height-26);
+  padding: var(--padding-4) var(--padding-8);
+  border: 0;
+  border-radius: var(--br-8);
+  color: var(--color-dimgray);
+  background: var(--color-white);
+  font-size: var(--fs-12);
+  line-height: var(--lh-18);
+}
+.switcher.switcher button[aria-pressed="true"] {
+  background: var(--color-mintcream);
+  color: var(--color-darkslategray);
+}
+.switcher.switcher button:hover:not(:disabled) {
+  color: var(--color-white);
+  background: var(--color-seagreen-200);
+}
