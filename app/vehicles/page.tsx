@@ -1,9 +1,11 @@
 import { PageShell } from "@/components/ui/page-shell";
-import Link from "next/link";
 import { ZodError } from "zod";
 import { CatalogFilterForm } from "@/components/catalog/catalog-filter-form";
 import { CatalogPagination } from "@/components/catalog/catalog-pagination";
 import { VehicleCard } from "@/components/catalog/vehicle-card";
+import { CatalogHero, CatalogGuidance } from "@/components/catalog/catalog-presentation";
+import Footer from "@/components/ui/footer";
+import styles from "@/components/catalog/catalog.module.css";
 import { catalogPageHref } from "@/lib/catalog-url";
 import { BookingRuleError } from "@/server/services/booking/errors";
 import { listCatalogVehicles } from "@/server/services/catalog/list-vehicles";
@@ -46,16 +48,20 @@ export default async function VehiclesPage({
 
   if (!result.catalog) {
     return (
-      <PageShell className="catalog-shell">
-        <header className="catalog-header">
-          <Link href="/">MVBooking</Link>
-          <h1>Vehicle catalog</h1>
-          <p>Choose valid filters and try again.</p>
-        </header>
-        <CatalogFilterForm filters={EMPTY_FILTERS} />
-        {result.invalidFilters ? (
-          <p className="error-message">The catalog filters are invalid.</p>
-        ) : null}
+      <PageShell className={`${styles.page} catalog-shell`}>
+        <CatalogHero />
+        <div className={styles.content}>
+          <CatalogFilterForm
+            filters={EMPTY_FILTERS}
+            summary={<><h2>Доступные автомобили</h2><p>Choose valid filters and try again.</p></>}
+          >
+            {result.invalidFilters ? (
+              <p className="error-message">The catalog filters are invalid.</p>
+            ) : null}
+          </CatalogFilterForm>
+        </div>
+        <CatalogGuidance />
+        <Footer />
       </PageShell>
     );
   }
@@ -69,35 +75,38 @@ export default async function VehiclesPage({
     : null;
 
   return (
-    <PageShell className="catalog-shell">
-      <header className="catalog-header">
-        <Link href="/">MVBooking</Link>
-        <h1>Vehicle catalog</h1>
-        <p>Only vehicles currently published as available are shown.</p>
-      </header>
+    <PageShell className={`${styles.page} catalog-shell`}>
+      <CatalogHero />
+      <div className={styles.content}>
+        <CatalogFilterForm
+          filters={catalog.filters}
+          summary={
+            <>
+              <h2>Доступные автомобили</h2>
+              <p>Найдено автомобилей: {catalog.totalItems}</p>
+            </>
+          }
+        >
+          {catalog.items.length > 0 ? (
+            <section className={`${styles.vehicleGrid} vehicle-grid`} aria-label="Vehicles">
+              {catalog.items.map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))}
+            </section>
+          ) : (
+            <p className="empty-state">No vehicles match these filters.</p>
+          )}
 
-      <CatalogFilterForm filters={catalog.filters} />
-
-      <div className="catalog-result-summary">
-        <p>{catalog.totalItems} vehicles found.</p>
+          <CatalogPagination
+            page={catalog.page}
+            totalPages={catalog.totalPages}
+            previousHref={previousHref}
+            nextHref={nextHref}
+          />
+        </CatalogFilterForm>
       </div>
-
-      {catalog.items.length > 0 ? (
-        <section className="vehicle-grid" aria-label="Vehicles">
-          {catalog.items.map((vehicle) => (
-            <VehicleCard key={vehicle.id} vehicle={vehicle} />
-          ))}
-        </section>
-      ) : (
-        <p className="empty-state">No vehicles match these filters.</p>
-      )}
-
-      <CatalogPagination
-        page={catalog.page}
-        totalPages={catalog.totalPages}
-        previousHref={previousHref}
-        nextHref={nextHref}
-      />
+      <CatalogGuidance />
+      <Footer />
     </PageShell>
   );
 }
