@@ -2,6 +2,25 @@
 name: mvbooking-prod
 
 services:
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN to the production HTTPS origin}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -24,15 +43,16 @@ services:
       target: runner
     restart: unless-stopped
     init: true
+    stop_grace_period: 30s
     environment:
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL with host postgres}
       AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET}
       AUTH_URL: ${AUTH_URL:?Set AUTH_URL}
       APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN}
-      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-false}
+      TRUST_PROXY_HEADERS: "true"
       CRON_SECRET: ${CRON_SECRET:?Set CRON_SECRET}
-    ports:
-      - "127.0.0.1:3000:3000"
+      RESEND_API_KEY: ${RESEND_API_KEY:?Set RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM:?Set EMAIL_FROM}
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,10 +79,29 @@ services:
     profiles: ["ops"]
     build:
       context: .
-      target: migrator
-    command: ["npm", "run", "maintenance:cleanup"]
+      target: operations
+    command: ["./node_modules/.bin/tsx", "scripts/run-scheduled-maintenance.ts"]
     environment:
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL with host postgres}
+      CRON_SECRET: ${CRON_SECRET:?Set CRON_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      app:
+        condition: service_healthy
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+
+  create-admin:
+    profiles: ["ops"]
+    build:
+      context: .
+      target: operations
+    entrypoint: ["./node_modules/.bin/tsx", "scripts/create-admin.ts"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL with host postgres}
+    stdin_open: true
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,5 +109,32 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  worker:
+    build:
+      context: .
+      target: operations
+    command: ["./node_modules/.bin/tsx", "scripts/notification-worker.ts"]
+    restart: unless-stopped
+    init: true
+    # Allow the 15s provider timeout and fenced DB completion before SIGKILL.
+    stop_grace_period: 30s
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL with host postgres}
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET}
+      APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN}
+      RESEND_API_KEY: ${RESEND_API_KEY:?Set RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM:?Set EMAIL_FROM}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?Set TELEGRAM_BOT_TOKEN}
+      TELEGRAM_MANAGER_CHAT_ID: ${TELEGRAM_MANAGER_CHAT_ID:?Set TELEGRAM_MANAGER_CHAT_ID}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
 volumes:
   postgres_prod_data:
+  caddy_data:
+  caddy_config:

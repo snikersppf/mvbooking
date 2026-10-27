@@ -49,6 +49,7 @@ enum NotificationChannel {
 }
 
 enum NotificationType {
+  PASSWORD_RESET
   BOOKING_CREATED
   BOOKING_UPDATED
   BOOKING_CANCELLED
@@ -188,7 +189,7 @@ model Payment {
 
 model Notification {
   id            String              @id @default(cuid())
-  userId        String
+  userId        String?
   bookingId     String?
   channel       NotificationChannel
   type          NotificationType
@@ -202,7 +203,7 @@ model Notification {
   errorMessage  String?             @db.Text
   createdAt     DateTime            @default(now()) @db.Timestamptz(3)
   updatedAt     DateTime            @updatedAt @db.Timestamptz(3)
-  user          User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user          User?               @relation(fields: [userId], references: [id], onDelete: Restrict)
   booking       Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
 
   @@index([userId, status])

@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { Prisma, UserStatus, type PrismaClient } from "@prisma/client";
+import { NotificationChannel, NotificationType, Prisma, UserStatus, type PrismaClient } from "@prisma/client";
 import { getPrismaClient } from "@/server/db/prisma";
 import { requireAppOrigin } from "@/server/config/http";
 import { ApiRequestError } from "@/server/http/api-response";
@@ -30,15 +30,15 @@ export async function requestPasswordReset(
 ): Promise<void> {
   const { email } = passwordResetRequestSchema.parse(rawInput);
   const production = dependencies.production ?? process.env.NODE_ENV === "production";
-  if (production) {
-    throw new ApiRequestError(
-      503,
-      "PASSWORD_RESET_DELIVERY_UNAVAILABLE",
-      "errors.serviceUnavailable",
-    );
-  }
-
   const prisma = dependencies.prisma ?? getPrismaClient();
+  if (production) {
+    // Identical durable operation for every address; lookup and delivery belong to the worker.
+    await prisma.notification.create({ data: {
+      type: NotificationType.PASSWORD_RESET, channel: NotificationChannel.EMAIL,
+      payload: { resetEmail: email },
+    } });
+    return;
+  }
   const user = await prisma.user.findUnique({
     where: { email },
     select: { id: true, status: true },

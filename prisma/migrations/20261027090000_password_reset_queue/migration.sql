@@ -1,0 +1,2 @@
+ALTER TYPE "NotificationType" ADD VALUE 'PASSWORD_RESET';
+ALTER TABLE "Notification" ALTER COLUMN "userId" DROP NOT NULL;
