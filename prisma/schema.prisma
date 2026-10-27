@@ -6,6 +6,12 @@ datasource db {
   provider = "postgresql"
 }
 
+enum LeadStatus {
+  NEW
+  IN_PROGRESS
+  CLOSED
+}
+
 enum UserRole {
   CUSTOMER
   MANAGER
@@ -106,6 +112,7 @@ model Vehicle {
   images            VehicleImage[]
   pricingRules      PricingRule[]
   bookings          Booking[]
+  leads             Lead[]
 
   @@index([status, category])
   @@index([status, location])
@@ -257,4 +264,26 @@ model AdminMutationResult {
 
   @@unique([actorUserId, idempotencyKey])
   @@index([createdAt])
+}
+
+model Lead {
+  id             String     @id @default(cuid())
+  name           String
+  email          String?
+  phone          String?
+  vehicleId      String?
+  startDate      DateTime?   @db.Timestamptz(3)
+  endDate        DateTime?   @db.Timestamptz(3)
+  comment        String     @default("") @db.Text
+  status         LeadStatus @default(NEW)
+  managerNote    String     @default("") @db.Text
+  consentVersion String
+  consentAt      DateTime   @db.Timestamptz(3)
+  createdAt      DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime   @updatedAt @db.Timestamptz(3)
+  vehicle        Vehicle?   @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([status, updatedAt])
+  @@index([vehicleId])
 }
