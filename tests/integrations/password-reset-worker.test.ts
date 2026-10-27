@@ -7,7 +7,7 @@ import { processNextNotification, type NotificationWorkerConfig } from "@/server
 function harness(status: UserStatus | null = UserStatus.ACTIVE) {
   let now = new Date("2026-10-27T12:00:00Z");
   const row: Notification = {
-    id: "reset-notification-1", userId: null, bookingId: null,
+    id: "reset-notification-1", leadId: null, userId: null, bookingId: null,
     type: NotificationType.PASSWORD_RESET, channel: NotificationChannel.EMAIL,
     status: NotificationStatus.PENDING, payload: { resetEmail: "customer@example.test" },
     eventKey: null, attempts: 0, nextAttemptAt: now, lockedUntil: null,

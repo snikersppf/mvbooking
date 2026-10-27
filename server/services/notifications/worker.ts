@@ -22,7 +22,7 @@ export type NotificationWorkerConfig = Readonly<{
   authSecret?: string;
 }>;
 
-const subjects: Record<Exclude<NotificationType, "PASSWORD_RESET">, string> = {
+const subjects: Record<Exclude<NotificationType, "PASSWORD_RESET" | "LEAD_CREATED">, string> = {
   BOOKING_CREATED: "Заявка на бронирование получена",
   BOOKING_UPDATED: "Бронирование обновлено",
   BOOKING_CANCELLED: "Бронирование отменено",
@@ -36,7 +36,7 @@ export function bookingNotificationInput(
   appOrigin: string,
 ): Required<NotificationInput> {
   if (!notification.bookingId) throw new NotificationDeliveryError("BOOKING_MISSING", false);
-  if (notification.type === NotificationType.PASSWORD_RESET) throw new NotificationDeliveryError("BOOKING_TYPE_INVALID", false);
+  if (notification.type === NotificationType.PASSWORD_RESET || notification.type === NotificationType.LEAD_CREATED) throw new NotificationDeliveryError("BOOKING_TYPE_INVALID", false);
   const subject = subjects[notification.type];
   // Customer cards live on the list page; there is no /account/bookings/[id] route.
   const path = notification.channel === NotificationChannel.TELEGRAM
@@ -73,6 +73,14 @@ export async function claimNotification(
     `;
     const row = rows[0];
     if (!row) return null;
+
+    if (row.type === NotificationType.LEAD_CREATED) {
+      // Deliberate stub: acknowledgement is durable, no external delivery or PII logging.
+      return transaction.notification.update({ where: { id: row.id }, data: {
+        status: NotificationStatus.SENT, sentAt: now, lockedUntil: null,
+        attempts: { increment: 1 }, payload: { provider: "stub", delivery: "mock-sent" },
+      } });
+    }
 
     if (row.type === NotificationType.PASSWORD_RESET) {
       if (row.attempts >= MAX_ATTEMPTS) {
@@ -129,10 +137,10 @@ export async function processNextNotification(
   const row = await claimNotification(prisma, config, now());
   if (!row) return false;
   if (row.status !== NotificationStatus.PENDING) return true;
-  const reset = row.type === NotificationType.PASSWORD_RESET;
-  const snapshot = reset ? null : payloadSchema.parse(row.payload);
-  const delivery = reset ? passwordResetDelivery(row, config) : snapshot!.delivery;
-  const firstAttemptAt = new Date(reset
+  const tokenEmail = row.type === NotificationType.PASSWORD_RESET;
+  const snapshot = tokenEmail ? null : payloadSchema.parse(row.payload);
+  const delivery = tokenEmail ? passwordResetDelivery(row, config) : snapshot!.delivery;
+  const firstAttemptAt = new Date(tokenEmail
     ? z.object({ firstAttemptAt: z.iso.datetime() }).parse(row.payload).firstAttemptAt
     : snapshot?.firstAttemptAt ?? row.createdAt);
   const provider = row.channel === NotificationChannel.EMAIL ? config.email : config.telegram;
@@ -153,7 +161,7 @@ export async function processNextNotification(
     where: { id: row.id, status: NotificationStatus.PENDING, attempts: row.attempts, lockedUntil: row.lockedUntil },
     data: failure
       ? { status: retry ? NotificationStatus.PENDING : NotificationStatus.FAILED, lockedUntil: null, nextAttemptAt, errorMessage: failure.code }
-      : { status: NotificationStatus.SENT, lockedUntil: null, sentAt: completedAt, errorMessage: null, ...(reset ? { payload: Prisma.DbNull } : {}) },
+      : { status: NotificationStatus.SENT, lockedUntil: null, sentAt: completedAt, errorMessage: null, ...(tokenEmail ? { payload: Prisma.DbNull } : {}) },
   });
   if (result.count !== 1) console.warn("Notification claim lost; manual delivery review may be required.");
   if (failure && !retry) console.warn("Notification requires manual delivery review.");

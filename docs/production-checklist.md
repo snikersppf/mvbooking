@@ -247,3 +247,11 @@ tests/security/production-startup.test.ts
 - [x] Existing lint, typecheck and unit suite checked for this change; Prisma client regenerated without dotenv.
 - [ ] Apply migrations on a disposable *_test DB and run `tests/integration/leads.integration.ts`. No database credentials were loaded in this session.
 - [ ] Production migration/backup and browser acceptance remain operator checks.
+
+## Stage 10.2 — public lead endpoint
+
+- [x] Strict input, required contact-processing consent, server-selected version/time; generic 202 acceptance for genuine and honeypot submissions, no contact lookup or account disclosure.
+- [x] Exact Origin/JSON checks and mandatory shared PostgreSQL IP limiter (5/hour); production requires trusted ingress IP headers. Store failure fails closed.
+- [x] Atomic Lead + Notification nested write. LEAD_CREATED worker is explicitly a stub: SENT records mock acknowledgement, not real delivery. No contacts enter notification payload/logs.
+- [x] Lint, typecheck, unit and build checked in a copy excluding .env files.
+- [ ] Apply outbox migration and verify the endpoint/concurrent limits with PostgreSQL and a deployed ingress. Real lead delivery is not implemented.

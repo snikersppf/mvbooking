@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { createLead } from "@/server/services/leads/create";
 import { createPrismaClient } from "@/server/db/prisma";
 import { requireTestDatabaseUrl } from "@/tests/integration/test-database";
 import { cleanupTrackedPrefixes } from "@/tests/integration/cleanup";
@@ -12,7 +13,7 @@ function fixture() {
   return { id, name: "Lead integration", consentVersion: "contact-v1", consentAt: new Date() };
 }
 async function cleanup(prefix: string) {
-  await prisma.lead.deleteMany({ where: { id: { startsWith: prefix } } });
+  await prisma.lead.deleteMany({ where: { OR: [{ id: { startsWith: prefix } }, { name: { startsWith: prefix } }] } });
 }
 afterEach(() => cleanupTrackedPrefixes(prefixes, cleanup));
 afterAll(async () => {
@@ -34,4 +35,13 @@ describe("Lead PostgreSQL constraints", () => {
       ...fixture(), email: "lead@example.test", startDate: new Date("2030-02-02"), endDate: new Date("2030-02-01"),
     } })).rejects.toThrow();
   });
+});
+
+it("persists a contact enquiry and its outbox row together", async () => {
+  const { id } = fixture();
+  await createLead({ name: id, phone: "+995555123456", consent: true }, prisma);
+  const lead = await prisma.lead.findFirstOrThrow({ where: { name: id }, include: { notifications: true } });
+  expect(lead.consentVersion).toBe("contact-2026-10-28");
+  expect(lead.notifications).toHaveLength(1);
+  expect(lead.notifications[0]?.type).toBe("LEAD_CREATED");
 });

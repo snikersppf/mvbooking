@@ -55,6 +55,7 @@ enum NotificationChannel {
 }
 
 enum NotificationType {
+  LEAD_CREATED
   PASSWORD_RESET
   BOOKING_CREATED
   BOOKING_UPDATED
@@ -195,6 +196,8 @@ model Payment {
 }
 
 model Notification {
+  leadId        String?
+  lead          Lead? @relation(fields: [leadId], references: [id], onDelete: Cascade)
   id            String              @id @default(cuid())
   userId        String?
   bookingId     String?
@@ -213,6 +216,7 @@ model Notification {
   user          User?               @relation(fields: [userId], references: [id], onDelete: Restrict)
   booking       Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
 
+  @@index([leadId])
   @@index([userId, status])
   @@index([bookingId, status])
   @@index([status, createdAt])
@@ -281,6 +285,7 @@ model Lead {
   consentAt      DateTime   @db.Timestamptz(3)
   createdAt      DateTime   @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime   @updatedAt @db.Timestamptz(3)
+  notifications Notification[]
   vehicle        Vehicle?   @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
 
   @@index([status, createdAt])
