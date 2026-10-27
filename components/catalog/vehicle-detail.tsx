@@ -1,3 +1,4 @@
+import { LeadForm } from "@/components/leads/lead-form";
 import { getTranslations } from "@/lib/i18n/server";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
@@ -106,6 +107,10 @@ export async function VehicleDetail({ vehicle }: VehicleDetailProps) {
           <Card as="div"><dt className={styles.deposit}>{t("Deposit")}</dt><dd>{vehicle.depositAmount} {t(vehicle.currency)}</dd></Card>
           <Card as="div"><dt className={styles.insurance}>{t("Insurance")}</dt><dd>{vehicle.insuranceIncluded ? t("Included") : t("Not included")}</dd></Card>
         </dl>
+      </section>
+      <section id="enquiry" aria-labelledby="enquiry-title">
+        <h2 id="enquiry-title">{t("Enquire about this vehicle")}</h2>
+        <LeadForm vehicleId={vehicle.id} />
       </section>
     </article>
   );

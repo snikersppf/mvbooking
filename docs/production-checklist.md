@@ -255,3 +255,10 @@ tests/security/production-startup.test.ts
 - [x] Atomic Lead + Notification nested write. LEAD_CREATED worker is explicitly a stub: SENT records mock acknowledgement, not real delivery. No contacts enter notification payload/logs.
 - [x] Lint, typecheck, unit and build checked in a copy excluding .env files.
 - [ ] Apply outbox migration and verify the endpoint/concurrent limits with PostgreSQL and a deployed ingress. Real lead delivery is not implemented.
+
+## Stage 10.3 — public enquiry forms
+
+- [x] FinalCTA and vehicle details use the same active form: name, email/phone, dates, comment, unchecked required contact-processing consent and hidden honeypot.
+- [x] RU/EN copy, validation, success, throttling and network failure states. Selected vehicle is passed to the endpoint; dates use Georgia UTC+04.
+- [x] Form render/i18n tests, lint, typecheck, unit and build checked.
+- [ ] Browser submission against migrated PostgreSQL, mobile layout and live ingress limits remain unverified; no external messages are sent by the stub.

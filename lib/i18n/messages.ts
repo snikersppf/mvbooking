@@ -1,5 +1,17 @@
 // UI copy only. API values, validation rules and stored data are not translated.
 export const translations: ReadonlyArray<readonly [english: string, russian: string]> = [
+  ["Your name", "Ваше имя"],
+  ["Phone", "Телефон"],
+  ["Pickup date", "Дата получения"],
+  ["Return date", "Дата возврата"],
+  ["Enter an email or phone number.", "Укажите электронную почту или телефон."],
+  ["I agree to the processing of my contacts to answer this enquiry.", "Я согласен на обработку моих контактных данных для ответа на заявку."],
+  ["Send enquiry", "Отправить заявку"],
+  ["Sending…", "Отправка…"],
+  ["Thank you. Your enquiry has been received.", "Спасибо. Ваша заявка получена."],
+  ["The enquiry could not be sent. Try again.", "Не удалось отправить заявку. Попробуйте ещё раз."],
+  ["Enter your name, a valid contact and consent. Check the dates.", "Укажите имя, корректный контакт и согласие. Проверьте даты."],
+  ["Enquire about this vehicle", "Оставить заявку на этот автомобиль"],
   [". A quote does not reserve the vehicle.", ". Расчёт стоимости не резервирует автомобиль."],
   ["/day", "/сутки"],
   ["/ day", "/ сутки"],
