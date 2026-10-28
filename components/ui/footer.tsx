@@ -18,11 +18,9 @@ export default async function Footer() {
           <Link href="#rental-conditions">{t("Условия аренды")}</Link>
           <Link href="#how-it-works">{t("Как это работает")}</Link>
         </nav>
-        <nav aria-label={t("Личный кабинет")}>
-          <b>{t("Личный кабинет")}</b>
-          <Link href="/account/bookings">{t("Мои бронирования")}</Link>
-          <Link href="/login">{t("Войти")}</Link>
-          <Link href="/register">{t("Создать аккаунт")}</Link>
+        <nav aria-label={t("Staff")}>
+          <b>{t("Staff")}</b>
+          <Link href="/login">{t("Staff sign in")}</Link>
         </nav>
       </div>
       <div className={styles.footerLegal}>{t("MVBooking · Аренда автомобилей в Грузии")}</div>

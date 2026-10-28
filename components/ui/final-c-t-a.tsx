@@ -12,7 +12,7 @@ export type FinalCTAType = {
 const FinalCTA: NextPage<FinalCTAType> = async ({ className = "" }) => {
   const t = await getTranslations();
   return (
-    <section className={[styles.finalCta, className].join(" ")}>
+    <section id="enquiry" className={[styles.finalCta, className].join(" ")}>
       <div className={styles.illustrationtopographicPatte}>
         <div className={styles.container}>
           <Image

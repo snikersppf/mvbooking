@@ -12,7 +12,7 @@ describe("SiteHeader", () => {
 
     expect(markup).toContain('href="/vehicles"');
     expect(markup).toContain('href="/login"');
-    expect(markup).toContain('href="/register"');
+    expect(markup).not.toContain('href="/register"');
     expect(markup).not.toContain('href="/account/bookings"');
     expect(markup).not.toContain('href="/admin"');
     expect(markup).not.toContain("Выйти");
@@ -26,7 +26,7 @@ describe("SiteHeader", () => {
       <SiteHeaderNavigation signedIn canAccessAdmin />,
     );
 
-    expect(customer).toContain('href="/account/bookings"');
+    expect(customer).not.toContain('href="/account/bookings"');
     expect(customer).toContain("Выйти");
     expect(customer).not.toContain('href="/admin"');
     expect(customer).not.toContain('href="/login"');

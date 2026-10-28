@@ -89,7 +89,8 @@ describe("stage 7 database integration", () => {
       rateLimiter: { check: async () => undefined }, authSecret: "test-only-secret-value-at-least-32-bytes",
       trustProxy: false, connectionAddress: "127.0.0.1",
     });
-    expect(loggedIn).toMatchObject({ id: user.id, sessionVersion: 1 });
+    expect(loggedIn).toBeNull(); // Customer sign-in is intentionally disabled.
+    expect(await verifyPassword("new-production-flow-password", (await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).passwordHash!)).toBe(true);
     await expect(confirmPasswordReset({ token, password: "second-password-must-fail" }, { prisma }))
       .rejects.toMatchObject({ code: "RESET_TOKEN_INVALID" });
   });

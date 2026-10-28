@@ -29,14 +29,12 @@ export function SiteHeaderNavigation({ signedIn, canAccessAdmin, loading = false
           <Link href="/vehicles">{t("Vehicles")}</Link>
           {signedIn ? (
             <>
-              <Link href="/account/bookings">{t("My bookings")}</Link>
               {canAccessAdmin ? <Link href="/admin">{t("Administration")}</Link> : null}
               <SignOutButton />
             </>
           ) : loading ? null : (
             <>
-              <Link href="/login">{t("Sign in")}</Link>
-              <Link href="/register">{t("Create account")}</Link>
+              <Link href="/login">{t("Staff sign in")}</Link>
             </>
           )}
         </nav>

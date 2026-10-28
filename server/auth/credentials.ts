@@ -1,4 +1,4 @@
-import { UserStatus, type User } from "@prisma/client";
+import { UserRole, UserStatus, type User } from "@prisma/client";
 import { requireAuthSecret, trustProxyHeaders } from "@/server/config/auth";
 import {
   userRepository,
@@ -123,6 +123,7 @@ export async function authorizeCredentials(
     !parsed.success ||
     !user ||
     user.status !== UserStatus.ACTIVE ||
+    (user.role !== UserRole.ADMIN && user.role !== UserRole.MANAGER) ||
     !passwordMatches
   ) {
     return null;

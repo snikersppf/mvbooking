@@ -16,7 +16,7 @@ const credentialsUser: CredentialsUser = {
   name: "Nino",
   email: "nino@example.com",
   phone: null,
-  role: UserRole.CUSTOMER,
+  role: UserRole.MANAGER,
   status: UserStatus.ACTIVE,
   sessionVersion: 3,
   passwordHash: "stored-password-hash",
@@ -93,7 +93,7 @@ describe("authorizeCredentials", () => {
       id: credentialsUser.id,
       name: credentialsUser.name,
       email: credentialsUser.email,
-      role: UserRole.CUSTOMER,
+      role: UserRole.MANAGER,
       status: UserStatus.ACTIVE,
       sessionVersion: 3,
     });
@@ -242,4 +242,9 @@ describe("authorizeCredentials", () => {
       expect.objectContaining({ key: "login:ip:203.0.113.8" }),
     );
   });
+});
+
+it("refuses customer login even with the correct password", async () => {
+  const dependencies = createDependencies({ repository: createRepository({ ...credentialsUser, role: UserRole.CUSTOMER }) });
+  await expect(authorizeCredentials({ email: credentialsUser.email, password: "correct-password" }, createRequest(), dependencies)).resolves.toBeNull();
 });

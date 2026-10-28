@@ -28,7 +28,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <div className="auth-heading">
           <p className="eyebrow">MVBooking</p>
           <h1 id="login-title">{t("Sign in")}</h1>
-          <p>{t("Use your account to continue.")}</p>
+          <p>{t("Staff accounts only. Visitors can send an enquiry without an account.")}</p>
         </div>
 
         <LoginForm
@@ -40,9 +40,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <Link href="/forgot-password">{t("Forgot your password?")}</Link>
         </p>
 
-        <p className="auth-switch">
-          {t("No account yet? ")}<Link href="/register">{t("Create one")}</Link>
-        </p>
+
       </Card>
     </PageShell>
   );

@@ -277,3 +277,11 @@ tests/security/production-startup.test.ts
 - [x] ADMIN-only, Origin-protected manual delete with confirmation and atomic minimal audit. Manager deletion is denied in the locked DB check.
 - [x] Calendar cutoff/closed-only cleanup and deletion authorization tests, lint/typecheck/unit/build checked.
 - [ ] Production maintenance schedule, real cascade behavior, backup expiry and data-owner acceptance require deployment verification.
+
+## Stage 10.6 — contact-first public navigation
+
+- [x] Public header/footer/catalogue no longer advertise registration, customer account or booking. Vehicle CTA targets its enquiry form; only staff sign-in is advertised.
+- [x] Credentials refuses CUSTOMER even with a correct password. Registration, customer and booking implementations remain for compatibility, without public navigation links.
+- [x] Staff-login copy, navigation and credential tests updated; public E2E scenario now follows enquiry → manager processing.
+- [x] Lint/typecheck/unit/build checked. Legacy customer-login E2E is replaced, not a production acceptance claim.
+- [ ] Browser navigation/contact flow and database-backed staff sign-in require acceptance testing after deployment.

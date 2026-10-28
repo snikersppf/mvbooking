@@ -1,97 +1,30 @@
 import { expect, test } from "@playwright/test";
-import { z } from "zod";
 import { seedBookingFlow } from "./booking-flow.fixture";
 
-const createdBookingSchema = z.object({
-  data: z.object({ booking: z.object({ id: z.string().min(1) }) }),
-});
-
-function localDateTime(daysFromNow: number): string {
-  const date = new Date(Date.now() + daysFromNow * 24 * 60 * 60 * 1_000);
-  const parts = new Map(
-    new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Tbilisi",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).formatToParts(date).map(({ type, value }) => [type, value]),
-  );
-  return `${parts.get("year")}-${parts.get("month")}-${parts.get("day")}T10:00`;
-}
-
-test("customer books a quoted car and sees manager confirmation", async ({ page, browser }) => {
-  // Flow: register -> sign in -> catalog -> vehicle -> booking page -> quote -> booking -> account -> manager confirms -> account.
+test("visitor sends a contact enquiry and manager processes it", async ({ page }) => {
   const fixture = await seedBookingFlow();
   await page.context().addCookies([{ name: "mvbooking_locale", value: "en", url: "http://127.0.0.1:3107" }]);
-  let managerContext: Awaited<ReturnType<typeof browser.newContext>> | null = null;
   try {
-    await page.goto("/register");
-    await page.getByLabel("Name").fill("E2E Customer");
-    await page.getByLabel("Email").fill(fixture.customerEmail);
-    await page.getByLabel("Phone (optional)").fill("+995555123456");
-    await page.getByLabel("Password").fill(fixture.customerPassword);
-    await page.getByRole("button", { name: "Create account" }).click();
-    await expect(page).toHaveURL(/\/login\?registered=1/);
-
-    await page.getByLabel("Email").fill(fixture.customerEmail);
-    await page.getByLabel("Password").fill(fixture.customerPassword);
-    await page.getByRole("button", { name: "Sign in" }).click();
-    await expect(page).toHaveURL(/\/$/);
-
-    await page.goto(`/vehicles?category=${encodeURIComponent(fixture.category)}`);
-    await expect(page.getByRole("link", { name: fixture.vehicleLabel })).toBeVisible();
-    await page.getByRole("link", { name: fixture.vehicleLabel }).click();
-    await expect(page).toHaveURL(new RegExp(`/vehicles/${fixture.vehicleSlug}$`));
-    await expect(page.locator(".booking-form")).toHaveCount(0);
-    await page.getByRole("link", { name: "Book this car →" }).click();
-    await expect(page).toHaveURL(new RegExp(`/vehicles/${fixture.vehicleSlug}/booking$`));
-    await expect(page.getByLabel("Pickup location")).toHaveValue("Tbilisi Airport");
-    await expect(page.getByLabel("Return location")).toHaveValue("Tbilisi Airport");
-
-    await page.getByLabel("Pickup date and time").fill(localDateTime(30));
-    await page.getByLabel("Return date and time").fill(localDateTime(33));
-    await page.getByRole("button", { name: "Check price" }).click();
-    await expect(page.getByRole("heading", { name: "Available" })).toBeVisible();
-    await expect(page.locator(".booking-form .quote-summary")).toContainText("570.00 GEL");
-    await expect(page.locator(".booking-form .quote-summary")).toContainText("90.00 GEL");
-
-    const bookingResponse = page.waitForResponse(
-      (response) => new URL(response.url()).pathname === "/api/bookings" &&
-        response.request().method() === "POST",
-    );
-    await page.getByRole("button", { name: "Request booking" }).click();
-    const response = await bookingResponse;
-    expect(response.status()).toBe(201);
-    const { data: { booking: { id: bookingId } } } = createdBookingSchema.parse(await response.json());
-    await expect(page.getByText("Booking request created.")).toBeVisible();
-    await page.getByRole("link", { name: "View your bookings" }).click();
-    await expect(page.locator(".booking-card").filter({ hasText: fixture.vehicleLabel })).toContainText("Pending");
-
-    managerContext = await browser.newContext();
-    await managerContext.addCookies([{ name: "mvbooking_locale", value: "en", url: "http://127.0.0.1:3107" }]);
-    const managerPage = await managerContext.newPage();
-    await managerPage.goto(`/login?callbackUrl=${encodeURIComponent(`/admin/bookings/${bookingId}`)}`);
-    await managerPage.getByLabel("Email").fill(fixture.managerEmail);
-    await managerPage.getByLabel("Password").fill(fixture.managerPassword);
-    await managerPage.getByRole("button", { name: "Sign in" }).click();
-    await expect(managerPage).toHaveURL(new RegExp(`/admin/bookings/${bookingId}$`));
-    await managerPage.getByLabel("New status").selectOption("CONFIRMED");
-    await managerPage.getByLabel("Manager comment").fill("Confirmed by E2E manager");
-    const statusResponse = managerPage.waitForResponse(
-      (candidate) => new URL(candidate.url()).pathname === `/api/admin/bookings/${bookingId}/status` &&
-        candidate.request().method() === "PATCH",
-    );
-    await managerPage.getByRole("button", { name: "Update status" }).click();
-    expect((await statusResponse).status()).toBe(200);
-    await expect(managerPage.locator(".admin-detail-list").getByText("Confirmed", { exact: true })).toBeVisible();
-
+    await page.goto(`/vehicles/${fixture.vehicleSlug}`);
+    const form = page.locator(".lead-form");
+    await form.getByLabel("Your name", { exact: true }).fill("E2E visitor");
+    await form.getByLabel("Email", { exact: true }).fill(fixture.customerEmail);
+    await form.getByRole("checkbox").check();
+    const sent = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/leads" && response.request().method() === "POST");
+    await form.getByRole("button", { name: "Send enquiry" }).click();
+    expect((await sent).status()).toBe(202);
+    await expect(page.getByRole("status")).toContainText("Your enquiry has been received.");
+    const id = await fixture.findLeadId();
+    await page.goto(`/login?callbackUrl=${encodeURIComponent(`/admin/leads/${id}`)}`);
+    await page.getByLabel("Email", { exact: true }).fill(fixture.managerEmail);
+    await page.getByLabel("Password", { exact: true }).fill(fixture.managerPassword);
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`/admin/leads/${id}$`));
+    await page.getByLabel("Status", { exact: true }).selectOption("IN_PROGRESS");
+    await page.getByLabel("Manager note", { exact: true }).fill("Contact visitor");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(page.getByRole("status")).toHaveText("Saved.");
     await page.reload();
-    await expect(page.locator(".booking-card").filter({ hasText: fixture.vehicleLabel })).toContainText("Confirmed");
-  } finally {
-    try {
-      await managerContext?.close();
-    } finally {
-      await fixture.cleanup();
-    }
-  }
+    await expect(page.getByLabel("Manager note", { exact: true })).toHaveValue("Contact visitor");
+  } finally { await fixture.cleanup(); }
 });

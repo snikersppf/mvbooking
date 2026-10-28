@@ -51,7 +51,7 @@ export async function CatalogGuidance() {
           </details>
           <details id="how-it-works">
             <summary>{t("Как получить подтверждение бронирования?")}</summary>
-            <p>{t("Выберите автомобиль, укажите даты и отправьте заявку. Статус после решения менеджера появится в личном кабинете.")}</p>
+            <p>{t("Leave your contacts and a manager will confirm availability and pricing.")}</p>
           </details>
         </Card>
       </section>
@@ -62,7 +62,7 @@ export async function CatalogGuidance() {
           <p>{t("Укажите даты и количество пассажиров.")}<br />{t("Сравните доступные варианты для вашей поездки.")}</p>
           <div className={styles.tripActions}>
             <ButtonLink href="#catalog-results" className={`button-secondary ${styles.tripButton}`}>{t("Выбрать автомобиль ")}<span aria-hidden="true">→</span></ButtonLink>
-            <Link href="/account/bookings">{t("Мои бронирования →")}</Link>
+            <Link href="/#enquiry">{t("Send enquiry")}</Link>
           </div>
         </div>
         <div className={styles.tripImage} aria-hidden="true" />

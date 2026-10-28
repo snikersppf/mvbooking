@@ -47,9 +47,9 @@ export async function VehicleDetail({ vehicle }: VehicleDetailProps) {
             </div>
           ) : null}
           <div className={styles.summaryActions}>
-            <ButtonLink href={`/vehicles/${vehicle.slug}/booking`}>{t("Забронировать автомобиль →")}</ButtonLink>
+            <ButtonLink href="#enquiry">{t("Send enquiry")}</ButtonLink>
           </div>
-          <p className={styles.summaryNote} id="how-it-works">{t("На следующем шаге выберите даты и проверьте доступность и стоимость поездки.")}</p>
+          <p className={styles.summaryNote} id="how-it-works">{t("Оставьте контакты, и менеджер уточнит доступность и стоимость поездки.")}</p>
         </Card>
       </div>
 

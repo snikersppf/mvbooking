@@ -12,6 +12,7 @@ type E2EFixture = Readonly<{
   managerPassword: string;
   vehicleLabel: string;
   vehicleSlug: string;
+  findLeadId: () => Promise<string>;
   cleanup: () => Promise<void>;
 }>;
 
@@ -20,6 +21,7 @@ async function removeFixtureData(
   prefix: string,
   customerEmail: string,
 ): Promise<void> {
+  await prisma.lead.deleteMany({ where: { email: customerEmail } });
   const users = await prisma.user.findMany({
     where: { OR: [{ id: { startsWith: prefix } }, { email: customerEmail }] },
     select: { id: true },
@@ -104,6 +106,7 @@ export async function seedBookingFlow(): Promise<E2EFixture> {
     managerPassword,
     vehicleLabel,
     vehicleSlug,
+    findLeadId: async () => (await prisma.lead.findFirstOrThrow({ where: { email: customerEmail } })).id,
     cleanup: async () => {
       try {
         await removeFixtureData(prisma, prefix, customerEmail);
