@@ -1,0 +1,17 @@
+{$APP_ORIGIN} {
+    # Direct Internet ingress. A CDN/load balancer in front requires a reviewed trust policy.
+    # Includes JSON/auth endpoints; admin image values are URLs, not uploaded files.
+    request_body {
+        max_size 1MB
+    }
+    encode zstd gzip
+    reverse_proxy app:3000 {
+        header_up -Forwarded
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+        header_up Host {host}
+    }
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+}

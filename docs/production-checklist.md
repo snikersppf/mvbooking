@@ -285,3 +285,12 @@ tests/security/production-startup.test.ts
 - [x] Staff-login copy, navigation and credential tests updated; public E2E scenario now follows enquiry → manager processing.
 - [x] Lint/typecheck/unit/build checked. Legacy customer-login E2E is replaced, not a production acceptance claim.
 - [ ] Browser navigation/contact flow and database-backed staff sign-in require acceptance testing after deployment.
+
+## Stage 10.7 — browser security headers
+
+- [x] Next.js applies CSP with same-origin scripts/styles/connections/images/fonts (data images allowed), nosniff, strict-origin-when-cross-origin and disabled camera/microphone/geolocation/payment/topics.
+- [x] Caddy HSTS includes subdomains for one year. Confirm every production subdomain supports HTTPS before enabling this policy.
+- [x] Fonts are served from /fonts. Remote vehicle images are deliberately blocked by CSP; use same-origin inventory assets.
+- [x] Next inline hydration is allowed by unsafe-inline; development alone permits unsafe-eval. This policy restricts external sources but is not a nonce-based strict CSP.
+- [x] Header-policy tests and lint/typecheck/unit/build checked.
+- [ ] Deployed response headers, subdomain TLS, browser CSP console, form submission and asset loading still need live acceptance.
