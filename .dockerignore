@@ -8,6 +8,10 @@ node_modules
 .env.*
 **/.env
 **/.env.*
+**/*.env
+**/*.dump
+**/*.age
+**/rclone.conf
 .npmrc
 **/.npmrc
 *.pem

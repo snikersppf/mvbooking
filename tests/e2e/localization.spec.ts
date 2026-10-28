@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { seedBookingFlow } from "./booking-flow.fixture";
+import { submitStaffSignIn } from "./staff-sign-in";
 import { createPrismaClient } from "@/server/db/prisma";
 import { requireTestDatabaseUrl } from "@/server/config/test-database";
 
@@ -112,8 +113,7 @@ test("administration and account use the selected language without changing stor
     await page.goto("/login?callbackUrl=%2Fadmin");
     await page.getByLabel("Электронная почта", { exact: true }).fill(fixture.managerEmail);
     await page.getByLabel("Пароль", { exact: true }).fill(fixture.managerPassword);
-    await page.getByRole("button", { name: "Войти", exact: true }).click();
-    await expect(page).toHaveURL(/\/admin$/);
+    await submitStaffSignIn(page, fixture, "/admin", test.info());
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Управление");
     await page.goto(`/admin/vehicles/${vehicle.id}`);
     await expect(page.getByText(`Код автомобиля: ${vehicle.id}`, { exact: true })).toBeVisible();

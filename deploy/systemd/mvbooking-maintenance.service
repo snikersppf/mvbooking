@@ -1,0 +1,20 @@
+[Unit]
+Description=MVBooking expired bookings and operational-record cleanup
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=mvbooking
+Group=mvbooking
+SupplementaryGroups=docker
+EnvironmentFile=/etc/mvbooking/operations.env
+WorkingDirectory=/opt/mvbooking
+ExecStart=/usr/bin/docker compose --env-file ${MVBOOKING_ENV_FILE} -f ${MVBOOKING_PROJECT_DIR}/docker-compose.prod.yml --profile ops run --rm -T maintenance
+TimeoutStartSec=15min
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+StandardOutput=journal
+StandardError=journal

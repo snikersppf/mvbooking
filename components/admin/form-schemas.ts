@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isVehicleImageUrl } from "@/lib/vehicle-image-url";
 import {
   ADMIN_BOOKING_STATUSES,
   ADMIN_DRIVES,
@@ -49,15 +50,7 @@ const imageUrl = z
   .trim()
   .min(1, "Enter an image URL.")
   .max(ADMIN_INPUT_LIMITS.imageUrl)
-  .refine((value) => {
-    if (value.startsWith("/")) return !value.startsWith("//");
-    try {
-      const url = new URL(value);
-      return url.protocol === "http:" || url.protocol === "https:";
-    } catch {
-      return false;
-    }
-  }, "Use an HTTP(S) URL or a local path beginning with /.");
+  .refine(isVehicleImageUrl, "Use an HTTP(S) URL or a local path without credentials or backslashes.");
 
 export const adminVehicleFormSchema = z
   .object({

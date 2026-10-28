@@ -8,6 +8,9 @@ MVP foundation for a car-rental booking platform in Georgia.
 - [Stage 1 architecture plan — approved with decisions and corrections](docs/architecture.md)
 - [Project instructions](AGENTS.md)
 - [Production checklist](docs/production-checklist.md)
+- [Deployment, first ADMIN, scheduler, backup and restore](docs/deployment-operations.md)
+- [Notification worker, Telegram, email and DNS](docs/notifications-operations.md)
+- [Production vehicles, tariffs and image storage](docs/production-data.md)
 
 The foundation page, Prisma schema, four applied SQL migrations and sample
 seed exist. Stages 3–6 are implemented: registration and login, booking rules
@@ -16,18 +19,27 @@ APIs, customer booking forms and account pages, and a temporary admin UI.
 The booking workflow no longer plans online payment: a manager contacts the
 customer and confirms the `PENDING` request manually. The existing Payment
 table and payment-status fields remain as legacy schema until a separately
-reviewed migration can remove them. Stage 7 now includes mock-only payment,
-notification and map adapters, plus a browser E2E booking flow. They are not
-wired into booking services. Booking notifications still use an outbox record
-with a mock provider; no sender or manager webhook is running. If a manager
-webhook is added later, its payload must contain only the booking ID and an
-admin-page link, never customer personal data. Broader E2E/CI coverage (Stage
-8) remains. Stage 9 deployment files and checklist are prepared, but no Docker
-image or production deployment has been verified yet.
+reviewed migration can remove them. Mock payment/map/SMS/WhatsApp adapters and
+a browser E2E booking flow exist. Production notification delivery now uses
+the existing outbox with a separate worker: Resend email to the customer and
+Telegram to the manager. Telegram contains only the booking ID and admin link,
+never customer personal data. Production password reset uses Resend.
+Stage 9 includes Caddy HTTPS ingress, a safe first-admin command, scheduled
+maintenance and encrypted offsite backup scripts. These are implemented
+deployment mechanisms, not evidence of a working production installation.
+The project is **NOT READY FOR PRODUCTION** until the live acceptance checks
+and external setup in the production checklist are completed.
 
 ## Preview the current application
 
 Requirements: Node.js 22.22.2 and npm.
+
+Current pinned application stack: Next.js 16.4.3 (App Router), React 19.1.0,
+TypeScript 5.9.3, PostgreSQL 16, Prisma client/CLI/adapter-pg 7.10.1,
+Auth.js 5.0.0-beta.32, React Hook Form 7.89.0 and Zod 4.6.7.
+Production-readiness review updated vulnerable dependency pins; it did not
+change the database schema or booking architecture. Vitest remains on the 3.x
+test-tool line; review remaining development-only advisories before CI exposure.
 
 ### Linux (Arch Linux)
 
@@ -69,9 +81,11 @@ row locks, writes an audit record and releases the reserved interval.
 Password reset pages are `/forgot-password` and `/reset-password?token=...`.
 In development, a reset link is printed to the server console for an existing
 active account; the HTTP response is the same for unknown accounts. The token
-is stored only as a hash, expires after one hour and can be used once. Mock
-delivery is deliberately unavailable in production until a real private
-delivery channel is configured; request attempts return 503 there.
+is stored only as a hash, expires after one hour and can be used once.
+Production requires `RESEND_API_KEY`, verified `EMAIL_FROM` and HTTPS
+`APP_ORIGIN`; missing delivery configuration returns 503 for all accounts.
+Production never logs reset links. See notification operations for delivery
+failure behavior, timing protection and acceptance tests.
 
 Next.js 16 Route Handlers do not expose the connection IP. In production,
 IP-limited operations return 503 if a trusted ingress does not supply a valid
@@ -84,8 +98,9 @@ Using npm.cmd avoids PowerShell execution-policy restrictions on npm.ps1.
 
 ## Deployment
 
-`Dockerfile` has separate `runner` (standalone Next.js, non-root) and
-`migrator` (Prisma CLI and maintenance) targets. The production stack is
+`Dockerfile` has separate `runner` (standalone Next.js, non-root),
+`migrator` (Prisma CLI) and `operations` (worker/operator scripts) targets.
+The production stack is
 `docker-compose.prod.yml`; the existing `docker-compose.yml` remains for local
 development. The production Compose project is named `mvbooking-prod`, so its
 containers, network and database volume are separate from the local stack.
@@ -102,13 +117,18 @@ in production.
 
 | Variable | Use |
 | --- | --- |
-| `DATABASE_URL` | PostgreSQL URL for app and migrations; in production Compose its host is `postgres`, not `localhost`. URL-encode special password characters. |
+| `DATABASE_URL` | Runtime PostgreSQL URL (restricted runtime role); in production Compose its host is `postgres`, not `localhost`. URL-encode special password characters. |
+| `MIGRATOR_DATABASE_URL` | Separate migration-role URL for the one-off migration service. |
+| `MFA_ENCRYPTION_KEY` | Independent canonical base64 key containing 32 random bytes; identical for the app and staff enrollment command. Keep a protected recovery copy. |
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Production Compose PostgreSQL initialization; use unique non-placeholder credentials. Changing these does not update an existing database volume. |
 | `AUTH_SECRET` | Private random value of at least 32 bytes for Auth.js. |
 | `AUTH_URL` | Canonical public HTTPS application URL. |
 | `APP_ORIGIN` | Exact public HTTPS origin for mutation checks; normally equals `AUTH_URL`. |
 | `TRUST_PROXY_HEADERS` | `true` only behind an ingress that replaces client IP headers; otherwise `false`. |
 | `CRON_SECRET` | Private random value of at least 32 bytes for `POST /api/cron/cancel-expired`. |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Resend sending key and a verified bare sender email address. Required for production reset and customer email. |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_MANAGER_CHAT_ID` | Private bot token and the authorized manager chat. Required by the notification worker only. |
+| `VEHICLE_IMAGE_ORIGIN` | Owned permanent HTTPS image origin, used by the read-only production-data audit. |
 | `E2E_DATABASE_URL` | Test runner only, mandatory `_test` database; never a production value. |
 | `SEED_PASSWORD` | Local development seed only; never set or use for production. |
 | `NODE_ENV`, `HOSTNAME`, `PORT` | Set by the Dockerfile to `production`, `0.0.0.0`, `3000` for the app. |
@@ -118,9 +138,9 @@ in production.
 The checked-in `.env.example` is a blank variable inventory, not a ready-to-run
 configuration. Create a protected production environment file outside this
 repository with only the runtime and Compose variables above. Do not include
-`SEED_PASSWORD`, `E2E_DATABASE_URL` or `NEXT_PHASE`. Real payment, notification,
-map and manager-webhook providers are not connected; there are no active
-provider credentials to configure. Do not pass secrets as
+`SEED_PASSWORD`, `E2E_DATABASE_URL` or `NEXT_PHASE`. Payment, SMS, WhatsApp,
+map and generic manager-webhook providers are not connected. Configure only
+the Resend and Telegram providers documented above. Do not pass secrets as
 Docker build arguments or save the output of `docker compose config` in logs.
 
 Run these commands manually in order after reviewing the production checklist.
@@ -128,19 +148,25 @@ The migration job is an explicit one-off step; `up` does not run migrations or
 seed automatically:
 
 ```bash
-docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml --profile ops build app migrate maintenance
+docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml --profile ops build app migrate maintenance create-admin worker
 docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml up -d postgres
 docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml --profile ops run --rm migrate
-docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml up -d app
+docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml up -d app worker proxy
 docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml ps
 ```
 
 The `migrate` container runs `prisma migrate deploy`; it must finish
 successfully before the app starts. `GET /api/health` is a no-secret liveness
-probe for the app; PostgreSQL has a separate `pg_isready` healthcheck. The app
-port is bound to host loopback only, so place a trusted HTTPS reverse proxy in
-front. Schedule both the authenticated expired-booking cron endpoint and this
-one-off cleanup job at least hourly:
+probe for the app; PostgreSQL has a separate `pg_isready` healthcheck. Only
+Caddy publishes ports (80/443); app and database have no host ports. Caddy
+replaces incoming IP/protocol headers and Compose enables trusted proxy
+headers only behind that boundary. The app startup validates matching public
+HTTPS origins and strong secrets. A CDN in front needs a separate reviewed
+trust configuration; do not enable it blindly.
+
+The combined maintenance command authenticates to the existing expiration
+endpoint on the private Compose network, then removes expired counters and
+admin idempotency responses:
 
 ```bash
 docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.prod.yml --profile ops run --rm maintenance
@@ -148,22 +174,20 @@ docker compose --env-file /path/to/mvbooking.production.env -f docker-compose.pr
 
 The cleanup job removes counters with `resetAt` more than one hour in the past
 and admin idempotency responses with `createdAt` more than 24 hours in the past.
-It does not cancel old bookings; the separate cron endpoint does that.
+Install the supplied systemd maintenance timer (every 15 minutes) and daily
+backup timer using [deployment operations](docs/deployment-operations.md).
+That guide contains first-ADMIN creation with a password passed over stdin,
+login checks, encrypted `pg_dump` to offsite storage, retention and an isolated
+restore drill. It lists the separate host dependencies and protected settings
+in `deploy/operations.env.example`; no credentials are embedded in the image.
 
-Schedule the cleanup command at `15 * * * *` and the following authenticated
-POST at `0 * * * *` (UTC). Inject `APP_ORIGIN` and `CRON_SECRET` through the
-scheduler's secret environment, without enabling shell tracing. Pass the
-authorization header over stdin so the token is not part of the curl arguments:
-
-```bash
-printf 'Authorization: Bearer %s\n' "$CRON_SECRET" |
-  curl --fail --silent --show-error --max-time 60 --request POST \
-    --header @- "$APP_ORIGIN/api/cron/cancel-expired"
-```
-
-Alert on non-zero exit codes. See the [production checklist](docs/production-checklist.md)
-for HTTPS/proxy requirements, backups, dependency review and remaining blockers
-(including unavailable production password-reset email delivery).
+`npm run notifications:worker` runs the standalone worker; Compose restarts it
+after failure. `npm run production:data:check` checks existing data without
+changing it; provide `DATABASE_URL` and `VEHICLE_IMAGE_ORIGIN` through the
+process environment. Do not use development seed for production data.
+Alert on failed jobs and `Notification.FAILED`; merely running a worker is not
+proof of delivery. See the [production checklist](docs/production-checklist.md)
+for live acceptance gates and remaining blockers.
 
 ## Database setup
 
@@ -379,3 +403,111 @@ Keep domain services, repositories, validators and API contracts independent
 of visual components. After receiving the design, replace temporary page
 layouts, CSS tokens, form presentation and placeholder assets; keep database
 constraints, money/date rules and authorization intact.
+
+## 2FA: первый ADMIN, сброс сотруднику и восстановление ключа
+
+### Привязка аутентификатора первому ADMIN
+
+1. Примените подготовленные миграции и создайте ACTIVE ADMIN по инструкции
+   [First administrator](docs/deployment-operations.md#first-administrator).
+   Создание ADMIN не включает 2FA: вход в админку до привязки запрещён.
+2. Один раз создайте `MFA_ENCRYPTION_KEY`: `openssl rand -base64 32`.
+   Сохраните результат в хранилище секретов и в защищённой резервной копии.
+   Передайте **один и тот же** ключ приложению и команде привязки. Это общий ключ
+   шифрования, отдельный от `AUTH_SECRET` и индивидуального секрета аутентификатора.
+   Не генерируйте его заново при перезапуске. Тестовый ключ Playwright использовать
+   в production нельзя.
+3. Соберите operations-образ и запустите команду в интерактивном терминале
+   доверенного оператора (замените путь и email; файл с переменными расположен
+   вне репозитория):
+
+   ```bash
+   docker compose --env-file /protected/mvbooking.production.env -f docker-compose.prod.yml --profile ops build enroll-staff-totp
+   docker compose --env-file /protected/mvbooking.production.env -f docker-compose.prod.yml --profile ops run --rm enroll-staff-totp admin@example.org
+   ```
+
+   Без Docker, с уже переданными через окружение `DATABASE_URL` и
+   `MFA_ENCRYPTION_KEY`, команда из корня проекта:
+   `./node_modules/.bin/tsx scripts/enroll-staff-totp.ts admin@example.org`.
+   Скрипт не загружает `.env`. Привязка доступна только активному ADMIN/MANAGER
+   без действующей 2FA; повторная команда существующую привязку не перезапишет.
+4. Терминал покажет индивидуальный Base32-секрет и URI `otpauth://`.
+   QR-картинки и страницы привязки сейчас нет. Добавьте запись вручную в
+   аутентификатор: имя MVBooking, показанный секрет, TOTP, SHA-1, 6 цифр,
+   период 30 секунд. Выполняйте команду без записи терминала и сбора его вывода
+   в логи. Если приложение поддерживает импорт URI, можно использовать URI.
+5. Введите текущий шестизначный код в запросе команды. После успешной проверки
+   секрет сохранится зашифрованным, старые сессии будут отозваны и появится
+   `STAFF_2FA_ENABLED` в AuditLog. Команда один раз покажет **10 резервных кодов**.
+   Сохраните их офлайн; в БД сохраняются только хеши. Каждый код действует
+   один раз, включая попытки параллельного входа.
+6. Дождитесь следующего кода аутентификатора: код подтверждения уже использован.
+   Откройте `/login`, введите email, пароль и новый код в поле второго фактора.
+   Вместо TOTP можно ввести один резервный код в то же поле. Проверьте доступ
+   к `/admin`. Отсутствие резервной копии кодов не исправляется повторным
+   запуском команды: для новой привязки нужен сброс ниже.
+
+### Сброс 2FA сотруднику
+
+Отдельной страницы или команды сброса сейчас нет. После проверки личности
+сотрудника доверенный оператор БД выполняет транзакцию ниже. Подключайтесь к
+нужной БД через `psql` с защищёнными параметрами подключения; пароль не передавайте
+в аргументах. `operator_id` — ID существующего ACTIVE ADMIN, ответственного за
+сброс; `staff_email` — email сотрудника. Операция отзывает сессии, удаляет старый
+секрет и все резервные коды, сохраняет аудит. Она не меняет пароль или роль.
+
+```bash
+psql -X -v operator_id='ADMIN_USER_ID' -v staff_email='staff@example.org'
+```
+
+В интерактивной сессии psql:
+
+```sql
+\set ON_ERROR_STOP on
+BEGIN;
+SELECT pg_advisory_xact_lock(hashtext('mvbooking:user-role-status'));
+SELECT "id" FROM "User"
+ WHERE "id" = :'operator_id' AND "role" = 'ADMIN' AND "status" = 'ACTIVE'
+ FOR UPDATE;
+WITH reset AS (
+  UPDATE "User"
+     SET "totpSecretEncrypted" = NULL, "totpEnabledAt" = NULL,
+         "totpLastCounter" = -1, "backupCodeHashes" = ARRAY[]::text[],
+         "sessionVersion" = "sessionVersion" + 1, "updatedAt" = now()
+   WHERE "email" = lower(trim(:'staff_email'))
+     AND "role" IN ('ADMIN', 'MANAGER') AND "status" = 'ACTIVE'
+     AND EXISTS (SELECT 1 FROM "User" WHERE "id" = :'operator_id'
+                 AND "role" = 'ADMIN' AND "status" = 'ACTIVE')
+  RETURNING "id"
+)
+INSERT INTO "AuditLog" ("id", "userId", "action", "entity", "entityId", "metadata")
+SELECT gen_random_uuid()::text, :'operator_id', 'STAFF_2FA_RESET', 'User', "id",
+       '{"source":"operator-psql"}'::jsonb FROM reset
+RETURNING "entityId";
+```
+
+Проверьте, что возвращён ровно один ожидаемый `entityId`, затем выполните
+`COMMIT;`. При ошибке или неожиданном результате выполните `ROLLBACK;`.
+Сотрудник не сможет войти до новой привязки. Повторите шаги 3–6 выше для его
+email, передайте новые резервные коды и проверьте, что прежние больше не подходят.
+Сброс первого ADMIN при потере аутентификатора выполняется тем же доверенным
+оператором; существующая браузерная сессия для SQL-процедуры не нужна.
+
+### Потеря MFA_ENCRYPTION_KEY
+
+Сначала восстановите **точное прежнее значение** из хранилища секретов или
+защищённой резервной копии, передайте его приложению и команде привязки и
+перезапустите приложение. Восстановление только БД не восстанавливает ключ;
+смена `AUTH_SECRET` не помогает. Для восстановления старой копии БД нужен
+соответствующий ей ключ шифрования.
+
+Если прежнее значение безвозвратно утрачено, расшифровать сохранённые TOTP-секреты
+нельзя. Запланируйте окно обслуживания: создайте и сохраните новый ключ,
+обновите его во всех экземплярах приложения и в окружении привязки, выполните
+описанный аудируемый сброс для **каждого ADMIN/MANAGER**, включая первый ADMIN,
+затем заново привяжите аутентификаторы и выдайте новые резервные коды. Активных
+сотрудников восстановите перед открытием админки; для временно отключённых
+аккаунтов повторите процедуру после их контролируемого включения. Старые
+зашифрованные секреты с новым ключом не заработают. Резервные коды хешируются
+отдельно и сами по себе не зависят от ключа, но не восстанавливают утраченный
+TOTP-секрет; при сбросе они также аннулируются.

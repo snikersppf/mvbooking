@@ -5,12 +5,14 @@ export type NotificationChannel = "email" | "telegram" | "sms" | "whatsapp";
 export type NotificationInput = Readonly<{
   recipient: string;
   message: string;
+  subject?: string;
+  idempotencyKey?: string;
 }>;
 
 export type NotificationResult = Readonly<{
   messageId: string;
   channel: NotificationChannel;
-  status: "mock-sent";
+  status: "mock-sent" | "sent";
 }>;
 
 export interface NotificationProvider {

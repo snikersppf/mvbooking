@@ -2,7 +2,8 @@ import { randomBytes } from "node:crypto";
 import { Prisma, UserRole, UserStatus, VehicleStatus, type PrismaClient } from "@prisma/client";
 import { requireTestDatabaseUrl } from "@/server/config/test-database";
 import { createPrismaClient } from "@/server/db/prisma";
-import { encryptTotpSecret, totpAt } from "@/server/security/totp";
+import { backupCodeHash, decryptTotpSecret, encryptTotpSecret, generateTotpSecret } from "@/server/security/totp";
+import { createStaffSecondFactor } from "./staff-second-factor";
 import { hashPassword } from "@/server/security/password";
 
 type E2EFixture = Readonly<{
@@ -11,7 +12,13 @@ type E2EFixture = Readonly<{
   customerPassword: string;
   managerEmail: string;
   managerPassword: string;
-  managerOtp: () => string;
+  clientIp: string;
+  managerSecondFactor: () => Promise<Readonly<{ code: string; kind: "totp" | "backup" }>>;
+  authDiagnostics: () => Promise<Readonly<{
+    accountExists: boolean; active: boolean; staffRole: boolean;
+    mfaConfigured: boolean; keyDecrypts: boolean; currentStepConsumed: boolean;
+    backupCodesRemaining: number;
+  }>>;
   vehicleLabel: string;
   vehicleSlug: string;
   findLeadId: () => Promise<string>;
@@ -41,12 +48,22 @@ async function removeFixtureData(
 
 export async function seedBookingFlow(): Promise<E2EFixture> {
   const databaseUrl = requireTestDatabaseUrl({ DATABASE_URL: process.env.E2E_DATABASE_URL });
+  const mfaKey = process.env.MFA_ENCRYPTION_KEY;
+  if (!mfaKey) throw new Error("Run E2E through playwright.config.ts to configure the test MFA key.");
   const prisma = createPrismaClient(databaseUrl);
   const prefix = `e2e_${randomBytes(8).toString("hex")}`;
   const category = prefix.toUpperCase();
   const vehicleLabel = `${prefix} Test car`;
   const vehicleId = `${prefix}_vehicle`;
   const vehicleSlug = `${prefix}-vehicle`;
+  const managerId = `${prefix}_manager`;
+  const managerSecret = generateTotpSecret();
+  const backupCodes = Array.from({ length: 4 }, () => randomBytes(16).toString("hex"));
+  // The local test server trusts proxy headers; isolate each test's IP bucket.
+  const clientIp = `127.${Array.from(randomBytes(3)).join(".")}`;
+  const managerSecondFactor = createStaffSecondFactor(managerSecret, backupCodes, async () =>
+    (await prisma.user.findUniqueOrThrow({ where: { id: managerId }, select: { totpLastCounter: true } })).totpLastCounter,
+  );
   const managerEmail = `${prefix}-manager@example.test`;
   const managerPassword = `${randomBytes(18).toString("base64url")}Aa1!`;
   const customerEmail = `${prefix}-customer@example.test`;
@@ -56,14 +73,16 @@ export async function seedBookingFlow(): Promise<E2EFixture> {
     await prisma.$connect();
     await prisma.user.create({
       data: {
-        id: `${prefix}_manager`,
+        id: managerId,
         name: "E2E Manager",
         email: managerEmail,
         passwordHash: await hashPassword(managerPassword),
         role: UserRole.MANAGER,
         status: UserStatus.ACTIVE,
-        totpSecretEncrypted: encryptTotpSecret("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", `${prefix}_manager`),
+        totpSecretEncrypted: encryptTotpSecret(managerSecret, managerId, { NODE_ENV: "test", MFA_ENCRYPTION_KEY: mfaKey }),
         totpEnabledAt: new Date(),
+        totpLastCounter: -1,
+        backupCodeHashes: backupCodes.map((code) => backupCodeHash(managerId, code)),
       },
     });
     await prisma.vehicle.create({
@@ -108,7 +127,26 @@ export async function seedBookingFlow(): Promise<E2EFixture> {
     customerPassword,
     managerEmail,
     managerPassword,
-    managerOtp: () => totpAt("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", Math.floor(Date.now() / 30_000)),
+    clientIp,
+    managerSecondFactor,
+    authDiagnostics: async () => {
+      const user = await prisma.user.findUnique({ where: { id: managerId }, select: {
+        role: true, status: true, totpEnabledAt: true, totpSecretEncrypted: true,
+        totpLastCounter: true, backupCodeHashes: true,
+      } });
+      let keyDecrypts = false;
+      try {
+        keyDecrypts = Boolean(user?.totpSecretEncrypted && decryptTotpSecret(user.totpSecretEncrypted, managerId,
+          { NODE_ENV: "test", MFA_ENCRYPTION_KEY: mfaKey }) === managerSecret);
+      } catch { /* Return a boolean only; never print crypto errors or key material. */ }
+      return {
+        accountExists: Boolean(user), active: user?.status === "ACTIVE",
+        staffRole: user?.role === "MANAGER" || user?.role === "ADMIN",
+        mfaConfigured: Boolean(user?.totpEnabledAt && user.totpSecretEncrypted), keyDecrypts,
+        currentStepConsumed: (user?.totpLastCounter ?? -1) >= Math.floor(Date.now() / 30_000),
+        backupCodesRemaining: user?.backupCodeHashes.length ?? 0,
+      };
+    },
     vehicleLabel,
     vehicleSlug,
     findLeadId: async () => (await prisma.lead.findFirstOrThrow({ where: { email: customerEmail } })).id,

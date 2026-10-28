@@ -69,7 +69,6 @@ vi.mock("@/server/auth/current-user", async (importOriginal) => {
 
 import AccountBookingsPage from "@/app/account/bookings/page";
 import VehiclePage from "@/app/vehicles/[slug]/page";
-import BookingPage from "@/app/vehicles/[slug]/booking/page";
 import {
   createPrismaClient,
   getPrismaClient,
@@ -184,7 +183,7 @@ afterAll(async () => {
 });
 
 describe("customer page access integration", () => {
-  it("renders separate public vehicle and booking pages without a session", async () => {
+  it("renders the public Send enquiry form without a session", async () => {
     const prefix = newPrefix();
     const vehicle = await createVehicle(prefix);
     setSession(null);
@@ -193,14 +192,18 @@ describe("customer page access integration", () => {
       params: Promise.resolve({ slug: vehicle.slug }),
     });
     const vehicleMarkup = await renderLocalizedPage(page);
-    expect(vehicleMarkup).toContain("Book this car");
+    expect(vehicleMarkup).toContain("Send enquiry");
+    expect(vehicleMarkup).toContain('href="#enquiry"');
+    expect(vehicleMarkup).toContain('name="name"');
+    expect(vehicleMarkup).toContain('name="email"');
+    expect(vehicleMarkup).toContain('name="phone"');
+    const consent = vehicleMarkup.match(/<input[^>]*name="consent"[^>]*>/)?.[0];
+    expect(consent).toBeDefined();
+    expect(consent).toContain("required");
+    expect(consent).not.toContain("checked");
+    expect(vehicleMarkup).not.toContain("Book this car");
     expect(vehicleMarkup).not.toContain("Check price");
-    const bookingPage = await BookingPage({ params: Promise.resolve({ slug: vehicle.slug }) });
-    const rendered = await renderLocalizedPage(bookingPage);
-    expect(rendered).toContain("Book your car");
-    expect(rendered).toContain("Pickup date and time");
-    expect(rendered).toContain("Check price");
-    expect(rendered).toContain("Asia/Tbilisi");
+    expect(vehicleMarkup).not.toContain(`href="/vehicles/${vehicle.slug}/booking"`);
   });
 
   it("renders only the current active user's bookings", async () => {

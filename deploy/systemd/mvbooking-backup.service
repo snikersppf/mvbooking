@@ -1,0 +1,20 @@
+[Unit]
+Description=MVBooking encrypted PostgreSQL offsite backup
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=mvbooking
+Group=mvbooking
+SupplementaryGroups=docker
+EnvironmentFile=/etc/mvbooking/operations.env
+WorkingDirectory=/opt/mvbooking
+ExecStart=/usr/bin/bash /opt/mvbooking/deploy/backup.sh
+TimeoutStartSec=2h
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+StandardOutput=journal
+StandardError=journal

@@ -15,6 +15,10 @@
     "test:e2e": "playwright test",
     "test:e2e:list": "playwright test --list",
     "maintenance:cleanup": "tsx scripts/cleanup-expired-records.ts",
+    "maintenance:scheduled": "tsx scripts/run-scheduled-maintenance.ts",
+    "create-admin": "tsx scripts/create-admin.ts",
+    "notifications:worker": "tsx scripts/notification-worker.ts",
+    "production:data:check": "tsx scripts/check-production-data.ts",
     "prisma:format": "prisma format",
     "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate",
@@ -24,15 +28,15 @@
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.1",
-    "@prisma/adapter-pg": "7.10.0",
-    "@prisma/client": "7.10.0",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
     "dotenv": "16.6.1",
-    "next": "16.3.8",
+    "next": "16.4.3",
     "next-auth": "5.0.0-beta.32",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "7.89.0",
-    "zod": "4.6.5"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
@@ -40,11 +44,11 @@
     "@types/react": "19.1.2",
     "@types/react-dom": "19.1.2",
     "eslint": "9.39.1",
-    "eslint-config-next": "16.3.8",
-    "prisma": "7.10.0",
+    "eslint-config-next": "16.4.3",
+    "prisma": "7.10.1",
     "tsx": "4.20.3",
     "typescript": "5.9.3",
-    "vitest": "3.2.4"
+    "vitest": "3.2.7"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

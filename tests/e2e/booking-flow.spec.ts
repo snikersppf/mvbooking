@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { seedBookingFlow } from "./booking-flow.fixture";
+import { submitStaffSignIn } from "./staff-sign-in";
 
 test("visitor sends a contact enquiry and manager processes it", async ({ page }) => {
   const fixture = await seedBookingFlow();
@@ -18,14 +19,12 @@ test("visitor sends a contact enquiry and manager processes it", async ({ page }
     await page.goto(`/login?callbackUrl=${encodeURIComponent(`/admin/leads/${id}`)}`);
     await page.getByLabel("Email", { exact: true }).fill(fixture.managerEmail);
     await page.getByLabel("Password", { exact: true }).fill(fixture.managerPassword);
-    await page.getByLabel("Authenticator or backup code").fill(fixture.managerOtp());
-    await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(`/admin/leads/${id}$`));
-    await page.getByLabel("Status", { exact: true }).selectOption("IN_PROGRESS");
-    await page.getByLabel("Manager note", { exact: true }).fill("Contact visitor");
+    await submitStaffSignIn(page, fixture, `/admin/leads/${id}`, test.info());
+    await page.locator('select[name="status"]').selectOption("IN_PROGRESS");
+    await page.locator('textarea[name="managerNote"]').fill("Contact visitor");
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await expect(page.getByRole("status")).toHaveText("Saved.");
     await page.reload();
-    await expect(page.getByLabel("Manager note", { exact: true })).toHaveValue("Contact visitor");
+    await expect(page.locator('textarea[name="managerNote"]')).toHaveValue("Contact visitor");
   } finally { await fixture.cleanup(); }
 });

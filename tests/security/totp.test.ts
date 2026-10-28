@@ -34,10 +34,10 @@ function harness() {
   const codeA = "a".repeat(32), codeB = "b".repeat(32);
   const credentials: CredentialsUser = { id: "user-1", name: "Staff", email: "staff@example.test", phone: null, passwordHash: "hash", role: "ADMIN", status: "ACTIVE", sessionVersion: 1 };
   const stored = { ...credentials, totpEnabledAt: now, totpSecretEncrypted: encryptTotpSecret(secret, "user-1"), totpLastCounter: -1, backupCodeHashes: [backupCodeHash("user-1", codeA), backupCodeHash("user-1", codeB)] };
-  const updateMany = vi.fn(async ({ where, data }: { where: { sessionVersion: number; totpLastCounter?: { lt: number }; backupCodeHashes?: { has: string; equals: string[] } }; data: { totpLastCounter?: number; backupCodeHashes?: { set: string[] } } }) => {
+  const updateMany = vi.fn(async ({ where, data }: { where: { sessionVersion: number; totpLastCounter?: { lt: number }; backupCodeHashes?: { equals: string[] } }; data: { totpLastCounter?: number; backupCodeHashes?: { set: string[] } } }) => {
     if (where.sessionVersion !== stored.sessionVersion) return { count: 0 };
     if (where.totpLastCounter && stored.totpLastCounter >= where.totpLastCounter.lt) return { count: 0 };
-    if (where.backupCodeHashes && (!stored.backupCodeHashes.includes(where.backupCodeHashes.has) || JSON.stringify(where.backupCodeHashes.equals) !== JSON.stringify(stored.backupCodeHashes))) return { count: 0 };
+    if (where.backupCodeHashes && JSON.stringify(where.backupCodeHashes.equals) !== JSON.stringify(stored.backupCodeHashes)) return { count: 0 };
     if (data.totpLastCounter !== undefined) stored.totpLastCounter = data.totpLastCounter;
     if (data.backupCodeHashes) stored.backupCodeHashes = data.backupCodeHashes.set;
     return { count: 1 };
@@ -51,6 +51,13 @@ it("accepts a TOTP once across parallel sign-ins and rejects a stale session", a
   expect(results.filter(Boolean)).toHaveLength(1);
   expect(await verifyStaffSecondFactor(h.credentials, code, h.prisma, now)).toBe(false);
   expect(await verifyStaffSecondFactor({ ...h.credentials, sessionVersion: 0 }, h.codeA, h.prisma, now)).toBe(false);
+});
+it("allows only one parallel use of the same backup code and rejects its replay", async () => {
+  const h = harness();
+  const results = await Promise.all([1, 2].map(() => verifyStaffSecondFactor(h.credentials, h.codeA, h.prisma, now)));
+  expect(results.toSorted()).toEqual([false, true]);
+  expect(await verifyStaffSecondFactor(h.credentials, h.codeA, h.prisma, now)).toBe(false);
+  expect(h.stored.backupCodeHashes).toEqual([backupCodeHash(h.credentials.id, h.codeB)]);
 });
 it("atomically consumes backup codes without resurrecting another code during parallel logins", async () => {
   const h = harness();

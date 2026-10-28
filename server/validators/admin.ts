@@ -6,6 +6,7 @@ import {
   VehicleStatus,
 } from "@prisma/client";
 import { z } from "zod";
+import { isVehicleImageUrl } from "@/lib/vehicle-image-url";
 import {
   ADMIN_DRIVES,
   ADMIN_FUELS,
@@ -193,15 +194,7 @@ const imageUrlSchema = z
   .trim()
   .min(1)
   .max(2_048)
-  .refine((value) => {
-    if (value.startsWith("/")) return !value.startsWith("//");
-    try {
-      const url = new URL(value);
-      return url.protocol === "http:" || url.protocol === "https:";
-    } catch {
-      return false;
-    }
-  }, "Image URL must be an absolute HTTP(S) URL or a local path.");
+  .refine(isVehicleImageUrl, "Image URL must be an absolute HTTP(S) URL or a local path without credentials or backslashes.");
 
 export const adminImagesReplaceSchema = z
   .object({

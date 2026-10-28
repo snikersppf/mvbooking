@@ -1,63 +1,55 @@
 import { expect, test } from "@playwright/test";
 import { seedBookingFlow } from "./booking-flow.fixture";
 
-test("booking page preserves validation, stale quotes and the sign-in return route", async ({ page }) => {
+test("public vehicle enquiry validates contacts and dates without requiring sign-in", async ({ page }) => {
   const fixture = await seedBookingFlow();
   await page.context().addCookies([{ name: "mvbooking_locale", value: "en", url: "http://127.0.0.1:3107" }]);
-  const bookingPath = `/vehicles/${fixture.vehicleSlug}/booking`;
+  const vehiclePath = `/vehicles/${fixture.vehicleSlug}`;
   const start = new Date(Date.now() + 35 * 86_400_000).toISOString().slice(0, 10);
   const end = new Date(Date.now() + 38 * 86_400_000).toISOString().slice(0, 10);
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/leads" && request.method() === "POST") requests.push(request.url());
+  });
 
   try {
-    const response = await page.goto(bookingPath);
+    const response = await page.goto(vehiclePath);
     expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Book your car");
-    await expect(page.locator(".booking-form")).toHaveCount(1);
-    await expect(page.getByLabel("Pickup location")).toHaveValue("Tbilisi Airport");
-    await expect(page.getByLabel("Return location")).toHaveValue("Tbilisi Airport");
-    const submit = page.getByRole("button", { name: "Request booking" });
-    await expect(submit).toBeDisabled();
-
-    await page.getByRole("button", { name: "Check price", exact: true }).click();
-    await expect(page.locator(".booking-form .field-error")).toHaveCount(2);
-    await page.getByLabel("Pickup date and time").fill(`${end}T10:00`);
-    await page.getByLabel("Return date and time").fill(`${start}T10:00`);
-    await page.getByRole("button", { name: "Check price", exact: true }).click();
-    await expect(page.locator(".booking-form").getByRole("alert")).toHaveText("The return time must be after the pickup time.");
-    await expect(submit).toBeDisabled();
-
-    await page.getByLabel("Pickup date and time").fill(`${start}T10:00`);
-    await page.getByLabel("Return date and time").fill(`${end}T10:00`);
-    await page.getByRole("button", { name: "Check price", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Available", exact: true })).toBeVisible();
-    await expect(page.locator(".booking-form .quote-summary")).toContainText("570.00 GEL");
-    await expect(submit).toBeEnabled();
-
-    await page.getByLabel("Return date and time").fill(`${end}T11:00`);
-    await expect(page.getByText("Dates changed. Check the price again.")).toBeVisible();
-    await expect(submit).toBeDisabled();
-    await page.getByRole("button", { name: "Check price", exact: true }).click();
-    await expect(submit).toBeEnabled();
-
-    const bookingResponse = page.waitForResponse(
-      (candidate) => new URL(candidate.url()).pathname === "/api/bookings" &&
-        candidate.request().method() === "POST",
-    );
-    await submit.click();
-    expect((await bookingResponse).status()).toBe(401);
-    await page.locator(".booking-form").getByRole("link", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(`/login\\?callbackUrl=${encodeURIComponent(bookingPath)}$`));
-    await page.getByLabel("Email").fill(fixture.managerEmail);
-    await page.getByLabel("Password").fill(fixture.managerPassword);
-    await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(`${bookingPath}$`));
-
-    await page.getByRole("link", { name: "← Back to the car" }).click();
-    await expect(page).toHaveURL(new RegExp(`/vehicles/${fixture.vehicleSlug}$`));
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(fixture.vehicleLabel);
+    const enquiryLink = page.getByRole("link", { name: "Send enquiry", exact: true });
+    await expect(enquiryLink).toHaveAttribute("href", "#enquiry");
+    await enquiryLink.click();
+    const form = page.locator(".lead-form");
+    await expect(form).toBeVisible();
     await expect(page.locator(".booking-form")).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "Book this car →" })).toHaveAttribute("href", bookingPath);
+    const consent = form.getByRole("checkbox");
+    await expect(consent).not.toBeChecked();
+    await expect(consent).toHaveAttribute("required", "");
+    await form.getByLabel("Your name").fill("Enquiry visitor");
+    await consent.check();
+    const submit = form.getByRole("button", { name: "Send enquiry", exact: true });
+    await submit.click();
+    await expect(form.getByRole("alert")).toHaveText("Enter your name, a valid contact and consent. Check the dates.");
+    expect(requests).toHaveLength(0);
 
-    const missing = await page.goto(`/vehicles/${fixture.vehicleSlug}-missing/booking`);
+    await form.getByLabel("Email", { exact: true }).fill(fixture.customerEmail);
+    await form.getByLabel("Pickup date", { exact: true }).fill(end);
+    await form.getByLabel("Return date", { exact: true }).fill(start);
+    await submit.click();
+    await expect(form.getByRole("alert")).toBeVisible();
+    expect(requests).toHaveLength(0);
+
+    await form.getByLabel("Pickup date", { exact: true }).fill(start);
+    await form.getByLabel("Return date", { exact: true }).fill(end);
+    const accepted = page.waitForResponse((candidate) => new URL(candidate.url()).pathname === "/api/leads" && candidate.request().method() === "POST");
+    await submit.click();
+    expect((await accepted).status()).toBe(202);
+    await expect(page.getByRole("status")).toHaveText("Thank you. Your enquiry has been received.");
+    await expect(page).toHaveURL(new RegExp(`${vehiclePath}#enquiry$`));
+    expect(requests).toHaveLength(1);
+    expect(await fixture.findLeadId()).toBeTruthy();
+
+    const missing = await page.goto(`/vehicles/${fixture.vehicleSlug}-missing`);
     expect(missing?.status()).toBe(404);
   } finally {
     await fixture.cleanup();

@@ -28,10 +28,18 @@ describe("staff second-factor PostgreSQL races", () => {
     const results = await Promise.all([1, 2].map(() => verifyStaffSecondFactor(user, code, prisma, now)));
     expect(results.filter(Boolean)).toHaveLength(1);
   });
+  it("rejects sequential and parallel replays after consuming a backup code", async () => {
+    const { user, code } = await fixture();
+    expect(await verifyStaffSecondFactor(user, code, prisma)).toBe(true);
+    expect(await verifyStaffSecondFactor(user, code, prisma)).toBe(false);
+    expect(await Promise.all([1, 2].map(() => verifyStaffSecondFactor(user, code, prisma)))).toEqual([false, false]);
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).backupCodeHashes).toEqual([]);
+  });
   it("consumes one backup code once under parallel requests", async () => {
     const { user, code } = await fixture();
     const results = await Promise.all([1, 2].map(() => verifyStaffSecondFactor(user, code, prisma)));
-    expect(results.filter(Boolean)).toHaveLength(1);
+    expect(results.toSorted()).toEqual([false, true]);
+    expect(await verifyStaffSecondFactor(user, code, prisma)).toBe(false);
     expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).backupCodeHashes).toEqual([]);
   });
 });

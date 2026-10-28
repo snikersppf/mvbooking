@@ -18,7 +18,7 @@ async function main(): Promise<void> {
     process.stdout.write(`Save these one-use backup codes offline (shown once):\n${codes.join("\n")}\nWait for the next authenticator code before signing in.\n`);
   } finally { terminal.close(); await prisma.$disconnect(); }
 }
-main().catch(() => {
-  process.stderr.write("2FA enrollment failed. Check staff state, encryption key and authenticator time.\n");
+main().catch((e) => {
+  process.stderr.write(`failed: ${e instanceof Error ? e.name + ": " + e.message : "unknown"}\n`);
   process.exitCode = 1;
 });

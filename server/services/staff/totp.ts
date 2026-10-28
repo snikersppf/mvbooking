@@ -17,7 +17,7 @@ export async function verifyStaffSecondFactor(user: CredentialsUser, rawCode: un
   if (/^[a-fA-F0-9]{32}$/.test(rawCode)) {
     const hash = backupCodeHash(user.id, rawCode);
     if (!stored.backupCodeHashes.includes(hash)) return false;
-    const result = await client.user.updateMany({ where: { ...where, backupCodeHashes: { has: hash, equals: stored.backupCodeHashes } }, data: {
+    const result = await client.user.updateMany({ where: { ...where, backupCodeHashes: { equals: stored.backupCodeHashes } }, data: {
       backupCodeHashes: { set: stored.backupCodeHashes.filter((value) => value !== hash) },
     } });
     return result.count === 1;

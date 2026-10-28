@@ -6,7 +6,8 @@ import { requireTestDatabaseUrl } from "./server/config/test-database";
 const databaseUrl = requireTestDatabaseUrl({
   DATABASE_URL: process.env.E2E_DATABASE_URL,
 });
-const mfaKey = randomBytes(32).toString("base64");
+// Test-only key: config is evaluated independently by the runner and workers.
+const mfaKey = Buffer.alloc(32, 0x45).toString("base64");
 process.env.MFA_ENCRYPTION_KEY = mfaKey;
 const port = 3107;
 const baseURL = `http://127.0.0.1:${port}`;
