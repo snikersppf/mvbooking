@@ -9,7 +9,7 @@ import { MANAGER_ADMIN_ROLES } from "@/server/services/admin/authorization";
 export default async function AdminPage() {
   const t = await getTranslations();
   const actor = await requireAdminPageRole(MANAGER_ADMIN_ROLES, "/admin");
-  const dashboardItems = adminDashboardItems(actor.role);
+  const dashboardItems = adminDashboardItems();
 
   return (
     <AdminPageShell

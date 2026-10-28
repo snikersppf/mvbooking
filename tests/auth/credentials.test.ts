@@ -9,7 +9,8 @@ import type {
   UserRepository,
 } from "@/server/repositories/users";
 import { verifyPassword } from "@/server/security/password";
-import { RateLimitExceededError } from "@/server/security/rate-limit/rate-limiter";
+import { MemoryRateLimitStore } from "@/server/security/rate-limit/memory-store";
+import { RateLimiter, RateLimitUnavailableError, RateLimitExceededError } from "@/server/security/rate-limit/rate-limiter";
 
 const credentialsUser: CredentialsUser = {
   id: "user_1",
@@ -222,6 +223,25 @@ describe("authorizeCredentials", () => {
     ).rejects.toBeInstanceOf(RateLimitExceededError);
     expect(repository.findCredentialsUserByEmail).not.toHaveBeenCalled();
     expect(passwordVerifier).not.toHaveBeenCalled();
+  });
+
+  it("recovers after the login window without weakening the per-email limit", async () => {
+    let now = 0;
+    const dependencies = createDependencies({ rateLimiter: new RateLimiter(new MemoryRateLimitStore(() => now)) });
+    const input = { email: credentialsUser.email, password: "correct-password", otp: "123456" };
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await expect(authorizeCredentials(input, createRequest(), dependencies)).resolves.toMatchObject({ mfaVerified: true });
+    }
+    await expect(authorizeCredentials(input, createRequest(), dependencies)).rejects.toMatchObject({ code: "RATE_LIMIT_EXCEEDED" });
+    now += 10 * 60 * 1000;
+    await expect(authorizeCredentials(input, createRequest(), dependencies)).resolves.toMatchObject({ mfaVerified: true });
+  });
+
+  it("does not misreport a limiter outage as a credentials rejection", async () => {
+    const dependencies = createDependencies({ rateLimiter: { check: vi.fn().mockRejectedValue(new RateLimitUnavailableError()) } });
+    await expect(authorizeCredentials({ email: credentialsUser.email, password: "correct-password" }, createRequest(), dependencies))
+      .rejects.toBeInstanceOf(RateLimitUnavailableError);
+    expect(dependencies.repository.findCredentialsUserByEmail).not.toHaveBeenCalled();
   });
 
   it("uses a forwarded IP only when trusted proxy mode is enabled", async () => {

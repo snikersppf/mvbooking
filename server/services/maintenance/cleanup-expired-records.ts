@@ -1,3 +1,4 @@
+import { ARCHIVED_LEAD_STATUSES } from "@/lib/lead-status";
 import type { PrismaClient } from "@prisma/client";
 import { getPrismaClient } from "@/server/db/prisma";
 
@@ -23,7 +24,7 @@ export async function cleanupExpiredRecords(
     client.adminMutationResult.deleteMany({
       where: { createdAt: { lt: new Date(now.getTime() - DAY_MS) } },
     }),
-    client.lead.deleteMany({ where: { status: "CLOSED", updatedAt: { lt: leadRetentionCutoff(now) } } }),
+    client.lead.deleteMany({ where: { status: { in: [...ARCHIVED_LEAD_STATUSES] }, updatedAt: { lt: leadRetentionCutoff(now) } } }),
   ]);
 
   return {

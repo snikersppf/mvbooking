@@ -27,8 +27,8 @@ describe.skipIf(!runtime || !migrator)("dedicated database roles", () => {
       `;
       expect(privileges).toEqual({ role: "mvbooking_runtime", createSchema: false, createDatabase: false, temporary: false });
       await runtime!.lead.create({ data: { id, name: "Role test", phone: "+995555123456", consentVersion: "test", consentAt: new Date() } });
-      await runtime!.lead.update({ where: { id }, data: { status: "CLOSED" } });
-      expect((await runtime!.lead.findUniqueOrThrow({ where: { id } })).status).toBe("CLOSED");
+      await runtime!.lead.update({ where: { id }, data: { status: "COMPLETED" } });
+      expect((await runtime!.lead.findUniqueOrThrow({ where: { id } })).status).toBe("COMPLETED");
       expect((await runtime!.lead.deleteMany({ where: { id } })).count).toBe(1);
     } finally {
       await migrator!.lead.deleteMany({ where: { id } });

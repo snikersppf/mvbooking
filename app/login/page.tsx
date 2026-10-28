@@ -19,7 +19,7 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const t = await getTranslations();
   const params = await searchParams;
-  const callbackUrl = normalizeCallbackPath(firstValue(params.callbackUrl));
+  const callbackUrl = normalizeCallbackPath(firstValue(params.callbackUrl) ?? "/admin");
   const registrationComplete = firstValue(params.registered) === "1";
 
   return (

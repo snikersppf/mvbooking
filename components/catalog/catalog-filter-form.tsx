@@ -1,3 +1,4 @@
+import { CatalogDateInput } from "@/components/catalog/catalog-date-input";
 import { getTranslations } from "@/lib/i18n/server";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
@@ -83,21 +84,13 @@ export async function CatalogFilterForm({ filters, children, summary }: CatalogF
   const startDateField = (
     <label>
       {children === undefined ? t("Start date with offset") : t("Начало аренды")}
-      <Input
-        name="startDate"
-        defaultValue={filters.startDate}
-        placeholder="2026-11-10T10:00:00+04:00"
-      />
+      <CatalogDateInput key={filters.startDate ?? "startDate"} name="startDate" defaultValue={filters.startDate} />
     </label>
   );
   const endDateField = (
     <label>
       {children === undefined ? t("End date with offset") : t("Возврат автомобиля")}
-      <Input
-        name="endDate"
-        defaultValue={filters.endDate}
-        placeholder="2026-11-13T10:00:00+04:00"
-      />
+      <CatalogDateInput key={filters.endDate ?? "endDate"} name="endDate" defaultValue={filters.endDate} />
     </label>
   );
   const sortField = (

@@ -1,5 +1,21 @@
 // UI copy only. API values, validation rules and stored data are not translated.
 export const translations: ReadonlyArray<readonly [english: string, russian: string]> = [
+  ["New", "Новый"], ["Accepted for processing", "Принят в работу"], ["Declined", "Отказано"],
+  ["Cancelled by customer", "Отменено клиентом"], ["Customer did not arrive", "Клиент не явился"],
+  ["Closed (legacy)", "Закрыта (архив)"], ["Fulfilled", "Выполнено"], ["Contacts", "Контакты"],
+  ["Choose dates", "Выберите даты"], ["All vehicles", "Все автомобили"],
+
+  ["New enquiries", "Новые заявки"], ["No new enquiries.", "Новых заявок нет."],
+  ["Active bookings", "Активные бронирования"], ["Past requests", "Прошлые заявки"],
+  ["Show", "Показать"], ["Enquiry details", "Детали заявки"], ["Enquiry ID", "Код заявки"], ["Created at", "Дата создания"],
+  ["No requests in this view.", "В этом разделе нет заявок."],
+  ["Website enquiries", "Заявки с сайта"],
+  ["Rental bookings", "Бронирования автомобилей"],
+  ["Enquiry status", "Статус заявки"],
+  ["Enquiry pages", "Страницы заявок"],
+  ["No enquiries match this status.", "Нет заявок с таким статусом."],
+  ["Back to bookings", "К бронированиям"],
+  ["Too many sign-in attempts. Wait 10 minutes before trying again.", "Слишком много попыток входа. Подождите 10 минут перед следующей попыткой."],
   ["Authenticator or backup code", "Код аутентификатора или резервный код"],
   ["Email, password or security code is incorrect.", "Неверная почта, пароль или код безопасности."],
   ["Staff", "Персонал"], ["Staff sign in", "Вход для персонала"],

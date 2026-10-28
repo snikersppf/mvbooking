@@ -3,6 +3,7 @@ import { seedBookingFlow } from "./booking-flow.fixture";
 
 test("public vehicle enquiry validates contacts and dates without requiring sign-in", async ({ page }) => {
   const fixture = await seedBookingFlow();
+  await page.context().setExtraHTTPHeaders({ "X-Forwarded-For": fixture.clientIp });
   await page.context().addCookies([{ name: "mvbooking_locale", value: "en", url: "http://127.0.0.1:3107" }]);
   const vehiclePath = `/vehicles/${fixture.vehicleSlug}`;
   const start = new Date(Date.now() + 35 * 86_400_000).toISOString().slice(0, 10);

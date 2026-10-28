@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { jwtCallback, sessionCallback } from "@/server/auth/callbacks";
-import { authorizeCredentials } from "@/server/auth/credentials";
+import { authorizeCredentialsForAuth } from "@/server/auth/credentials-provider";
 import { requireAuthSecret } from "@/server/config/auth";
 
 // Validate runtime secrets on requests; image builds do not receive secrets.
@@ -28,7 +28,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
           type: "password",
         },
       },
-      authorize: authorizeCredentials,
+      authorize: authorizeCredentialsForAuth,
     }),
   ],
   callbacks: {

@@ -9,7 +9,11 @@ datasource db {
 enum LeadStatus {
   NEW
   IN_PROGRESS
-  CLOSED
+  REJECTED
+  CANCELLED_BY_CUSTOMER
+  NO_SHOW
+  COMPLETED
+  CLOSED // Legacy archived outcome; never assigned to new enquiries.
 }
 
 enum UserRole {

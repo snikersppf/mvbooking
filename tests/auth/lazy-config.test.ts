@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("next-auth", () => ({
+vi.mock("next-auth", async () => ({
+  CredentialsSignin: (await import("@auth/core/errors")).CredentialsSignin,
   default: vi.fn(() => ({
     handlers: {},
     auth: vi.fn(),

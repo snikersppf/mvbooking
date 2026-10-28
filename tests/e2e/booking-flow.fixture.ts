@@ -29,8 +29,10 @@ async function removeFixtureData(
   prisma: PrismaClient,
   prefix: string,
   customerEmail: string,
+  clientIp: string,
 ): Promise<void> {
   await prisma.lead.deleteMany({ where: { email: customerEmail } });
+  await prisma.rateLimitCounter.deleteMany({ where: { key: `lead:ip:${clientIp}` } });
   const users = await prisma.user.findMany({
     where: { OR: [{ id: { startsWith: prefix } }, { email: customerEmail }] },
     select: { id: true },
@@ -114,7 +116,7 @@ export async function seedBookingFlow(): Promise<E2EFixture> {
     });
   } catch (error) {
     try {
-      await removeFixtureData(prisma, prefix, customerEmail);
+      await removeFixtureData(prisma, prefix, customerEmail, clientIp);
     } finally {
       await prisma.$disconnect();
     }
@@ -152,7 +154,7 @@ export async function seedBookingFlow(): Promise<E2EFixture> {
     findLeadId: async () => (await prisma.lead.findFirstOrThrow({ where: { email: customerEmail } })).id,
     cleanup: async () => {
       try {
-        await removeFixtureData(prisma, prefix, customerEmail);
+        await removeFixtureData(prisma, prefix, customerEmail, clientIp);
       } finally {
         await prisma.$disconnect();
       }

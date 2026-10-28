@@ -20,7 +20,7 @@ test("language persists across navigation and reload, with localized public page
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Грузия начинается");
   const russianWords = (await page.locator("body").innerText()).match(/[A-Za-z]{3,}/g) ?? [];
   expect(russianWords.filter((word) => !["MVBooking", "Telegram"].includes(word))).toEqual([]);
-  await page.screenshot({ path: "/tmp/mvbooking-i18n-ru-desktop.png" });
+  await page.screenshot({ path: "/tmp/mvbooking-i18n-ru-desktop.png", caret: "initial" });
 
   await switchLanguage(page, "en");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Georgia begins");
@@ -28,7 +28,7 @@ test("language persists across navigation and reload, with localized public page
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page).toHaveTitle("MVBooking");
-  await page.screenshot({ path: "/tmp/mvbooking-i18n-en-desktop.png" });
+  await page.screenshot({ path: "/tmp/mvbooking-i18n-en-desktop.png", caret: "initial" });
 
   for (const route of ["/vehicles", "/register", "/forgot-password", "/reset-password", "/missing-localized-page"]) {
     await page.goto(route);
@@ -50,16 +50,17 @@ test("language persists across navigation and reload, with localized public page
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
-  await page.screenshot({ path: "/tmp/mvbooking-i18n-ru-mobile.png" });
+  await page.screenshot({ path: "/tmp/mvbooking-i18n-ru-mobile.png", caret: "initial" });
   await switchLanguage(page, "en");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Georgia begins");
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
-  await page.screenshot({ path: "/tmp/mvbooking-i18n-en-mobile.png" });
+  await page.screenshot({ path: "/tmp/mvbooking-i18n-en-mobile.png", caret: "initial" });
   expect(errors).toEqual([]);
 });
 
 test("changing language preserves booking fields, quote state and API values", async ({ page }) => {
   const fixture = await seedBookingFlow();
+  await page.context().setExtraHTTPHeaders({ "X-Forwarded-For": fixture.clientIp });
   const path = `/vehicles/${fixture.vehicleSlug}/booking?source=catalog`;
   const start = new Date(Date.now() + 35 * 86_400_000).toISOString().slice(0, 10) + "T10:00";
   const end = new Date(Date.now() + 38 * 86_400_000).toISOString().slice(0, 10) + "T10:00";
@@ -106,6 +107,7 @@ test("changing language preserves booking fields, quote state and API values", a
 
 test("administration and account use the selected language without changing stored enum values", async ({ page }) => {
   const fixture = await seedBookingFlow();
+  await page.context().setExtraHTTPHeaders({ "X-Forwarded-For": fixture.clientIp });
   const prisma = createPrismaClient(requireTestDatabaseUrl({ DATABASE_URL: process.env.E2E_DATABASE_URL }));
   try {
     await prisma.user.update({ where: { email: fixture.managerEmail }, data: { role: "ADMIN" } });
@@ -133,6 +135,10 @@ test("administration and account use the selected language without changing stor
     await page.goto("/admin/users");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Пользователи");
     await expect(page.getByRole("button", { name: "Сохранить роль", exact: true }).first()).toBeDisabled();
+    // A valid or stale staff cookie must not prevent opening the sign-in form.
+    await page.goto("/login");
+    await expect(page.getByRole("heading", { name: "Войти", exact: true })).toBeVisible();
+    await expect(page.locator("#login-otp")).toBeVisible();
   } finally {
     await prisma.$disconnect();
     await fixture.cleanup();

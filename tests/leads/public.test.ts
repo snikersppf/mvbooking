@@ -23,7 +23,7 @@ afterEach(() => { vi.clearAllMocks(); vi.unstubAllEnvs(); });
 describe("public contact enquiries", () => {
   it("strictly requires consent and at least one validated contact", () => {
     for (const body of [{ ...input, consent: false }, { name: "Test", consent: true }, { ...input, role: "ADMIN" },
-      { ...input, status: "CLOSED" }, { ...input, consentVersion: "spoof" }, { ...input, email: "bad" },
+      { ...input, status: "COMPLETED" }, { ...input, consentVersion: "spoof" }, { ...input, email: "bad" },
       { ...input, startDate: "2030-01-02T00:00:00Z", endDate: "2030-01-01T00:00:00Z" }]) {
       expect(createLeadSchema.safeParse(body).success).toBe(false);
     }

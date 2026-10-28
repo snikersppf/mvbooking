@@ -62,6 +62,11 @@ vi.mock("@/server/auth/current-user", async (importOriginal) => {
 });
 
 import AdminPage from "@/app/admin/page";
+import AdminBookingsPage from "@/app/admin/bookings/page";
+import BookingRequestPage from "@/app/admin/bookings/requests/[id]/page";
+import { listBookingWorklist } from "@/server/services/admin/booking-worklist";
+import { reviewLead, updateLead } from "@/server/services/leads/admin";
+import { createLead } from "@/server/services/leads/create";
 import AdminAuditLogsPage from "@/app/admin/audit-logs/page";
 import AdminUsersPage from "@/app/admin/users/page";
 import AdminVehiclesPage from "@/app/admin/vehicles/page";
@@ -103,6 +108,7 @@ function setSession(user: User | null): void {
 }
 
 async function cleanup(prefix: string): Promise<void> {
+  await prisma.lead.deleteMany({ where: { OR: [{ id: { startsWith: prefix } }, { email: { startsWith: prefix } }] } });
   await prisma.auditLog.deleteMany({
     where: { userId: { startsWith: prefix } },
   });
@@ -175,6 +181,32 @@ describe("admin page access integration", () => {
       AdminAuditLogsPage({ searchParams: Promise.resolve({}) }),
     );
     expect(auditRedirect).toContain("/admin");
+  });
+
+  it("shows an already submitted contact enquiry in bookings and opens its manager card", async () => {
+    const prefix = newPrefix();
+    setSession(await createUser(prefix, UserRole.MANAGER));
+    const email = `${prefix}_visitor@example.test`;
+    await createLead({ name: `${prefix} Visitor`, email, consent: true, comment: "Please contact me" }, prisma);
+    const lead = await prisma.lead.findFirstOrThrow({ where: { email } });
+    const page = await AdminBookingsPage({ searchParams: Promise.resolve({ leadStatus: "NEW" }) });
+    const rendered = await renderLocalizedPage(page);
+    expect(rendered).toContain(email);
+    expect(rendered).toContain(`/admin/bookings/requests/${lead.id}`);
+    expect(rendered).not.toContain('href="/admin/leads"');
+    const card = await BookingRequestPage({ params: Promise.resolve({ id: lead.id }) });
+    const details = await renderLocalizedPage(card);
+    expect(details).toContain("Please contact me");
+    expect(details).toContain('name="managerNote"');
+    expect(details).toContain('href="/admin/bookings"');
+    expect(await prisma.user.findUnique({ where: { email } })).toBeNull();
+    // Server rendering/prefetch must not mark a request as seen.
+    expect((await prisma.lead.findUniqueOrThrow({ where: { id: lead.id } })).status).toBe("NEW");
+    await reviewLead(lead.id);
+    expect((await listBookingWorklist({})).items.some((item) => item.id === lead.id)).toBe(true);
+    await updateLead(lead.id, { status: "COMPLETED", managerNote: "Resolved" });
+    expect((await listBookingWorklist({})).items.some((item) => item.id === lead.id)).toBe(false);
+    expect((await listBookingWorklist({ view: "past" })).items.some((item) => item.id === lead.id)).toBe(true);
   });
 
   it("lets an ADMIN render the users page", async () => {

@@ -1,6 +1,7 @@
 import { getTranslations } from "@/lib/i18n/server";
 import { PageShell } from "@/components/ui/page-shell";
 import Link from "next/link";
+import { SignOutButton } from "@/components/sign-out-button";
 import { adminNavigationItems } from "@/lib/admin-navigation";
 
 type AdminPageShellProps = Readonly<{
@@ -12,25 +13,23 @@ type AdminPageShellProps = Readonly<{
 }>;
 
 export async function AdminPageShell({
-  role,
   title,
   description,
   actions,
   children,
 }: AdminPageShellProps) {
   const t = await getTranslations();
-  const navigationItems = adminNavigationItems(role);
+  const navigationItems = adminNavigationItems();
 
   return (
     <PageShell className="admin-shell">
       <header className="admin-header">
         <div>
-          <Link href="/">MVBooking</Link>
           <p className="eyebrow">{t("Administration")}</p>
           <h1>{t(title)}</h1>
           {description ? <p>{t(description)}</p> : null}
         </div>
-        {actions ? <div className="admin-header-actions">{actions}</div> : null}
+        <div className="admin-header-actions">{actions}<SignOutButton /></div>
       </header>
       <nav className="admin-navigation" aria-label={t("Administration")}>
         {navigationItems.map((item) => (

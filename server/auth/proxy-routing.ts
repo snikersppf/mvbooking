@@ -1,5 +1,6 @@
 const PROTECTED_PATHS = ["/account", "/bookings", "/admin"] as const;
-const AUTH_PATHS = new Set(["/login", "/register"]);
+// Login must remain reachable for reauthentication, including with a stale JWT.
+const AUTH_PATHS = new Set(["/register"]);
 
 function matchesPathPrefix(pathname: string, prefix: string): boolean {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);

@@ -1,3 +1,4 @@
+import { EDITABLE_LEAD_STATUSES } from "@/lib/lead-status";
 import { randomUUID } from "node:crypto";
 import { LeadStatus, type PrismaClient } from "@prisma/client";
 import { z } from "zod";
@@ -10,7 +11,7 @@ import { assertActiveAdminActor, MANAGER_ADMIN_ROLES } from "@/server/services/a
 
 export type LeadAdminDependencies = Readonly<{ prisma?: PrismaClient; authorize?: () => Promise<CurrentUser> }>;
 const idSchema = z.string().min(1).max(128);
-export const leadChangeSchema = z.object({ status: z.enum(LeadStatus), managerNote: z.string().trim().max(5000) }).strict();
+export const leadChangeSchema = z.object({ status: z.enum(EDITABLE_LEAD_STATUSES), managerNote: z.string().trim().max(5000) }).strict();
 export const leadListSchema = z.object({ status: z.enum(LeadStatus).optional(), page: z.coerce.number().int().min(1).max(100000).default(1) }).strict();
 async function actor(dependencies: LeadAdminDependencies) {
   return (dependencies.authorize ?? (() => requireRole(MANAGER_ADMIN_ROLES)))();
@@ -21,14 +22,14 @@ export async function listLeads(input: unknown, dependencies: LeadAdminDependenc
   const prisma = dependencies.prisma ?? getPrismaClient();
   const where = { status: query.status };
   const [items, total] = await Promise.all([
-    prisma.lead.findMany({ where, orderBy: [{ createdAt: "desc" }, { id: "desc" }], skip: (query.page - 1) * 20, take: 20 }),
+    prisma.lead.findMany({ where, include: { vehicle: { select: { brand: true, model: true } } }, orderBy: [{ createdAt: "desc" }, { id: "desc" }], skip: (query.page - 1) * 20, take: 20 }),
     prisma.lead.count({ where }),
   ]);
   return { items, total, page: query.page };
 }
 export async function getLead(id: string, dependencies: LeadAdminDependencies = {}) {
   await actor(dependencies);
-  return (dependencies.prisma ?? getPrismaClient()).lead.findUnique({ where: { id: idSchema.parse(id) } });
+  return (dependencies.prisma ?? getPrismaClient()).lead.findUnique({ where: { id: idSchema.parse(id) }, include: { vehicle: { select: { brand: true, model: true } } } });
 }
 export async function updateLead(id: string, input: unknown, dependencies: LeadAdminDependencies = {}) {
   const staff = await actor(dependencies);
@@ -61,5 +62,25 @@ export async function deleteLead(id: string, dependencies: LeadAdminDependencies
     if (deleted.count) await tx.auditLog.create({ data: {
       userId: staff.id, action: "LEAD_DELETED", entity: "Lead", entityId: id,
     } });
+  });
+}
+
+/** Called by an actual card visit, never by server rendering or link prefetch. */
+export async function reviewLead(id: string, dependencies: LeadAdminDependencies = {}) {
+  const staff = await actor(dependencies);
+  idSchema.parse(id);
+  return (dependencies.prisma ?? getPrismaClient()).$transaction(async (tx) => {
+    const locked = await lockUserById(tx, staff.id);
+    assertActiveAdminActor(locked, staff.sessionVersion, MANAGER_ADMIN_ROLES, randomUUID());
+    await tx.$queryRaw`SELECT "id" FROM "Lead" WHERE "id" = ${id} FOR UPDATE`;
+    const existing = await tx.lead.findUnique({ where: { id } });
+    if (!existing) throw new ApiRequestError(404, "LEAD_NOT_FOUND", "errors.notFound");
+    if (existing.status !== "NEW") return existing;
+    const result = await tx.lead.update({ where: { id }, data: { status: "IN_PROGRESS" } });
+    await tx.auditLog.create({ data: {
+      userId: staff.id, action: "LEAD_REVIEWED", entity: "Lead", entityId: id,
+      metadata: { previousStatus: "NEW", status: "IN_PROGRESS" },
+    } });
+    return result;
   });
 }

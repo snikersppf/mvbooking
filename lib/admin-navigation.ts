@@ -6,26 +6,17 @@ export type AdminNavigationItem = Readonly<{
 export type AdminDashboardItem = AdminNavigationItem &
   Readonly<{ description: string; actionLabel: string }>;
 
-const MANAGER_ITEMS: readonly AdminNavigationItem[] = [
+const NAVIGATION_ITEMS: readonly AdminNavigationItem[] = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/vehicles", label: "Vehicles" },
   { href: "/admin/bookings", label: "Bookings" },
-  { href: "/admin/leads", label: "Enquiries" },
 ];
 
-const ADMIN_ITEMS: readonly AdminNavigationItem[] = [
-  ...MANAGER_ITEMS,
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/audit-logs", label: "Audit logs" },
-];
-
-export function adminNavigationItems(
-  role: string,
-): readonly AdminNavigationItem[] {
-  return role === "ADMIN" ? ADMIN_ITEMS : MANAGER_ITEMS;
+export function adminNavigationItems(): readonly AdminNavigationItem[] {
+  return NAVIGATION_ITEMS;
 }
 
-const MANAGER_DASHBOARD_ITEMS: readonly AdminDashboardItem[] = [
+const DASHBOARD_ITEMS: readonly AdminDashboardItem[] = [
   {
     href: "/admin/vehicles",
     label: "Vehicles",
@@ -40,24 +31,6 @@ const MANAGER_DASHBOARD_ITEMS: readonly AdminDashboardItem[] = [
   },
 ];
 
-const ADMIN_DASHBOARD_ITEMS: readonly AdminDashboardItem[] = [
-  ...MANAGER_DASHBOARD_ITEMS,
-  {
-    href: "/admin/users",
-    label: "Users",
-    description: "Manage roles and account status.",
-    actionLabel: "Open users",
-  },
-  {
-    href: "/admin/audit-logs",
-    label: "Audit logs",
-    description: "Review administrative changes.",
-    actionLabel: "Open audit logs",
-  },
-];
-
-export function adminDashboardItems(
-  role: string,
-): readonly AdminDashboardItem[] {
-  return role === "ADMIN" ? ADMIN_DASHBOARD_ITEMS : MANAGER_DASHBOARD_ITEMS;
+export function adminDashboardItems(): readonly AdminDashboardItem[] {
+  return DASHBOARD_ITEMS;
 }

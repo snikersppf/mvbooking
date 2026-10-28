@@ -18,7 +18,7 @@ describe("cleanupExpiredRecords", () => {
       adminMutationResults: 2,
       closedLeads: 4,
     });
-    expect(lead.deleteMany).toHaveBeenCalledWith({ where: { status: "CLOSED", updatedAt: { lt: new Date("2025-10-17T12:00:00Z") } } });
+    expect(lead.deleteMany).toHaveBeenCalledWith({ where: { status: { in: ["REJECTED", "CANCELLED_BY_CUSTOMER", "NO_SHOW", "COMPLETED", "CLOSED"] }, updatedAt: { lt: new Date("2025-10-17T12:00:00Z") } } });
     expect(rateLimitCounter.deleteMany).toHaveBeenCalledWith({
       where: { resetAt: { lt: new Date("2026-10-17T11:00:00.000Z") } },
     });

@@ -1,115 +1,37 @@
 import { getTranslations } from "@/lib/i18n/server";
-import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./home-hero.module.css";
 
-export type HomeHeroType = {
-  className?: string;
-};
-
-const HomeHero: NextPage<HomeHeroType> = async ({ className = "" }) => {
+export default async function HomeHero() {
   const t = await getTranslations();
-  return (
-    <div className={[styles.homeHero, className].join(" ")}>
-      <div className={styles.heroContainer}>
-        <h1 className={styles.heroTitle}>{t("Грузия начинается")}<br /><span>{t("с дороги")}</span></h1>
-        <section className={styles.heroContent}>
-          <b className={styles.eyebrow}>{t("АРЕНДА АВТОМОБИЛЕЙ В ГРУЗИИ")}</b>
-          <div className={styles.featureIcons}>
-            <div className={styles.readingArea} />
-            <Image
-              className={styles.iconshieldCheck}
-              width={26}
-              height={26}
-              sizes="100vw"
-              alt=""
-              src="/design/Icon-shield-check.svg"
-            />
-            <Image
-              className={styles.iconheadphones}
-              width={26}
-              height={26}
-              sizes="100vw"
-              alt=""
-              src="/design/Icon-headphones.svg"
-            />
-            <Image
-              className={styles.iconcarFront}
-              width={26}
-              height={26}
-              sizes="100vw"
-              alt=""
-              src="/design/Icon-car-front2.svg"
-            />
-          </div>
-          <div className={styles.heroActions}>
-            <h3 className={styles.lead}>
-              {t("Выберите автомобиль для города,")}<br />
-              {t("горных маршрутов и поездок к морю.")}</h3>
-            <div className={styles.buttonprimaryParent}>
-              <Link href="/vehicles" className={styles.buttonprimary}>
-                <b className={styles.label}>{t("Выбрать автомобиль")}</b>
-              </Link>
-              <Link href="#rental-conditions" className={styles.buttonsecondary}>
-                <b className={styles.label2}>{t("Условия аренды")}</b>
-              </Link>
-            </div>
-            <div className={styles.trustContainerWrapper}>
-              <div className={styles.trustContainer}>
-                <div className={styles.trust}>
-                  {t("Без скрытых")}<br />
-                  {t("платежей")}</div>
-                <div className={styles.trust}>
-                  {t("Поддержка")}<br />{t("в поездке")}</div>
-                <div className={styles.trust}>
-                  {t("Доставка")}<br />
-                  {t("автомобиля")}</div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <div className={styles.featuredVehicleWrapper}>
-          <Link href="/vehicles" className={styles.featuredVehicle}>
-            <div className={styles.cardContainer}>
-              <div className={styles.category}>
-                <b className={styles.label3}>{t("В ПУТЬ ПО ГРУЗИИ")}</b>
-                <Image
-                  className={styles.productPhotoIcon}
-                  width={636}
-                  height={284}
-                  sizes="100vw"
-                  alt=""
-                  src="/design/Product-photo@2x.png"
-                />
-              </div>
-  
-            </div>
-            <div className={styles.infoContainer}>
-              <div className={styles.detailsWrapper}>
-                <h3 className={styles.model}>{t("Ваш маршрут по Грузии")}</h3>
-                <div className={styles.specs}>{t("Город · Горы · Побережье")}</div>
-                <div className={styles.dividerWrapper}>
-                  <div className={styles.divider} />
-                  <div className={styles.priceWrapper}>
-                    <h3 className={styles.price}>{t("Смотреть автопарк")}</h3>
-                    <Image
-                      className={styles.iconarrowRight}
-                      width={24}
-                      height={24}
-                      sizes="100vw"
-                      alt=""
-                      src="/design/Icon-arrow-right.svg"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Link>
+  const benefits = [
+    ["Icon-shield-check.svg", "Без скрытых", "платежей"],
+    ["Icon-headphones.svg", "Поддержка", "в поездке"],
+    ["Icon-car-front2.svg", "Доставка", "автомобиля"],
+  ];
+  return <section className={styles.homeHero} aria-labelledby="home-hero-title">
+    <div className={styles.heroContainer}>
+      <div className={styles.heroContent}>
+        <p className={styles.eyebrow}>{t("АРЕНДА АВТОМОБИЛЕЙ В ГРУЗИИ")}</p>
+        <h1 id="home-hero-title" className={styles.heroTitle}>{t("Грузия начинается")}<br /><span>{t("с дороги")}</span></h1>
+        <p className={styles.lead}>{t("Выберите автомобиль для города,")}<br />{t("горных маршрутов и поездок к морю.")}</p>
+        <div className={styles.heroActions}>
+          <Link href="/vehicles" className={styles.primary}>{t("Выбрать автомобиль")}</Link>
+          <Link href="#rental-conditions" className={styles.secondary}>{t("Условия аренды")}</Link>
         </div>
+        <ul className={styles.benefits}>{benefits.map(([icon, first, second]) => <li key={icon}>
+          <Image src={`/design/${icon}`} width={24} height={24} alt="" />
+          <span>{t(first)}<br />{t(second)}</span>
+        </li>)}</ul>
       </div>
+      <Link href="/vehicles" className={styles.featuredVehicle}>
+        <span className={styles.badge}>{t("В ПУТЬ ПО ГРУЗИИ")}</span>
+        <Image className={styles.productPhoto} src="/design/Product-photo@2x.png" width={636} height={284} sizes="310px" alt="" />
+        <h2>{t("Ваш маршрут по Грузии")}</h2>
+        <p>{t("Город · Горы · Побережье")}</p>
+        <div className={styles.cardAction}>{t("Смотреть автопарк")}<span aria-hidden="true">→</span></div>
+      </Link>
     </div>
-  );
-};
-
-export default HomeHero;
+  </section>;
+}

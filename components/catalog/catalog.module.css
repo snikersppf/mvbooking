@@ -9,10 +9,11 @@
 .hero {
   background-color: var(--color-white);
   background-image:
-    linear-gradient(90deg, var(--color-white), color-mix(in srgb, var(--color-white) 92%, transparent) 30%, transparent 62%),
+    linear-gradient(90deg, var(--color-white) 44%, transparent 65%),
     url("/design/Unified-photo-car-road-mountains@2x.png");
-  background-position: center bottom;
-  background-size: cover;
+  background-position: center, right center;
+  background-size: 100% 100%, auto 100%;
+  background-repeat: no-repeat;
 }
 .heroInner {
   width: min(100% - 72px, 1280px);
@@ -189,7 +190,8 @@
     background-image:
       linear-gradient(180deg, var(--color-white), color-mix(in srgb, var(--color-white) 92%, transparent) 64%, transparent 92%),
       url("/design/Unified-photo-car-road-mountains@2x.png");
-    background-position: 65% bottom;
+    background-size: 100% 100%, auto 230px;
+    background-position: center, right 0 bottom 20px;
   }
   .heroInner { min-height: 370px; }
   .heroCopy { max-width: 100%; }

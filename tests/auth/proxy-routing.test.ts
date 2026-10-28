@@ -27,7 +27,7 @@ describe("getProxyRedirectPath", () => {
     ).toBeNull();
   });
 
-  it.each(["/login", "/register"])(
+  it.each(["/register"])(
     "redirects an authenticated user away from %s",
     (pathname) => {
       expect(
@@ -39,6 +39,10 @@ describe("getProxyRedirectPath", () => {
       ).toBe("/");
     },
   );
+
+  it.each([false, true])("keeps login reachable with authenticated=%s", (authenticated) => {
+    expect(getProxyRedirectPath({ pathname: "/login", search: "?callbackUrl=%2Fadmin", authenticated })).toBeNull();
+  });
 
   it("allows an authenticated request to continue to a protected page", () => {
     expect(

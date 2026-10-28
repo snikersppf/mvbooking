@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { signInErrorMessage } from "@/lib/auth/sign-in-result";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -48,8 +49,9 @@ export function LoginForm({
         redirectTo: callbackUrl,
       });
 
-      if (!result.ok) {
-        setSubmitError("Email, password or security code is incorrect.");
+      const error = signInErrorMessage(result);
+      if (error) {
+        setSubmitError(error);
         return;
       }
 

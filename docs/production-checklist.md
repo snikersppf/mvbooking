@@ -265,7 +265,7 @@ tests/security/production-startup.test.ts
 
 ## Stage 10.4 — staff lead management
 
-- [x] MANAGER/ADMIN lead list with bounded pagination/status filter, detail card, status/note changes and navigation entry.
+- [x] MANAGER/ADMIN contact enquiries appear inside `/admin/bookings` with bounded pagination/status filter and detail cards at `/admin/bookings/requests/:id`; status/note changes remain audited. Legacy `/admin/leads` links redirect into bookings.
 - [x] Read services re-read DB-backed session identity. Writes re-lock/check actor role, status and sessionVersion; Lead and minimal AuditLog metadata commit together, without contacts/notes in audit metadata.
 - [x] Mutation endpoint checks Origin, JSON and staff rate limit. Unit tests cover denied reads, locked-role changes and audit writes; lint/typecheck/unit/build checked.
 - [ ] Real PostgreSQL concurrency, browser staff workflow and role changes during requests still require integration acceptance.
@@ -321,3 +321,25 @@ tests/security/production-startup.test.ts
 - [ ] In a protected administrator shell, export MIGRATOR_DB_PASSWORD and RUNTIME_DB_PASSWORD (distinct random >=32 characters) and connection PG* variables, then `psql -X -f deploy/provision-database-roles.sql`. This changes ownership/permissions: use only the intended dedicated database, with backup and a maintenance window.
 - [ ] Store URLs in deployment secrets, run Compose migrate (which also applies deploy/grant-runtime-access.sql), then start runtime services. For manual migrations and scripts/grant-runtime-access.ts provide only MIGRATOR_DATABASE_URL; never expose that value to the app. No production credentials were read or provisioning executed in this session.
 - [ ] Run database-roles.integration.ts with explicit RUNTIME_TEST_DATABASE_URL and MIGRATOR_TEST_DATABASE_URL pointing to the same provisioned *_test DB. Verify real DML succeeds and CREATE/DROP/ALTER/migration-table access fail. Real roles, migration deploy, Docker image build and production rollout remain unverified.
+
+## Contact enquiries in Bookings
+
+- [x] New and existing website enquiries are visible to MANAGER/ADMIN in Bookings, including contacts and optional vehicle/dates; no customer registration is required.
+- [x] Managers open an enquiry card from Bookings, change status and save a note. ADMIN deletion returns to Bookings. Existing rental bookings remain available in the same section.
+- [x] Enquiries retain their existing records and lifecycle; submitting contacts does not reserve a vehicle or invent a price/customer account. No migration or data conversion is needed.
+- [ ] Run `tests/integration/admin-pages.integration.ts` and the public enquiry → Bookings → manager-processing E2E scenario against a disposable test database.
+
+## New, active and past requests
+
+- [x] New enquiries contain only NEW records. Opening their card in a browser posts an authenticated, Origin-checked, idempotent review operation; SSR/prefetch do not write. The NEW → IN_PROGRESS transition is audited under row locks.
+- [x] The active worklist combines IN_PROGRESS enquiries with PENDING/CONFIRMED bookings, with shared bounded pagination. Terminal enquiry outcomes and COMPLETED/CANCELLED/REJECTED bookings appear only in the Past requests view.
+- [x] Enquiry cards reuse booking panels, summary tiles, comment columns and styled status controls, with localized dates and labels. Processed records cannot be reset to NEW.
+- [ ] Run the PostgreSQL admin-page integration and enquiry E2E lifecycle (new → opened → active → closed → past). Authorization and MFA behavior are unchanged.
+
+## Enquiry outcomes and public presentation
+
+- [x] Contact enquiries support NEW, IN_PROGRESS, REJECTED, CANCELLED_BY_CUSTOMER, NO_SHOW and COMPLETED. The operator sets terminal outcomes manually; NO_SHOW does not assume that the site observes vehicle collection.
+- [x] Migration `20261028180000_enquiry_outcomes` preserves old CLOSED records unchanged in the archive; all terminal outcomes remain in Past requests and share the 12-month retention rule.
+- [x] Public header/footer do not expose staff login or admin links. Staff use `/login?callbackUrl=%2Fadmin`; sign-out remains in the protected admin shell. Role and MFA checks are unchanged.
+- [x] Home search is expanded, dates use calendar controls, hero imagery keeps the complete car visible. No invented vehicle price or phone number was added.
+- [ ] Deploy the new migration with the migrator role before starting the updated app. Check migrated data, each outcome, retention and the enquiry E2E lifecycle against a disposable test DB; no live DB migration was executed by Codex.
