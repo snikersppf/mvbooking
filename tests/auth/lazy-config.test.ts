@@ -33,7 +33,8 @@ describe("Auth.js runtime configuration", () => {
     vi.stubEnv("AUTH_SECRET", runtimeSecret);
     expect(await configure(undefined)).toMatchObject({
       secret: runtimeSecret,
-      session: { strategy: "jwt" },
+      session: { strategy: "jwt", maxAge: 8 * 60 * 60 },
+      jwt: { maxAge: 8 * 60 * 60 },
     });
   });
 });

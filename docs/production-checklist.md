@@ -294,3 +294,9 @@ tests/security/production-startup.test.ts
 - [x] Next inline hydration is allowed by unsafe-inline; development alone permits unsafe-eval. This policy restricts external sources but is not a nonce-based strict CSP.
 - [x] Header-policy tests and lint/typecheck/unit/build checked.
 - [ ] Deployed response headers, subdomain TLS, browser CSP console, form submission and asset loading still need live acceptance.
+
+## Stage 10.8 — staff session lifetime
+
+- [x] Staff-only Credentials sessions and encrypted JWTs both set maxAge to eight hours. Runtime config remains lazy, with no secret needed during build.
+- [x] Configuration test asserts both limits; lint/typecheck/unit/build checked. Role/status/sessionVersion are still validated from DB on protected operations.
+- [ ] Existing issued cookies retain their earlier expiry until replaced or sessionVersion is revoked. Revoke staff sessions at release and verify browser cookie/token expiration over eight hours. Auth.js rolling renewal remains its standard behavior.
