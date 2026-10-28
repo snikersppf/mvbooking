@@ -1,5 +1,9 @@
 // UI copy only. API values, validation rules and stored data are not translated.
 export const translations: ReadonlyArray<readonly [english: string, russian: string]> = [
+  ["Enquiries", "Заявки"], ["NEW", "Новая"], ["IN_PROGRESS", "В работе"], ["CLOSED", "Закрыта"],
+  ["Manager note", "Заметка менеджера"], ["Saved.", "Сохранено."],
+  ["The request could not be completed.", "Не удалось выполнить запрос."],
+  ["Consent version", "Версия согласия на обработку контактов"], ["Consent at", "Дата согласия"],
   ["Your name", "Ваше имя"],
   ["Phone", "Телефон"],
   ["Pickup date", "Дата получения"],

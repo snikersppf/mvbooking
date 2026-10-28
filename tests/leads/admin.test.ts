@@ -1,0 +1,47 @@
+import { UserRole, UserStatus, type PrismaClient } from "@prisma/client";
+import { describe, expect, it, vi } from "vitest";
+import type { CurrentUser } from "@/server/auth/current-user";
+import { getLead, listLeads, updateLead } from "@/server/services/leads/admin";
+
+const staff: CurrentUser = { id: "staff-1", name: "Manager", email: "manager@example.test", phone: null,
+  role: UserRole.MANAGER, status: UserStatus.ACTIVE, sessionVersion: 2 };
+function harness(role: UserRole = UserRole.MANAGER) {
+  const tx = {
+    $queryRaw: vi.fn().mockResolvedValue([{ ...staff, role }]),
+    lead: { findUnique: vi.fn().mockResolvedValue({ id: "lead-1", status: "NEW", managerNote: "" }), update: vi.fn().mockResolvedValue({ id: "lead-1", status: "CLOSED" }),
+      findMany: vi.fn().mockResolvedValue([]), count: vi.fn().mockResolvedValue(0) },
+    auditLog: { create: vi.fn() },
+  };
+  const prisma = { ...tx, $transaction: async (operation: (t: typeof tx) => Promise<unknown>) => operation(tx) } as unknown as PrismaClient;
+  return { tx, dependencies: { prisma, authorize: vi.fn().mockResolvedValue(staff) } };
+}
+describe("staff enquiry services", () => {
+  it("denies reads before touching stored contacts", async () => {
+    const { tx, dependencies } = harness();
+    dependencies.authorize.mockRejectedValue(new Error("Forbidden"));
+    await expect(listLeads({}, dependencies)).rejects.toThrow("Forbidden");
+    await expect(getLead("lead-1", dependencies)).rejects.toThrow("Forbidden");
+    expect(tx.lead.findMany).not.toHaveBeenCalled();
+    expect(tx.lead.findUnique).not.toHaveBeenCalled();
+  });
+  it("filters and bounds the list", async () => {
+    const { tx, dependencies } = harness();
+    await listLeads({ status: "NEW", page: 2 }, dependencies);
+    expect(tx.lead.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { status: "NEW" }, take: 20, skip: 20 }));
+    await expect(listLeads({ status: "unknown" }, dependencies)).rejects.toThrow();
+  });
+  it("records status and note changes atomically without storing note/contact text in audit", async () => {
+    const { tx, dependencies } = harness();
+    await updateLead("lead-1", { status: "CLOSED", managerNote: "private note" }, dependencies);
+    expect(tx.auditLog.create).toHaveBeenCalledWith({ data: expect.objectContaining({
+      action: "LEAD_UPDATED", entityId: "lead-1", metadata: { previousStatus: "NEW", status: "CLOSED", noteChanged: true },
+    }) });
+    expect(JSON.stringify(tx.auditLog.create.mock.calls)).not.toContain("private note");
+  });
+  it("rejects a demoted actor inside the write transaction", async () => {
+    const { tx, dependencies } = harness(UserRole.CUSTOMER);
+    await expect(updateLead("lead-1", { status: "CLOSED", managerNote: "" }, dependencies)).rejects.toMatchObject({ status: 403 });
+    expect(tx.lead.update).not.toHaveBeenCalled();
+    expect(tx.auditLog.create).not.toHaveBeenCalled();
+  });
+});

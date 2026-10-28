@@ -10,6 +10,7 @@ const MANAGER_ITEMS: readonly AdminNavigationItem[] = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/vehicles", label: "Vehicles" },
   { href: "/admin/bookings", label: "Bookings" },
+  { href: "/admin/leads", label: "Enquiries" },
 ];
 
 const ADMIN_ITEMS: readonly AdminNavigationItem[] = [

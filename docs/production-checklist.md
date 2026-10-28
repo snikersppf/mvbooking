@@ -262,3 +262,10 @@ tests/security/production-startup.test.ts
 - [x] RU/EN copy, validation, success, throttling and network failure states. Selected vehicle is passed to the endpoint; dates use Georgia UTC+04.
 - [x] Form render/i18n tests, lint, typecheck, unit and build checked.
 - [ ] Browser submission against migrated PostgreSQL, mobile layout and live ingress limits remain unverified; no external messages are sent by the stub.
+
+## Stage 10.4 — staff lead management
+
+- [x] MANAGER/ADMIN lead list with bounded pagination/status filter, detail card, status/note changes and navigation entry.
+- [x] Read services re-read DB-backed session identity. Writes re-lock/check actor role, status and sessionVersion; Lead and minimal AuditLog metadata commit together, without contacts/notes in audit metadata.
+- [x] Mutation endpoint checks Origin, JSON and staff rate limit. Unit tests cover denied reads, locked-role changes and audit writes; lint/typecheck/unit/build checked.
+- [ ] Real PostgreSQL concurrency, browser staff workflow and role changes during requests still require integration acceptance.
