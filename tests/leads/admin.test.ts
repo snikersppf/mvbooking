@@ -1,14 +1,14 @@
 import { UserRole, UserStatus, type PrismaClient } from "@prisma/client";
 import { describe, expect, it, vi } from "vitest";
 import type { CurrentUser } from "@/server/auth/current-user";
-import { getLead, listLeads, updateLead } from "@/server/services/leads/admin";
+import { deleteLead, getLead, listLeads, updateLead } from "@/server/services/leads/admin";
 
 const staff: CurrentUser = { id: "staff-1", name: "Manager", email: "manager@example.test", phone: null,
   role: UserRole.MANAGER, status: UserStatus.ACTIVE, sessionVersion: 2 };
 function harness(role: UserRole = UserRole.MANAGER) {
   const tx = {
     $queryRaw: vi.fn().mockResolvedValue([{ ...staff, role }]),
-    lead: { findUnique: vi.fn().mockResolvedValue({ id: "lead-1", status: "NEW", managerNote: "" }), update: vi.fn().mockResolvedValue({ id: "lead-1", status: "CLOSED" }),
+    lead: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }), findUnique: vi.fn().mockResolvedValue({ id: "lead-1", status: "NEW", managerNote: "" }), update: vi.fn().mockResolvedValue({ id: "lead-1", status: "CLOSED" }),
       findMany: vi.fn().mockResolvedValue([]), count: vi.fn().mockResolvedValue(0) },
     auditLog: { create: vi.fn() },
   };
@@ -44,4 +44,13 @@ describe("staff enquiry services", () => {
     expect(tx.lead.update).not.toHaveBeenCalled();
     expect(tx.auditLog.create).not.toHaveBeenCalled();
   });
+});
+
+it("allows deletion only to ADMIN, auditing only the deleted id", async () => {
+  const manager = harness();
+  await expect(deleteLead("lead-1", manager.dependencies)).rejects.toMatchObject({ status: 403 });
+  expect(manager.tx.lead.deleteMany).not.toHaveBeenCalled();
+  const admin = harness(UserRole.ADMIN);
+  await deleteLead("lead-1", admin.dependencies);
+  expect(admin.tx.auditLog.create).toHaveBeenCalledWith({ data: { userId: staff.id, action: "LEAD_DELETED", entity: "Lead", entityId: "lead-1" } });
 });

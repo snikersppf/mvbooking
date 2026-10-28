@@ -269,3 +269,11 @@ tests/security/production-startup.test.ts
 - [x] Read services re-read DB-backed session identity. Writes re-lock/check actor role, status and sessionVersion; Lead and minimal AuditLog metadata commit together, without contacts/notes in audit metadata.
 - [x] Mutation endpoint checks Origin, JSON and staff rate limit. Unit tests cover denied reads, locked-role changes and audit writes; lint/typecheck/unit/build checked.
 - [ ] Real PostgreSQL concurrency, browser staff workflow and role changes during requests still require integration acceptance.
+
+## Stage 10.5 — lead retention and deletion
+
+- [x] Both maintenance commands use the shared cleanup: CLOSED leads with updatedAt strictly older than 12 calendar months (UTC) are deleted; open/recent leads remain. Editing/reopening resets the inactivity period; leap day clamps to February 28.
+- [x] Notification rows cascade on lead deletion; audit retains only entity ID/action, without contacts or notes. Backups need a separately enforced expiry policy.
+- [x] ADMIN-only, Origin-protected manual delete with confirmation and atomic minimal audit. Manager deletion is denied in the locked DB check.
+- [x] Calendar cutoff/closed-only cleanup and deletion authorization tests, lint/typecheck/unit/build checked.
+- [ ] Production maintenance schedule, real cascade behavior, backup expiry and data-owner acceptance require deployment verification.

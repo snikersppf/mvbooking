@@ -14,6 +14,6 @@ export default async function LeadPage({ params }: Readonly<{ params: Promise<{ 
     <dl>{Object.entries({ Email: lead.email, Phone: lead.phone, Vehicle: lead.vehicleId, "Pickup date": lead.startDate?.toISOString(),
       "Return date": lead.endDate?.toISOString(), Comment: lead.comment, "Consent version": lead.consentVersion, "Consent at": lead.consentAt.toISOString(),
     }).map(([label, value]) => <div key={label}><dt>{t(label)}</dt><dd>{value || "—"}</dd></div>)}</dl>
-    <LeadAdminForm id={lead.id} status={lead.status} managerNote={lead.managerNote} />
+    <LeadAdminForm canDelete={actor.role === "ADMIN"} id={lead.id} status={lead.status} managerNote={lead.managerNote} />
   </AdminPageShell>;
 }

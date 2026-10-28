@@ -48,3 +48,18 @@ export async function updateLead(id: string, input: unknown, dependencies: LeadA
     return result;
   });
 }
+
+export async function deleteLead(id: string, dependencies: LeadAdminDependencies = {}): Promise<void> {
+  const staff = await (dependencies.authorize ?? (() => requireRole(["ADMIN"])))();
+  idSchema.parse(id);
+  await (dependencies.prisma ?? getPrismaClient()).$transaction(async (tx) => {
+    const locked = await lockUserById(tx, staff.id);
+    assertActiveAdminActor(locked, staff.sessionVersion, ["ADMIN"], randomUUID());
+    await tx.$queryRaw`SELECT "id" FROM "Lead" WHERE "id" = ${id} FOR UPDATE`;
+    // Idempotent delete: never copy contact data or notes to retained audit logs.
+    const deleted = await tx.lead.deleteMany({ where: { id } });
+    if (deleted.count) await tx.auditLog.create({ data: {
+      userId: staff.id, action: "LEAD_DELETED", entity: "Lead", entityId: id,
+    } });
+  });
+}
