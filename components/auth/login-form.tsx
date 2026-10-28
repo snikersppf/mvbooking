@@ -25,6 +25,7 @@ export function LoginForm({
 }: LoginFormProps) {
   const t = useTranslations();
   const router = useRouter();
+  const [otp, setOtp] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
@@ -42,12 +43,13 @@ export function LoginForm({
       const result = await signIn("credentials", {
         email: values.email,
         password: values.password,
+        otp,
         redirect: false,
         redirectTo: callbackUrl,
       });
 
       if (!result.ok) {
-        setSubmitError("Email or password is incorrect.");
+        setSubmitError("Email, password or security code is incorrect.");
         return;
       }
 
@@ -93,6 +95,8 @@ export function LoginForm({
         </p>
       ) : null}
 
+      <label htmlFor="login-otp">{t("Authenticator or backup code")}</label>
+      <Input id="login-otp" name="otp" autoComplete="one-time-code" maxLength={32} value={otp} onChange={(event) => setOtp(event.target.value.trim())} />
       {submitError ? (
         <p className="form-error" role="alert">
           {t.error(submitError)}

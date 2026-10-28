@@ -6,6 +6,7 @@ declare module "next-auth" {
       id: string;
       role: UserRole;
       sessionVersion: number;
+      mfaVerified?: boolean;
       name?: string | null;
       email?: string | null;
       image?: string | null;
@@ -17,6 +18,7 @@ declare module "next-auth" {
     role: UserRole;
     status: UserStatus;
     sessionVersion: number;
+    mfaVerified?: boolean;
   }
 }
 
@@ -24,6 +26,7 @@ declare module "@auth/core/jwt" {
   interface JWT {
     role?: UserRole;
     sessionVersion?: number;
+    mfaVerified?: boolean;
   }
 }
 
@@ -31,6 +34,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     role?: UserRole;
     sessionVersion?: number;
+    mfaVerified?: boolean;
   }
 }
 

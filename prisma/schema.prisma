@@ -75,6 +75,10 @@ model User {
   name           String
   email          String               @unique
   phone          String?
+  totpSecretEncrypted String?
+  totpEnabledAt DateTime? @db.Timestamptz(3)
+  totpLastCounter Int @default(-1)
+  backupCodeHashes String[] @default([])
   passwordHash   String?
   role           UserRole             @default(CUSTOMER)
   status         UserStatus           @default(ACTIVE)

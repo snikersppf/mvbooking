@@ -15,6 +15,7 @@ const user: User = {
   role: UserRole.MANAGER,
   status: UserStatus.ACTIVE,
   sessionVersion: 7,
+  mfaVerified: true,
 };
 
 function createSession(): Session {
@@ -37,6 +38,7 @@ describe("Auth.js callbacks", () => {
       sub: "user_1",
       role: UserRole.MANAGER,
       sessionVersion: 7,
+      mfaVerified: true,
     });
   });
 
@@ -93,4 +95,10 @@ describe("Auth.js callbacks", () => {
     expect(session.user).not.toHaveProperty("sessionVersion");
     expect(session.user.name).toBe("Nino");
   });
+});
+
+it("uses only the server token proof when building session MFA state", () => {
+  const session = createSession(); session.user.mfaVerified = true;
+  sessionCallback({ session, token: { sub: "staff", role: UserRole.ADMIN, sessionVersion: 1, mfaVerified: false } });
+  expect(session.user.mfaVerified).toBe(false);
 });

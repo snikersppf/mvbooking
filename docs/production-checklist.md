@@ -300,3 +300,13 @@ tests/security/production-startup.test.ts
 - [x] Staff-only Credentials sessions and encrypted JWTs both set maxAge to eight hours. Runtime config remains lazy, with no secret needed during build.
 - [x] Configuration test asserts both limits; lint/typecheck/unit/build checked. Role/status/sessionVersion are still validated from DB on protected operations.
 - [ ] Existing issued cookies retain their earlier expiry until replaced or sessionVersion is revoked. Revoke staff sessions at release and verify browser cookie/token expiration over eight hours. Auth.js rolling renewal remains its standard behavior.
+
+## Stage 10.9 — mandatory staff TOTP
+
+- [x] ADMIN/MANAGER credentials require password plus TOTP or a one-use backup code. Admin guards require server-issued MFA proof and current DB totpEnabledAt; old password-only cookies cannot access admin.
+- [x] TOTP SHA-1 / 6 digits / 30 seconds with ±1 step skew and atomic monotonically increasing counter. Backup codes have 128 bits entropy, scoped SHA-256 hashes, atomic compare-and-swap consumption (including different-code races).
+- [x] Secret encrypted with AES-256-GCM, random 96-bit IV and user-bound AAD. MFA_ENCRYPTION_KEY is an independent canonical base64 32-byte secret, supplied only by environment; never commit it or collect enrollment output in logs.
+- [x] Trusted interactive operator enrollment: `./node_modules/.bin/tsx scripts/enroll-staff-totp.ts staff@example.org` or Compose ops service `enroll-staff-totp`. Scan/type the secret in an authenticator, confirm current code, save the ten displayed backup codes offline. Wait for the next code before login. Enrollment revokes old sessions and is audited; existing enrollment cannot be silently overwritten.
+- [x] RFC 6238 vectors, encryption tampering/user binding, replay and backup races, missing-factor staff guards, credential handoff tests; lint/typecheck/unit/build checked.
+- [ ] Apply migration and set MFA_ENCRYPTION_KEY before staff release. Enroll every staff account (including bootstrap ADMIN) through a protected terminal. Missing key/enrollment fails closed; no public password-only setup/reset endpoint exists.
+- [ ] PostgreSQL concurrency integration tests, real authenticator/backup-code login, clock synchronization, key backup/rotation and recovery require operator acceptance. Password reset does not disable/bypass 2FA. A lost key/factor with exhausted backup codes needs audited operator recovery, not a UI bypass.

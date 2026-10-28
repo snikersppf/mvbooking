@@ -9,7 +9,7 @@ import { getPrismaClient } from "@/server/db/prisma";
 export type AuthorizationUser = Pick<
   User,
   "id" | "name" | "email" | "phone" | "role" | "status" | "sessionVersion"
->;
+> & { totpEnabledAt?: Date | null };
 
 export type CredentialsUser = AuthorizationUser &
   Pick<User, "passwordHash">;
@@ -45,6 +45,7 @@ export class DuplicateUserEmailError extends Error {
 }
 
 const authorizationSelect = {
+  totpEnabledAt: true,
   id: true,
   name: true,
   email: true,

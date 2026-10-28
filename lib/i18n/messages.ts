@@ -1,5 +1,7 @@
 // UI copy only. API values, validation rules and stored data are not translated.
 export const translations: ReadonlyArray<readonly [english: string, russian: string]> = [
+  ["Authenticator or backup code", "Код аутентификатора или резервный код"],
+  ["Email, password or security code is incorrect.", "Неверная почта, пароль или код безопасности."],
   ["Staff", "Персонал"], ["Staff sign in", "Вход для персонала"],
   ["Staff accounts only. Visitors can send an enquiry without an account.", "Вход только для персонала. Посетители могут оставить заявку без аккаунта."],
   ["Leave your contacts and a manager will confirm availability and pricing.", "Оставьте контакты, и менеджер уточнит доступность и стоимость поездки."],

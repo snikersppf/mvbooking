@@ -29,6 +29,7 @@ export function jwtCallback({
 }: JwtCallbackInput): JWT {
   if (!user) return token;
 
+  token.mfaVerified = user.mfaVerified === true;
   token.sub = user.id;
   token.role = user.role;
   token.sessionVersion = user.sessionVersion;
@@ -49,10 +50,12 @@ export function sessionCallback({
     !isSessionVersion(token.sessionVersion)
   ) {
     const unsafeUser = session.user as Partial<Session["user"]>;
+    delete unsafeUser.mfaVerified;
     delete unsafeUser.id;
     delete unsafeUser.role;
     delete unsafeUser.sessionVersion;
   } else {
+    session.user.mfaVerified = token.mfaVerified === true;
     session.user.id = token.sub;
     session.user.role = token.role;
     session.user.sessionVersion = token.sessionVersion;

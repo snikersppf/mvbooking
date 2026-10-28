@@ -18,6 +18,7 @@ test("visitor sends a contact enquiry and manager processes it", async ({ page }
     await page.goto(`/login?callbackUrl=${encodeURIComponent(`/admin/leads/${id}`)}`);
     await page.getByLabel("Email", { exact: true }).fill(fixture.managerEmail);
     await page.getByLabel("Password", { exact: true }).fill(fixture.managerPassword);
+    await page.getByLabel("Authenticator or backup code").fill(fixture.managerOtp());
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`/admin/leads/${id}$`));
     await page.getByLabel("Status", { exact: true }).selectOption("IN_PROGRESS");

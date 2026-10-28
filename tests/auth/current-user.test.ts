@@ -35,7 +35,7 @@ function createRepository(
   };
 }
 
-function createSessionReader(sessionVersion = 4) {
+function createSessionReader(sessionVersion = 4, mfaVerified = false) {
   return vi.fn().mockResolvedValue({
     expires: '2026-11-09T00:00:00.000Z',
     user: {
@@ -45,6 +45,7 @@ function createSessionReader(sessionVersion = 4) {
       image: null,
       role: activeUser.role,
       sessionVersion,
+      mfaVerified,
     },
   });
 }
@@ -129,10 +130,11 @@ describe('requireRole', () => {
     const repository = createRepository({
       ...activeUser,
       role: UserRole.ADMIN,
+      totpEnabledAt: new Date(),
     });
 
     await expect(
-      requireRole([UserRole.ADMIN], repository, createSessionReader()),
+      requireRole([UserRole.ADMIN], repository, createSessionReader(4, true)),
     ).resolves.toMatchObject({ role: UserRole.ADMIN });
   });
 
@@ -145,4 +147,11 @@ describe('requireRole', () => {
       ),
     ).rejects.toBeInstanceOf(ForbiddenError);
   });
+});
+
+it("refuses staff access from a password-only session or disabled DB factor", async () => {
+  const staff = { ...activeUser, role: UserRole.ADMIN, totpEnabledAt: new Date() };
+  const passwordOnly = vi.fn().mockResolvedValue({ user: { id: activeUser.id, sessionVersion: 4 } });
+  await expect(requireRole([UserRole.ADMIN], createRepository(staff), passwordOnly)).rejects.toBeInstanceOf(AuthenticationRequiredError);
+  await expect(requireRole([UserRole.ADMIN], createRepository({ ...staff, totpEnabledAt: null }), createSessionReader(4, true))).rejects.toBeInstanceOf(AuthenticationRequiredError);
 });

@@ -8,7 +8,8 @@ const authenticatedProxy = auth((request: NextAuthRequest, _event: NextFetchEven
   const redirectPath = getProxyRedirectPath({
     pathname: request.nextUrl.pathname,
     search: request.nextUrl.search,
-    authenticated: Boolean(request.auth?.user),
+    authenticated: Boolean(request.auth?.user?.mfaVerified &&
+      (request.auth.user.role === "ADMIN" || request.auth.user.role === "MANAGER")),
   });
 
   if (redirectPath) {

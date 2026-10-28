@@ -36,6 +36,7 @@ function createDependencies(
   overrides: Partial<CredentialsDependencies> = {},
 ): CredentialsDependencies {
   return {
+    secondFactorVerifier: vi.fn().mockResolvedValue(true),
     repository: createRepository(),
     passwordVerifier: vi.fn().mockResolvedValue(true),
     rateLimiter: {
@@ -90,6 +91,7 @@ describe("authorizeCredentials", () => {
         dependencies,
       ),
     ).resolves.toEqual({
+      mfaVerified: true,
       id: credentialsUser.id,
       name: credentialsUser.name,
       email: credentialsUser.email,
@@ -247,4 +249,10 @@ describe("authorizeCredentials", () => {
 it("refuses customer login even with the correct password", async () => {
   const dependencies = createDependencies({ repository: createRepository({ ...credentialsUser, role: UserRole.CUSTOMER }) });
   await expect(authorizeCredentials({ email: credentialsUser.email, password: "correct-password" }, createRequest(), dependencies)).resolves.toBeNull();
+});
+
+it("requires a successful server-side second factor before issuing identity", async () => {
+  const dependencies = createDependencies({ secondFactorVerifier: vi.fn().mockResolvedValue(false) });
+  await expect(authorizeCredentials({ email: credentialsUser.email, password: "correct-password", otp: "123456" }, createRequest(), dependencies)).resolves.toBeNull();
+  expect(dependencies.secondFactorVerifier).toHaveBeenCalledWith(credentialsUser, "123456");
 });

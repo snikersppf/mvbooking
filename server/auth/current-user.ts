@@ -13,6 +13,7 @@ import type { SessionIdentity } from "./session-identity";
 
 export type CurrentUser = AuthorizationUser & {
   status: typeof UserStatus.ACTIVE;
+  mfaVerified?: boolean;
 };
 
 export type SessionReader = () => Promise<Session | null>;
@@ -45,7 +46,7 @@ export async function requireCurrentUserFromIdentity(
     throw new AuthenticationRequiredError();
   }
 
-  return user as CurrentUser;
+  return (identity.mfaVerified === true ? { ...user, mfaVerified: true } : user) as CurrentUser;
 }
 
 export async function requireCurrentUser(
@@ -67,6 +68,7 @@ export async function requireCurrentUser(
       ? {
           userId: session.user.id,
           sessionVersion: session.user.sessionVersion,
+          mfaVerified: session.user.mfaVerified === true,
         }
       : null;
 

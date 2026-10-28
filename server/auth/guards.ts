@@ -8,7 +8,7 @@ import {
   type CurrentUser,
   type SessionReader,
 } from "./current-user";
-import { ForbiddenError } from "./errors";
+import { AuthenticationRequiredError, ForbiddenError } from "./errors";
 
 export async function requireRole(
   allowedRoles: readonly UserRole[],
@@ -21,5 +21,8 @@ export async function requireRole(
     throw new ForbiddenError();
   }
 
+  if ((user.role === "ADMIN" || user.role === "MANAGER") && (!user.mfaVerified || !user.totpEnabledAt)) {
+    throw new AuthenticationRequiredError();
+  }
   return user;
 }

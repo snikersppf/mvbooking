@@ -46,6 +46,7 @@ services:
     stop_grace_period: 30s
     environment:
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL with host postgres}
+      MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY:?Set MFA_ENCRYPTION_KEY}
       AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET}
       AUTH_URL: ${AUTH_URL:?Set AUTH_URL}
       APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN}
@@ -109,6 +110,19 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  enroll-staff-totp:
+    profiles: ["ops"]
+    build:
+      context: .
+      target: operations
+    entrypoint: ["./node_modules/.bin/tsx", "scripts/enroll-staff-totp.ts"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
+      MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY:?Set MFA_ENCRYPTION_KEY}
+    stdin_open: true
+    tty: true
+    restart: "no"
+
   worker:
     build:
       context: .
@@ -120,6 +134,7 @@ services:
     stop_grace_period: 30s
     environment:
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL with host postgres}
+      MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY:?Set MFA_ENCRYPTION_KEY}
       AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET}
       APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN}
       RESEND_API_KEY: ${RESEND_API_KEY:?Set RESEND_API_KEY}

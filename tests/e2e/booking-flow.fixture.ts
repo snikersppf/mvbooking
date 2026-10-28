@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { Prisma, UserRole, UserStatus, VehicleStatus, type PrismaClient } from "@prisma/client";
 import { requireTestDatabaseUrl } from "@/server/config/test-database";
 import { createPrismaClient } from "@/server/db/prisma";
+import { encryptTotpSecret, totpAt } from "@/server/security/totp";
 import { hashPassword } from "@/server/security/password";
 
 type E2EFixture = Readonly<{
@@ -10,6 +11,7 @@ type E2EFixture = Readonly<{
   customerPassword: string;
   managerEmail: string;
   managerPassword: string;
+  managerOtp: () => string;
   vehicleLabel: string;
   vehicleSlug: string;
   findLeadId: () => Promise<string>;
@@ -60,6 +62,8 @@ export async function seedBookingFlow(): Promise<E2EFixture> {
         passwordHash: await hashPassword(managerPassword),
         role: UserRole.MANAGER,
         status: UserStatus.ACTIVE,
+        totpSecretEncrypted: encryptTotpSecret("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", `${prefix}_manager`),
+        totpEnabledAt: new Date(),
       },
     });
     await prisma.vehicle.create({
@@ -104,6 +108,7 @@ export async function seedBookingFlow(): Promise<E2EFixture> {
     customerPassword,
     managerEmail,
     managerPassword,
+    managerOtp: () => totpAt("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", Math.floor(Date.now() / 30_000)),
     vehicleLabel,
     vehicleSlug,
     findLeadId: async () => (await prisma.lead.findFirstOrThrow({ where: { email: customerEmail } })).id,

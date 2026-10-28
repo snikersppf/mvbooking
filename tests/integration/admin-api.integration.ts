@@ -57,6 +57,7 @@ vi.mock("@/server/auth/current-user", async (importOriginal) => {
           ? {
               userId: session.user.id,
               sessionVersion: session.user.sessionVersion,
+              mfaVerified: true,
             }
           : null,
       );
@@ -130,6 +131,7 @@ async function createUser(
       role,
       status: UserStatus.ACTIVE,
       sessionVersion: 0,
+      totpEnabledAt: new Date(),
     },
   });
 }

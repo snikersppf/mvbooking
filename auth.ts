@@ -18,6 +18,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
   providers: [
     Credentials({
       credentials: {
+        otp: { label: "Authenticator or backup code", type: "text" },
         email: {
           label: "Email",
           type: "email",

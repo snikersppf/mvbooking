@@ -53,6 +53,7 @@ vi.mock("@/server/auth/current-user", async (importOriginal) => {
           ? {
               userId: authState.session.user.id,
               sessionVersion: authState.session.user.sessionVersion,
+              mfaVerified: true,
             }
           : null,
       ),
@@ -90,6 +91,7 @@ async function createUser(prefix: string, role: UserRole): Promise<User> {
       role,
       status: UserStatus.ACTIVE,
       sessionVersion: 0,
+      totpEnabledAt: new Date(),
     },
   });
 }

@@ -1,0 +1,5 @@
+ALTER TABLE "User"
+  ADD COLUMN "totpSecretEncrypted" TEXT,
+  ADD COLUMN "totpEnabledAt" TIMESTAMPTZ(3),
+  ADD COLUMN "totpLastCounter" INTEGER NOT NULL DEFAULT -1,
+  ADD COLUMN "backupCodeHashes" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

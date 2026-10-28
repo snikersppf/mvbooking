@@ -10,6 +10,7 @@ import { createDefaultRateLimitStore } from "@/server/security/rate-limit/factor
 import { createPrivateRateLimitKey } from "@/server/security/rate-limit/keys";
 import { RateLimiter } from "@/server/security/rate-limit/rate-limiter";
 import type { RateLimitInput } from "@/server/security/rate-limit/types";
+import { verifyStaffSecondFactor } from "@/server/services/staff/totp";
 import { credentialsSchema } from "@/server/validators/auth";
 
 const LOGIN_IP_LIMIT = 10;
@@ -26,7 +27,7 @@ const DUMMY_PASSWORD_HASH =
 export type AuthorizedCredentialsUser = Pick<
   User,
   "id" | "name" | "email" | "role" | "status" | "sessionVersion"
->;
+> & { mfaVerified: true };
 
 type RateLimiterLike = {
   check(input: RateLimitInput): Promise<void>;
@@ -42,6 +43,7 @@ export type CredentialsDependencies = {
   authSecret: string;
   trustProxy: boolean;
   connectionAddress: string | null;
+  secondFactorVerifier?: typeof verifyStaffSecondFactor;
 };
 
 let credentialsRateLimiter: RateLimiter | undefined;
@@ -72,7 +74,7 @@ function emailForRateLimit(value: unknown): string {
 }
 
 export async function authorizeCredentials(
-  rawCredentials: Partial<Record<"email" | "password", unknown>>,
+  rawCredentials: Partial<Record<"email" | "password" | "otp", unknown>>,
   request: Request,
   dependencies: CredentialsDependencies = createDefaultDependencies(),
 ): Promise<AuthorizedCredentialsUser | null> {
@@ -122,6 +124,7 @@ export async function authorizeCredentials(
   if (
     !parsed.success ||
     !user ||
+    !user.passwordHash ||
     user.status !== UserStatus.ACTIVE ||
     (user.role !== UserRole.ADMIN && user.role !== UserRole.MANAGER) ||
     !passwordMatches
@@ -129,7 +132,10 @@ export async function authorizeCredentials(
     return null;
   }
 
+  if (!await (dependencies.secondFactorVerifier ?? verifyStaffSecondFactor)(user, rawCredentials.otp)) return null;
+
   return {
+    mfaVerified: true,
     id: user.id,
     name: user.name,
     email: user.email,
