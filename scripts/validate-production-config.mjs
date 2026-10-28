@@ -29,6 +29,11 @@ try {
     throw new Error("MFA_ENCRYPTION_KEY must be a canonical base64-encoded 32-byte key.");
   }
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required.");
+  const database = new URL(process.env.DATABASE_URL);
+  if (!["postgres:", "postgresql:"].includes(database.protocol) || decodeURIComponent(database.username) !== "mvbooking_runtime") {
+    throw new Error("Production DATABASE_URL must use mvbooking_runtime.");
+  }
+  if (process.env.MIGRATOR_DATABASE_URL) throw new Error("Migrator credentials must not be present in the public runtime.");
 } catch (error) {
   // Never print input values (URL constructors include them in their errors).
   process.stderr.write(error instanceof TypeError ? "Invalid production URL configuration.\n" : `${error.message}\n`);

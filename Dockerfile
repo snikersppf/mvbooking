@@ -34,8 +34,21 @@ COPY --chown=node:node prisma/migrations ./prisma/migrations
 COPY --chown=node:node scripts/cleanup-expired-records.ts ./scripts/cleanup-expired-records.ts
 COPY --chown=node:node server/db/prisma.ts ./server/db/prisma.ts
 COPY --chown=node:node server/services/maintenance/cleanup-expired-records.ts ./server/services/maintenance/cleanup-expired-records.ts
+COPY --chown=node:node scripts/grant-runtime-access.ts ./scripts/grant-runtime-access.ts
+COPY --chown=node:node deploy/grant-runtime-access.sql ./deploy/grant-runtime-access.sql
 USER node
-CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/tsx scripts/grant-runtime-access.ts"]
+
+# Operator commands and the outbox worker. No seed or test fixtures are copied.
+FROM base AS operations
+ENV NODE_ENV=production
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --chown=node:node package.json tsconfig.json ./
+COPY --chown=node:node server ./server
+COPY --chown=node:node lib ./lib
+COPY --chown=node:node scripts ./scripts
+USER node
+CMD ["./node_modules/.bin/tsx", "scripts/run-scheduled-maintenance.ts"]
 
 FROM base AS runner
 ENV NODE_ENV=production \
@@ -44,8 +57,9 @@ ENV NODE_ENV=production \
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
+COPY --chown=node:node scripts/validate-production-config.mjs ./validate-production-config.mjs
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3000/api/health',{signal:AbortSignal.timeout(4000)}).then(response=>process.exit(response.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "node validate-production-config.mjs && exec node server.js"]

@@ -13,7 +13,7 @@ function validate(overrides: Record<string, string | undefined> = {}) {
       TRUST_PROXY_HEADERS: "true",
       AUTH_SECRET: "test-auth-secret-that-is-long-enough",
       CRON_SECRET: "test-cron-secret-that-is-long-enough",
-      DATABASE_URL: "configured-by-operator",
+      DATABASE_URL: "postgresql://mvbooking_runtime:test-only@db:5432/mvbooking",
       ...overrides,
     },
   });
@@ -41,6 +41,8 @@ describe("production startup configuration", () => {
     { TRUST_PROXY_HEADERS: "false" },
     { CRON_SECRET: "" },
     { MFA_ENCRYPTION_KEY: "invalid" },
+    { DATABASE_URL: "postgresql://mvbooking_migrator:test-only@db:5432/mvbooking" },
+    { MIGRATOR_DATABASE_URL: "configured-only-in-migration-container" },
   ])("rejects unsafe production config %j", (configuration) => {
     expect(validate(configuration).status).toBe(1);
   });

@@ -7,10 +7,18 @@ type PrismaGlobal = typeof globalThis & {
 
 const prismaGlobal = globalThis as PrismaGlobal;
 
-function requireDatabaseUrl(): string {
-  const connectionString = process.env.DATABASE_URL;
+export function requireDatabaseUrl(env: Readonly<Record<string, string | undefined>> = process.env): string {
+  const connectionString = env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL is required.");
+  }
+  if (env.NODE_ENV === "production") {
+    let valid = false;
+    try {
+      const url = new URL(connectionString);
+      valid = ["postgres:", "postgresql:"].includes(url.protocol) && decodeURIComponent(url.username) === "mvbooking_runtime" && !env.MIGRATOR_DATABASE_URL;
+    } catch { /* Connection strings must never appear in public errors or worker logs. */ }
+    if (!valid) throw new Error("Production runtime requires isolated mvbooking_runtime credentials.");
   }
   return connectionString;
 }

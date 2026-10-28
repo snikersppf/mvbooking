@@ -68,7 +68,7 @@ services:
       context: .
       target: migrator
     environment:
-      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL with host postgres}
+      MIGRATOR_DATABASE_URL: ${MIGRATOR_DATABASE_URL:?Set MIGRATOR_DATABASE_URL with migrator credentials}
     depends_on:
       postgres:
         condition: service_healthy
