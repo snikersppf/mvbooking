@@ -6,9 +6,35 @@ import {
   describeAdminMutationFailure,
   requestAdminMutation,
   requestAdminMutationWithCache,
+  vehicleUploadFormData,
 } from "@/components/admin/api-client";
 
 describe("admin API client", () => {
+  it("sends multipart without overriding the browser's boundary", async () => {
+    const body = vehicleUploadFormData({ slug: "car" }, [new File(["photo bytes"], "photo.jpg", { type: "image/jpeg" })]);
+    const fetcher = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const headers = new Headers(init?.headers);
+      expect(headers.has("Content-Type")).toBe(false);
+      expect(headers.get("Idempotency-Key")).toBe("upload-key");
+      expect(init?.body).toBe(body);
+      expect(init?.credentials).toBe("same-origin");
+      return Response.json({ data: { id: "car" } });
+    });
+    await requestAdminMutation({ path: "/api/admin/vehicles", method: "POST", body, idempotencyKey: "upload-key" }, fetcher);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it("fingerprints photo content so changed files cannot reuse a failed request key", async () => {
+    const cache = new AdminMutationKeyCache();
+    const request = (content: string) => ({
+      path: "/api/admin/vehicles", method: "POST" as const,
+      body: vehicleUploadFormData({ slug: "car" }, [new File([content], "same.jpg", { type: "image/jpeg", lastModified: 1 })]),
+    });
+    const first = await cache.keyFor(request("first"));
+    expect(await cache.keyFor(request("first"))).toBe(first);
+    expect(await cache.keyFor(request("other"))).not.toBe(first);
+  });
+
   it("reuses a key after failure for identical payloads and rotates it after changes or success", async () => {
     const cache = new AdminMutationKeyCache();
     const sentKeys: string[] = [];

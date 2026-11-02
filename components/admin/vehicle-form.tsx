@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations } from "@/components/i18n/language-provider";
 
+import { VEHICLE_UPLOAD_HELP } from "@/lib/vehicle-upload";
 import { Button } from "@/components/ui/button";
 import { Input, Select, Textarea } from "@/components/ui/input";
 
@@ -12,6 +13,7 @@ import {
   applyAdminFieldErrors,
   describeAdminMutationFailure,
   useAdminMutationRequest,
+  vehicleUploadFormData,
 } from "@/components/admin/api-client";
 import {
   adminVehicleFormSchema,
@@ -45,6 +47,7 @@ export function VehicleForm({
   const t = useTranslations();
   const router = useRouter();
   const requestAdminMutation = useAdminMutationRequest();
+  const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const {
@@ -75,7 +78,7 @@ export function VehicleForm({
         path,
         method: isCreate ? "POST" : "PATCH",
         body: isCreate
-          ? toAdminVehicleCreatePayload(values)
+          ? vehicleUploadFormData(toAdminVehicleCreatePayload(values), files)
           : toAdminVehiclePatchPayload(values),
       });
       if (isCreate) {
@@ -91,7 +94,7 @@ export function VehicleForm({
   });
 
   return (
-    <form className="admin-form" onSubmit={onSubmit} noValidate>
+    <form encType="multipart/form-data" className="admin-form" onSubmit={onSubmit} noValidate>
       <div className="admin-form-grid">
         <label>
           {t("Slug")}<Input aria-invalid={Boolean(errors.slug)} {...register("slug")} />
@@ -178,6 +181,11 @@ export function VehicleForm({
         {t("Description")}<Textarea rows={5} aria-invalid={Boolean(errors.description)} {...register("description")} />
         <FieldError message={errors.description?.message} />
       </label>
+      {mode === "create" && <label>
+        {t("Vehicle photos")}
+        <Input name="files" type="file" accept="image/*" multiple onChange={(event) => setFiles(Array.from(event.target.files ?? []))} />
+        <small>{t(VEHICLE_UPLOAD_HELP)}</small>
+      </label>}
       <Button className="button" type="submit" disabled={isSubmitting}>
         {isSubmitting
           ? t("Saving…")

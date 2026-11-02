@@ -50,3 +50,7 @@ describe("production data readiness", () => {
     });
   });
 });
+
+it("accepts application-managed uploaded photo paths in the production audit", () => {
+  expect(inspectProductionVehicle({ ...vehicle, images: [{ url: "/uploads/cars/b38ebea6-ad52-4e2d-8d36-4f07e27e10aa.jpg" }] }, imageOrigin)).toEqual([]);
+});

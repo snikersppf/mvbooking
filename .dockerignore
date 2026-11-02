@@ -30,3 +30,5 @@ prisma/seed.ts
 prisma/verify-constraints.sql
 *.log
 *.tsbuildinfo
+
+public/uploads/

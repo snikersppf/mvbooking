@@ -1,3 +1,4 @@
+import { isStoredVehicleImagePath } from "@/lib/vehicle-upload";
 import { isIP } from "node:net";
 import { Prisma, VehicleStatus, type PrismaClient } from "@prisma/client";
 import { isVehicleImageUrl } from "@/lib/vehicle-image-url";
@@ -76,6 +77,7 @@ export function inspectProductionVehicle(
 
   if (images.length === 0) add("NO_VEHICLE_IMAGES");
   if (images.some(({ url }) => {
+    if (isStoredVehicleImagePath(url)) return false;
     if (!isVehicleImageUrl(url)) return true;
     try {
       const parsed = new URL(url);

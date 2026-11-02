@@ -141,10 +141,11 @@ export async function getAdminVehicle(
 }
 
 export async function createAdminVehicle(
-  command: AdminActorCommand & Readonly<{ vehicle: unknown }>,
+  command: AdminActorCommand & Readonly<{ vehicle: unknown; images?: unknown }>,
   dependencies: AdminVehicleDependencies = {},
 ): Promise<AdminVehicleDto> {
   const input = adminVehicleCreateSchema.parse(command.vehicle);
+  const images = command.images === undefined ? undefined : adminImagesReplaceSchema.parse(command.images).images;
   const requestId = requestIdFor(command, dependencies);
   const prisma = dependencies.prisma ?? getPrismaClient();
   const repository = dependencies.repository ?? adminVehicleRepository;
@@ -161,6 +162,7 @@ export async function createAdminVehicle(
       );
       const created = await repository.create(transaction, {
         ...input,
+        ...(images ? { images: { create: images } } : {}),
         depositAmount: decimal(input.depositAmount),
       });
       await events.createAudit(transaction, {

@@ -14,9 +14,9 @@ export type PreparedAdminMutation = Readonly<{
 export async function prepareAdminMutation(
   request: Request,
   allowedRoles: readonly UserRole[],
-  options: { readBody?: boolean } = {},
+  options: { readBody?: boolean; allowedMediaTypes?: readonly string[] } = {},
 ): Promise<PreparedAdminMutation> {
-  assertTrustedMutationRequest(request, requireAppOrigin());
+  assertTrustedMutationRequest(request, requireAppOrigin(), options.allowedMediaTypes);
   const [user, body] = await Promise.all([
     requireRole(allowedRoles),
     options.readBody === false ? Promise.resolve({}) : readJsonBody(request),

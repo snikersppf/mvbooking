@@ -1,3 +1,4 @@
+import { VehiclePhoto } from "./vehicle-photo";
 import { LeadForm } from "@/components/leads/lead-form";
 import { getTranslations } from "@/lib/i18n/server";
 import { Badge } from "@/components/ui/badge";
@@ -22,8 +23,7 @@ export async function VehicleDetail({ vehicle }: VehicleDetailProps) {
         {vehicle.images.length > 0 ? (
           <div className={`${styles.gallery} vehicle-gallery`}>
             {vehicle.images.map((image) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={image.id} src={image.url} alt={t(image.alt)} width="960" height="540" />
+              <VehiclePhoto key={image.id} src={image.url} alt={t(image.alt)} width={960} height={540} />
             ))}
           </div>
         ) : (
@@ -70,13 +70,12 @@ export async function VehicleDetail({ vehicle }: VehicleDetailProps) {
             <Card as="div"><dt className={styles.location}>{t("Location")}</dt><dd>{t(vehicle.location)}</dd></Card>
           </dl>
           {vehicle.images.length > 1 ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <VehiclePhoto
               className={styles.specificationPhoto}
               src={vehicle.images[vehicle.images.length - 1].url}
               alt={t(vehicle.images[vehicle.images.length - 1].alt)}
-              width="960"
-              height="540"
+              width={960}
+              height={540}
             />
           ) : null}
         </div>

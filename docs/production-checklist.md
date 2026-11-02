@@ -343,3 +343,29 @@ tests/security/production-startup.test.ts
 - [x] Public header/footer do not expose staff login or admin links. Staff use `/login?callbackUrl=%2Fadmin`; sign-out remains in the protected admin shell. Role and MFA checks are unchanged.
 - [x] Home search is expanded, dates use calendar controls, hero imagery keeps the complete car visible. No invented vehicle price or phone number was added.
 - [ ] Deploy the new migration with the migrator role before starting the updated app. Check migrated data, each outcome, retention and the enquiry E2E lifecycle against a disposable test DB; no live DB migration was executed by Codex.
+
+## Загрузка фотографий автомобилей с компьютера
+
+- Реализованы multipart-загрузка при создании машины и редактировании фотографий,
+  проверка MIME/сигнатур JPEG/PNG/WebP, лимиты 5 МиБ/файл, 10 файлов/запрос,
+  20 МиБ/запрос и 30 фото/машина, UUID-имена и относительные пути в VehicleImage.url.
+- Сохранены role/status/2FA, Origin, rate limit, audit и idempotency; при ошибке БД
+  новые файлы удаляются. Зависимости и миграции не добавлялись.
+- [ ] На целевом сервере пересобрать app, пересоздать контейнер с томом
+  `vehicle_uploads` и загрузить обновлённый Caddyfile.
+- [ ] Проверить создание автомобиля с фото, добавление/удаление/порядок фото,
+  отказ при неверном формате и превышении лимитов, доступ гостю к фото.
+- [ ] Перезапустить/пересоздать приложение и проверить сохранность фото.
+- [ ] Добавить том в независимый бэкап, проверить восстановление вместе с БД.
+  При удалении записей файлы автоматически не удаляются; сверять неиспользуемые
+  файлы отдельно. Полная инструкция: [production-data.md](production-data.md#хранение-фотографий).
+
+## Просмотр фотографий автомобилей
+
+- Лайтбокс подключён к карточкам каталога и фотографиям на странице автомобиля.
+  Затемнение 88%, фото до 90vw/90vh с сохранением пропорций, плавное открытие
+  и закрытие; фон, крестик и Escape закрывают просмотр. Фокус удерживается
+  в окне и возвращается на исходное фото, прокрутка страницы восстанавливается.
+- Проверены Chromium desktop/mobile, клавиатура, повторное открытие и reduced motion
+  на изолированной странице без БД. Зависимости и миграции не добавлены.
+- [ ] После деплоя проверить просмотр реальных фотографий в каталоге и галерее.

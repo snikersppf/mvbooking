@@ -131,6 +131,7 @@ model Vehicle {
 model VehicleImage {
   id        String  @id @default(cuid())
   vehicleId String
+  /// Relative path for uploaded files, e.g. /uploads/cars/<uuid>.jpg; never image bytes.
   url       String
   alt       String?
   sortOrder Int     @default(0)

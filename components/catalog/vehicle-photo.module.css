@@ -1,0 +1,77 @@
+.trigger {
+  display: block;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: zoom-in;
+}
+
+.trigger > img { display: block; width: 100%; height: auto; border-radius: inherit; }
+.trigger:focus-visible { outline: 3px solid #0b7558; outline-offset: -3px; }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: rgb(0 0 0 / 88%);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  cursor: zoom-out;
+}
+
+.overlay[open] { display: grid; place-items: center; }
+.overlay::backdrop { background: transparent; }
+.overlay[data-visible="true"] { opacity: 1; }
+
+.enlarged {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 90vw;
+  max-height: 90vh;
+  max-height: 90dvh;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 16px 64px rgb(0 0 0 / 35%);
+  transform: scale(.97);
+  transition: transform 200ms ease;
+  cursor: default;
+}
+
+.overlay[data-visible="true"] .enlarged { transform: scale(1); }
+.close {
+  position: absolute;
+  z-index: 1;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 50%;
+  background: rgb(0 0 0 / 60%);
+  color: white;
+  cursor: pointer;
+}
+.close:hover { background: rgb(255 255 255 / 18%); }
+.close:focus-visible { outline: 2px solid white; outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay, .enlarged { transition: none; }
+  .enlarged { transform: none; }
+}

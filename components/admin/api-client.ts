@@ -101,11 +101,19 @@ export function createAdminIdempotencyKey(): string {
 export class AdminMutationKeyCache {
   private current: { fingerprint: string; key: string } | null = null;
 
-  keyFor(request: Omit<AdminMutationRequest, "idempotencyKey">): string {
+  async keyFor(request: Omit<AdminMutationRequest, "idempotencyKey">): Promise<string> {
+    let body = request.body ?? {};
+    if (body instanceof FormData) {
+      body = await Promise.all([...body.entries()].map(async ([name, value]) => {
+        if (typeof value === "string") return [name, value];
+        const digest = await crypto.subtle.digest("SHA-256", await value.arrayBuffer());
+        return [name, value.type, Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("")];
+      }));
+    }
     const fingerprint = canonicalJson({
       method: request.method,
       path: request.path,
-      body: request.body ?? {},
+      body,
     });
     if (this.current?.fingerprint !== fingerprint) {
       this.current = { fingerprint, key: createAdminIdempotencyKey() };
@@ -124,7 +132,7 @@ export async function requestAdminMutationWithCache<T>(
   fetcher: Fetcher = fetch,
 ): Promise<T> {
   const result = await requestAdminMutation<T>(
-    { ...request, idempotencyKey: cache.keyFor(request) },
+    { ...request, idempotencyKey: await cache.keyFor(request) },
     fetcher,
   );
   cache.clear();
@@ -148,10 +156,10 @@ export async function requestAdminMutation<T>(
     credentials: "same-origin",
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
+      ...(request.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
       "Idempotency-Key": request.idempotencyKey,
     },
-    body: JSON.stringify(request.body ?? {}),
+    body: request.body instanceof FormData ? request.body : JSON.stringify(request.body ?? {}),
   });
   return readAdminData<T>(response);
 }
@@ -177,6 +185,9 @@ export function describeAdminMutationFailure(error: unknown): string {
       "The booking status changed. Reload and choose an available transition.",
   };
   if (error.code in conflicts) return conflicts[error.code];
+  if (error.code === "INVALID_IMAGE") return "Choose a JPEG, PNG or WebP photo up to 5 MB.";
+  if (error.code === "UPLOAD_TOO_LARGE" || error.status === 413) return "Photos exceed the 20 MB upload limit.";
+  if (error.code === "INVALID_UPLOAD") return "Check the selected files and try again.";
   if (error.status === 400) return "Check the entered information.";
   if (error.status === 404) return "The requested item was not found.";
   if (error.status === 409) return "The change conflicts with current data.";
@@ -203,3 +214,10 @@ export function applyAdminFieldErrors<TValues extends FieldValues>(
 }
 
 
+
+export function vehicleUploadFormData(payload: unknown, files: readonly File[]): FormData {
+  const body = new FormData();
+  body.set("payload", JSON.stringify(payload));
+  for (const file of files) body.append("files", file);
+  return body;
+}

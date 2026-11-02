@@ -1,3 +1,4 @@
+import { VehiclePhoto } from "./vehicle-photo";
 import { getTranslations } from "@/lib/i18n/server";
 import { Card } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button-link";
@@ -16,8 +17,7 @@ export async function VehicleCard({ vehicle }: VehicleCardProps) {
       <div className={styles.vehicleMedia}>
         <p className={styles.category}>{t(vehicle.category)}</p>
         {vehicle.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={vehicle.image.url} alt={t(vehicle.image.alt)} width="640" height="360" />
+          <VehiclePhoto src={vehicle.image.url} alt={t(vehicle.image.alt)} width={640} height={360} />
         ) : (
           <div className="vehicle-image-placeholder">{t("No image")}</div>
         )}

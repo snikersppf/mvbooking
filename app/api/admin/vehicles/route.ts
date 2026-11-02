@@ -1,3 +1,5 @@
+import { readVehicleUpload, withVehicleUpload } from "@/server/http/vehicle-upload";
+import { adminVehicleCreateSchema } from "@/server/validators/admin";
 import { requireRole } from "@/server/auth/guards";
 import {
   jsonData,
@@ -27,20 +29,24 @@ export const GET = withApiHandler<[Request]>(
 export const POST = withApiHandler<[Request]>(
   "POST /api/admin/vehicles",
   async (requestId, request) => {
-    const { user, body } = await prepareAdminMutation(
+    const { user } = await prepareAdminMutation(
       request,
       MANAGER_ADMIN_ROLES,
+      { readBody: false, allowedMediaTypes: ["application/json", "multipart/form-data"] },
     );
-    const vehicle = await executeAdminMutation({
-      request, requestId, user, body,
+    const upload = await readVehicleUpload(request);
+    const body = adminVehicleCreateSchema.parse(upload.payload);
+    const vehicle = await withVehicleUpload(upload.files, (store) => executeAdminMutation({
+      request, requestId, user, body: { payload: body, files: upload.fingerprint },
       allowedRoles: MANAGER_ADMIN_ROLES,
-      operation: (transaction) => createAdminVehicle({
+      operation: async (transaction) => createAdminVehicle({
         actorUserId: user.id,
         expectedSessionVersion: user.sessionVersion,
         vehicle: body,
+        images: { images: (await store()).map((url, sortOrder) => ({ url, sortOrder, alt: null })) },
         requestId,
       }, { transaction }),
-    });
+    }));
     return jsonData(vehicle, {
       status: 201,
       cacheControl: PRIVATE_NO_STORE,

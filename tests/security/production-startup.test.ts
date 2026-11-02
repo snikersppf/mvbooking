@@ -24,8 +24,10 @@ describe("production startup configuration", () => {
     const caddyfile = readFileSync(new URL("../../deploy/Caddyfile", import.meta.url), "utf8")
       .replace(/^\s*#.*$/gm, "");
     // This is a static configuration regression check, not a live Caddy/413 test.
-    // No path matcher means the cap covers all paths before forwarding to Next.
-    expect(caddyfile).toMatch(/request_body\s*\{\s*max_size 1MB\s*\}/);
+    expect(caddyfile).toMatch(/request_body @otherRequests\s*\{\s*max_size 1MB\s*\}/);
+    expect(caddyfile).toMatch(/request_body @vehicleUpload\s*\{\s*max_size 20MB\s*\}/);
+    expect(caddyfile).toContain("path /api/admin/vehicles /api/admin/vehicles/*/images");
+    expect(caddyfile).toMatch(/@otherRequests\s*\{\s*not\s*\{/);
     expect(caddyfile).toContain("reverse_proxy app:3000");
   });
 

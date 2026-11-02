@@ -1,7 +1,20 @@
 {$APP_ORIGIN} {
     # Direct Internet ingress. A CDN/load balancer in front requires a reviewed trust policy.
-    # Includes JSON/auth endpoints; admin image values are URLs, not uploaded files.
-    request_body {
+    # Only vehicle upload endpoints accept larger multipart bodies.
+    @vehicleUpload {
+        method POST PUT
+        path /api/admin/vehicles /api/admin/vehicles/*/images
+    }
+    request_body @vehicleUpload {
+        max_size 20MB
+    }
+    @otherRequests {
+        not {
+            method POST PUT
+            path /api/admin/vehicles /api/admin/vehicles/*/images
+        }
+    }
+    request_body @otherRequests {
         max_size 1MB
     }
     encode zstd gzip

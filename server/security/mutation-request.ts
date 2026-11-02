@@ -22,6 +22,7 @@ function isExactOrigin(value: string, expectedOrigin: string): boolean {
 export function assertTrustedMutationRequest(
   request: Request,
   expectedOrigin: string,
+  allowedMediaTypes: readonly string[] = ["application/json"],
 ): void {
   if (!UNSAFE_METHODS.has(request.method.toUpperCase())) return;
 
@@ -46,7 +47,7 @@ export function assertTrustedMutationRequest(
     .trim()
     .toLowerCase();
 
-  if (mediaType !== "application/json") {
+  if (!mediaType || !allowedMediaTypes.includes(mediaType)) {
     throw new MutationRequestError(
       415,
       "UNSUPPORTED_MEDIA_TYPE",
