@@ -1,16 +1,13 @@
 // UI copy only. API values, validation rules and stored data are not translated.
 export const translations: ReadonlyArray<readonly [english: string, russian: string]> = [
-<<<<<<< HEAD
   ["Enlarge photo", "Увеличить фотографию"], ["Close photo", "Закрыть фотографию"],
   ["Vehicle photos", "Фотографии автомобиля"], ["Vehicle photo", "Фотография автомобиля"], ["Add photos", "Добавить фотографии"],
   ["JPEG, PNG or WebP. Up to 5 MB per photo, 10 photos and 20 MB per request.", "JPEG, PNG или WebP. До 5 МБ на фото, 10 фото и 20 МБ на отправку."],
   ["Choose a JPEG, PNG or WebP photo up to 5 MB.", "Выберите фото JPEG, PNG или WebP размером до 5 МБ."],
   ["Photos exceed the 20 MB upload limit.", "Общий размер загрузки превышает 20 МБ."],
   ["Check the selected files and try again.", "Проверьте выбранные файлы и повторите попытку."],
-=======
   ["Open navigation", "Открыть меню"], ["Close navigation", "Закрыть меню"],
   ["Show filters", "Показать фильтры"], ["Hide filters", "Скрыть фильтры"],
->>>>>>> test
   ["New", "Новый"], ["Accepted for processing", "Принят в работу"], ["Declined", "Отказано"],
   ["Cancelled by customer", "Отменено клиентом"], ["Customer did not arrive", "Клиент не явился"],
   ["Closed (legacy)", "Закрыта (архив)"], ["Fulfilled", "Выполнено"], ["Contacts", "Контакты"],

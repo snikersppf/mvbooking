@@ -344,7 +344,6 @@ tests/security/production-startup.test.ts
 - [x] Home search is expanded, dates use calendar controls, hero imagery keeps the complete car visible. No invented vehicle price or phone number was added.
 - [ ] Deploy the new migration with the migrator role before starting the updated app. Check migrated data, each outcome, retention and the enquiry E2E lifecycle against a disposable test DB; no live DB migration was executed by Codex.
 
-<<<<<<< HEAD
 ## Загрузка фотографий автомобилей с компьютера
 
 - Реализованы multipart-загрузка при создании машины и редактировании фотографий,
@@ -370,7 +369,7 @@ tests/security/production-startup.test.ts
 - Проверены Chromium desktop/mobile, клавиатура, повторное открытие и reduced motion
   на изолированной странице без БД. Зависимости и миграции не добавлены.
 - [ ] После деплоя проверить просмотр реальных фотографий в каталоге и галерее.
-=======
+
 ## Мобильная версия
 
 - Сохранены цвета, изображения и порядок блоков; добавлены компактная шапка
@@ -386,4 +385,3 @@ tests/security/production-startup.test.ts
   и проверка на физических iOS/Android устройствах остаются приёмкой оператора.
 - [ ] После деплоя проверить реальные фотографии, открытие меню, клавиатуру
   телефона, отправку заявки и прокрутку таблиц на iOS Safari / Android Chrome.
->>>>>>> test
