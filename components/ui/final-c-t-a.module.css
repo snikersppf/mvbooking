@@ -316,3 +316,11 @@
   .container5, .vehicleOnGraphicBackground { grid-column: auto; grid-row: auto; }
   .vehicleOnGraphicBackground { max-width: 280px; }
 }
+
+@media (max-width: 600px) {
+  .finalCta { padding: 24px 16px; gap: 20px; border-radius: 16px; }
+  .title { font-size: 28px; line-height: 1.2; }
+  .body { font-size: 15px; line-height: 1.6; }
+  .container5 { min-width: 0; }
+  .vehicleOnGraphicBackground { width: min(100%, 260px); justify-self: center; }
+}

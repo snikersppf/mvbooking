@@ -46,7 +46,7 @@ export function LeadForm({ vehicleId }: Readonly<{ vehicleId?: string }>) {
     <label htmlFor={`${id}-comment`}>{t("Comment")}</label>
     <textarea id={`${id}-comment`} name="comment" maxLength={2000} />
     <div hidden aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
-    <label><input type="checkbox" name="consent" required /> {t("I agree to the processing of my contacts to answer this enquiry.")}</label>
+    <label className="lead-consent"><input type="checkbox" name="consent" required /><span>{t("I agree to the processing of my contacts to answer this enquiry.")}</span></label>
     {error && <p role="alert">{t(error)}</p>}
     <Button type="submit" disabled={busy}>{t(busy ? "Sending…" : "Send enquiry")}</Button>
   </form>;

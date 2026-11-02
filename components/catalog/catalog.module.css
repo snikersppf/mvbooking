@@ -223,3 +223,73 @@
   .tripCopy { width: 100%; padding: var(--padding-24) var(--padding-24) 260px; }
   .tripImage { inset: auto 0 0; height: 230px; clip-path: none; }
 }
+
+.filterDisclosure, .filterContents { display: contents; }
+.filterToggle { display: none; }
+.filterContents[hidden] { display: none; }
+
+@media (max-width: 900px) {
+  .heroInner, .content, .guidance { width: calc(100% - 32px); }
+  .catalogLayout { grid-template-columns: minmax(0, 1fr); margin-top: 24px; gap: 24px; }
+  .filterCard { padding: 16px; gap: 12px; }
+  .filterHeading h2 { font-size: 18px; }
+  .filterHeading a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; }
+  .filterDisclosure { display: grid; gap: 16px; }
+  .filterContents { display: grid; gap: 20px; }
+  .filterToggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 44px; padding: 10px 14px; border: var(--border-3); border-radius: var(--br-10); background: var(--color-whitesmoke); color: var(--color-seagreen-200); font: 600 14px/1.4 var(--font-manrope); cursor: pointer; }
+  .filterToggle > span { font-size: 20px; line-height: 1; }
+  .filterToggle:focus-visible { outline: 3px solid var(--color-seagreen-100); outline-offset: 3px; }
+  .filterFields { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .filterFields label, .priceFields label { font-size: 13px; }
+  .availabilityNote { font-size: 13px; }
+  .filterActions { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; }
+  .filterActions > a { min-height: 44px; }
+  .catalogForm .filterActions button { min-height: 48px; font-size: 13px; }
+  .catalogForm.catalogForm :is(input, select), .catalogForm .sortControls select { font-size: 16px; min-height: 44px; }
+  .vehicleGrid.vehicleGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .vehicleContent { padding: 16px; }
+  .vehicleContent h3 { font-size: 18px; line-height: 1.4; }
+  .vehicleSpecs { gap: 8px; font-size: 12px; line-height: 1.5; }
+  .vehicleSpecs span:not(.srOnly) { width: 16px; height: 16px; }
+  .vehiclePrice strong { font-size: 24px; line-height: 1.4; }
+  .vehicleLocation, .priceNote, .available { font-size: 12px; line-height: 1.5; }
+  .vehicleActions .detailButton { min-height: 44px; padding: 10px 14px; font-size: 13px; }
+  .sortControls label { font-size: 12px; }
+  .catalogForm .sortControls select { max-width: 100%; padding: 10px; }
+}
+@media (max-width: 600px) {
+  .hero { background-image: linear-gradient(180deg, white 38%, rgba(255,255,255,.94) 50%, transparent 74%), url('/design/Unified-photo-car-road-mountains@2x.png'); background-position: center, right bottom; background-size: 100% 100%, auto 250px; }
+  .heroInner { min-height: 0; padding: 20px 0 230px; }
+  .heroCopy { max-width: 100%; margin-top: 24px; }
+  .heroCopy h1 { font-size: clamp(28px, 7.7vw, 36px); line-height: 1.16; }
+  .heroDescription { max-width: 100%; margin-top: 16px; font-size: 15px; line-height: 1.6; }
+  .catalogForm { margin-top: -24px; }
+  .searchBar { gap: 12px; padding: 16px; }
+  .searchField { padding: 0 0 8px; }
+  .searchField label { font-size: 12px; }
+  .catalogForm .searchField label input { min-height: 44px; font-size: 16px; }
+  .searchBar .searchButton { min-height: 48px; font-size: 14px; }
+  .resultSummary h2 { font-size: 26px; line-height: 1.25; }
+  .resultSummary p { font-size: 14px; }
+  .sortControls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; }
+  .vehicleGrid.vehicleGrid { grid-template-columns: minmax(0, 1fr); }
+  .vehicleContent { padding: 20px; }
+  .vehicleContent h3 { font-size: 20px; }
+  .questions summary { min-height: 48px; font-size: 14px; line-height: 1.5; }
+  .questions details p, .guideIntro p:last-child { font-size: 14px; line-height: 1.6; }
+  .guide { padding: 20px 16px; }
+  .guideIntro h2, .tripCopy h2 { font-size: 26px; line-height: 1.3; }
+  .tripCopy { padding: 24px 20px 250px; }
+  .tripActions { gap: 16px; }
+  .tripActions > a { min-height: 44px; display: inline-flex; align-items: center; }
+}
+@media (max-width: 360px) {
+  .filterFields, .filterActions { grid-template-columns: minmax(0, 1fr); }
+  .results :global(.pagination) { flex-wrap: wrap; justify-content: center; }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .searchBar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .searchField { border-right: 0; border-bottom: var(--border-3); padding-bottom: 8px; }
+  .searchBar .searchButton { min-height: 48px; }
+}

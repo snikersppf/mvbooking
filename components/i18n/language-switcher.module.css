@@ -26,3 +26,8 @@
   color: var(--color-white);
   background: var(--color-seagreen-200);
 }
+
+@media (max-width: 900px) {
+  .switcher { padding: 2px; }
+  .switcher.switcher button { min-width: 32px; min-height: 40px; padding: 6px; }
+}

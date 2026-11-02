@@ -48,3 +48,46 @@
   .benefits li { gap: 6px; font-size: 10px; }
   .benefits img { width: 20px; height: 20px; }
 }
+
+@media (max-width: 900px) {
+  .homeHero {
+    background-image: linear-gradient(180deg, white 40%, rgba(255,255,255,.9) 52%, transparent 70%), url('/design/Unified-photo-car-road-mountains@2x.png');
+    background-size: 100% 100%, auto 270px;
+    background-position: center, right bottom 140px;
+  }
+  .heroContainer { width: calc(100% - 32px); min-height: 0; padding: 32px 0 56px; flex-direction: column; gap: 220px; }
+  .heroContent { width: 100%; max-width: 620px; }
+  .heroTitle { font-size: clamp(32px, 6.6vw, 46px); line-height: 1.16; letter-spacing: -1px; }
+  .eyebrow { margin-bottom: 16px; font-size: 10px; line-height: 1.6; }
+  .lead { margin: 18px 0 22px; font-size: 16px; }
+  .heroActions { gap: 10px; }
+  .primary, .secondary { min-height: 48px; padding: 14px 18px; font-size: 13px; }
+  .benefits { justify-content: space-between; max-width: 430px; gap: 12px; margin-top: 22px; }
+  .benefits li { min-width: 0; gap: 6px; font-size: 11px; }
+  .benefits img { flex-shrink: 0; width: 20px; height: 20px; }
+  .featuredVehicle {
+    display: grid;
+    grid-template-columns: minmax(90px, 30%) minmax(0, 1fr);
+    column-gap: 14px;
+    width: min(100%, 430px);
+    flex: auto;
+    align-self: flex-end;
+    margin: 0;
+    padding: 14px;
+    border: var(--border-3);
+    border-radius: 16px;
+  }
+  .productPhoto { grid-column: 1; grid-row: 1 / 5; height: 100%; max-height: 110px; margin: 0; }
+  .badge, .featuredVehicle h2, .featuredVehicle p, .cardAction { grid-column: 2; }
+  .badge { justify-self: start; font-size: 8px; }
+  .featuredVehicle h2 { font-size: 15px; }
+  .featuredVehicle p { font-size: 11px; }
+  .cardAction { padding-top: 8px; font-size: 14px; }
+}
+@media (max-width: 360px) {
+  .heroActions { display: grid; grid-template-columns: 1fr; }
+  .primary, .secondary { width: 100%; }
+  .lead br { display: none; }
+  .benefits { gap: 8px; }
+  .benefits li { font-size: 10px; }
+}

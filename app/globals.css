@@ -1222,3 +1222,108 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.025em; }
   .pagination { gap: 8px; font-size: 13px; }
   .booking-card-header { flex-direction: column; }
 }
+
+/* Keep the desktop composition; mobile controls use the same colors and surfaces. */
+.site-menu-toggle { display: none; }
+.auth-form .lead-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.auth-form .lead-consent input {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  margin: 2px 0 0;
+  padding: 0;
+  accent-color: var(--color-seagreen-200);
+}
+.auth-form textarea {
+  display: block;
+  width: 100%;
+  min-height: 112px;
+  padding: 12px 14px;
+  border: var(--border-3);
+  border-radius: var(--br-10);
+  background: white;
+  color: var(--color-gray);
+  font: inherit;
+  resize: vertical;
+}
+.auth-form textarea:focus-visible { outline: 3px solid var(--color-seagreen-100); outline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .site-header { position: sticky; top: 0; padding: 0; }
+  .site-header-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    width: calc(100% - 32px);
+    min-height: 72px;
+    padding: 12px 0;
+    gap: 0 10px;
+    justify-content: normal;
+  }
+  .site-header-brand { min-width: 0; }
+  .site-header-brand img { width: min(100%, 210px); }
+  .site-menu-toggle {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: var(--border-3);
+    border-radius: var(--br-10);
+    background: white;
+    color: var(--color-seagreen-200);
+    cursor: pointer;
+  }
+  .site-menu-toggle:focus-visible { outline: 3px solid var(--color-seagreen-100); outline-offset: 2px; }
+  .site-header-nav {
+    display: none;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    gap: 4px;
+    width: 100%;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: var(--border-3);
+  }
+  .site-header-nav[data-open="true"] { display: grid; grid-template-columns: 1fr 1fr; }
+  .site-header-nav a { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; border-radius: var(--br-8); font-size: 14px; }
+  .site-header-nav a:hover { background: var(--color-mintcream); }
+  :is(section[id], div[id], h2[id]) { scroll-margin-top: 100px; }
+}
+
+@media (max-width: 600px) {
+  .catalog-shell, .vehicle-page-shell, .account-shell, .admin-shell { width: calc(100% - 32px); }
+  .auth-shell { min-height: calc(100svh - 72px); padding: 24px 16px 40px; align-items: start; }
+  .auth-card { padding: 24px 20px; }
+  .auth-heading { margin-bottom: 24px; }
+  .auth-heading h1 { font-size: 28px; }
+  .auth-heading p { font-size: 15px; }
+  .auth-form { min-width: 0; }
+  .auth-form :is(input:not([type="checkbox"]), textarea) { font-size: 16px; }
+  .admin-header h1, .account-header h1 { overflow-wrap: anywhere; }
+  .admin-header-actions { width: 100%; }
+  .admin-header-actions > a { flex: 1; }
+  .admin-navigation { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 8px; }
+  .admin-navigation a { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 4px; text-align: center; font-size: 12px; overflow-wrap: anywhere; }
+  .admin-card-grid, .admin-comment-grid { grid-template-columns: minmax(0, 1fr); }
+  .admin-shell :is(section, form, fieldset, label, .admin-panel, .admin-detail-list, .admin-table-wrap) { min-width: 0; max-width: 100%; }
+  .admin-card, .admin-panel, .admin-user-card { padding: 16px; }
+  .admin-table-wrap { overscroll-behavior-x: contain; }
+  .admin-table th, .admin-table td { padding: 12px; font-size: 13px; }
+  .admin-filter-actions { align-items: center; }
+  .admin-filter-actions > button, .admin-form > button, .admin-inline-form button { width: 100%; }
+  .admin-form-grid, .admin-detail-list, .admin-comment-grid, .booking-details { grid-template-columns: minmax(0, 1fr); }
+  .admin-shell :is(input, select, textarea) { font-size: 16px; }
+  .pagination { flex-wrap: wrap; justify-content: center; }
+  .account-header, .admin-header { margin-bottom: 24px; }
+}
+
+.lead-form { color: var(--color-gray); }
+.lead-form > p { color: var(--color-dimgray); font-size: 14px; line-height: 1.6; }
+.lead-form > [role="alert"] { color: #b91c1c; }

@@ -53,3 +53,11 @@
   .catalogueContainerWrapper { padding: 0 20px 32px; }
   .catalogueContainer { gap: 40px; }
 }
+
+@media (max-width: 900px) {
+  .catalogueContainerWrapper { padding-inline: 16px; }
+  .catalogueContainer { gap: 48px; }
+}
+@media (max-width: 600px) {
+  .catalogueContainer { gap: 40px; }
+}

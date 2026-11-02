@@ -1,4 +1,5 @@
 import { CatalogDateInput } from "@/components/catalog/catalog-date-input";
+import { MobileFilters } from "./mobile-filters";
 import { getTranslations } from "@/lib/i18n/server";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
@@ -167,22 +168,24 @@ export async function CatalogFilterForm({ filters, children, summary }: CatalogF
               <h2 id="catalog-filters-title">{t("Фильтры")}</h2>
               <Link href="/vehicles">{t("Сбросить")}</Link>
             </div>
-            <p className={styles.availabilityNote}><span aria-hidden="true" />{t("Только доступные")}</p>
-            <fieldset className={styles.priceFields}>
-              <legend>{t("Цена за сутки")}</legend>
-              {minPriceField}
-              {maxPriceField}
-            </fieldset>
-            <div className={styles.filterFields}>
-              {transmissionField}
-              {driveField}
-              {seatsField}
-              {fuelField}
-            </div>
-            <div className={styles.filterActions}>
-              <Button type="submit">{t("Применить фильтры")}</Button>
-              <Link href="/vehicles">{t("Очистить всё")}</Link>
-            </div>
+            <MobileFilters>
+              <p className={styles.availabilityNote}><span aria-hidden="true" />{t("Только доступные")}</p>
+              <fieldset className={styles.priceFields}>
+                <legend>{t("Цена за сутки")}</legend>
+                {minPriceField}
+                {maxPriceField}
+              </fieldset>
+              <div className={styles.filterFields}>
+                {transmissionField}
+                {driveField}
+                {seatsField}
+                {fuelField}
+              </div>
+              <div className={styles.filterActions}>
+                <Button type="submit">{t("Применить фильтры")}</Button>
+                <Link href="/vehicles">{t("Очистить всё")}</Link>
+              </div>
+            </MobileFilters>
           </Card>
         </aside>
 

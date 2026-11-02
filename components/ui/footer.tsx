@@ -15,8 +15,8 @@ export default async function Footer() {
         <nav aria-label={t("Навигация")}>
           <b>{t("Навигация")}</b>
           <Link href="/vehicles">{t("Автомобили")}</Link>
-          <Link href="#rental-conditions">{t("Условия аренды")}</Link>
-          <Link href="#how-it-works">{t("Как это работает")}</Link>
+          <Link href="/#rental-conditions">{t("Условия аренды")}</Link>
+          <Link href="/#how-it-works">{t("Как это работает")}</Link>
         </nav>
 
       </div>
