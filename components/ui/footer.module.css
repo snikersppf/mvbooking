@@ -249,3 +249,16 @@
 @media (max-width: 600px) { .footerGrid { grid-template-columns: 1fr 1fr; gap: 32px; } .footerGrid > div { grid-column: 1 / -1; } }
 
 .footerGrid img { width: 258px; }
+
+@media (max-width: 900px) {
+  .footer { padding: 32px 16px 24px; gap: 24px; }
+  .footerGrid { grid-template-columns: 1.3fr 1fr; gap: 24px; }
+  .footerGrid nav { gap: 4px; min-width: 0; }
+  .footerGrid nav a { display: inline-flex; align-items: center; min-height: 44px; line-height: 1.5; }
+  .brandCopy { font-size: 14px; line-height: 1.7; }
+}
+@media (max-width: 600px) {
+  .footerGrid { grid-template-columns: 1fr; }
+  .footerGrid img { width: 222px; }
+  .footerLegal { font-size: 12px; line-height: 1.7; }
+}

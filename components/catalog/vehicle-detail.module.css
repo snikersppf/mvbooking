@@ -97,3 +97,41 @@
   .conditionGrid { grid-template-columns: 1fr; }
   .highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+@media (max-width: 900px) {
+  .overview { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .summary { padding: 24px; gap: 16px; }
+  .summary h1 { font-size: clamp(26px, 4vw, 32px); line-height: 1.25; }
+  .description { font-size: 15px; line-height: 1.6; }
+  .summaryNote { font-size: 13px; line-height: 1.6; }
+  .highlights { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .highlights dt, .highlights dd { font-size: 13px; line-height: 1.5; }
+  .summaryRate p { font-size: 14px; line-height: 1.5; }
+  .summaryRate strong { font-size: 28px; line-height: 1.3; }
+  .summary .summaryActions a { min-height: 48px; padding: 12px 20px; font-size: 15px; }
+  .specificationGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .specificationContent:has(> img) { grid-template-columns: minmax(0, 1fr); }
+  .specificationContent:has(> img) .specificationGrid > div { padding: 16px 16px 16px 48px; }
+  .specificationContent:has(> img) .specificationGrid dt::before { position: absolute; top: 16px; left: 14px; margin: 0; }
+  .specificationGrid dt { font-size: 12px; line-height: 1.5; }
+  .specificationContent:has(> img) .specificationGrid dd, .specificationGrid dd { font-size: 14px; line-height: 1.5; }
+  .specificationPhoto { height: auto; aspect-ratio: 1.58; }
+}
+@media (max-width: 600px) {
+  .page.page { padding-top: 20px; }
+  .content { width: calc(100% - 32px); }
+  .breadcrumb { font-size: 12px; line-height: 1.6; gap: 6px 10px; }
+  .detail { gap: 36px; }
+  .gallery.gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gallery.gallery img:first-child { object-fit: contain; background: white; }
+  .summary { padding: 20px; }
+  .sectionHeading h2 { font-size: 26px; line-height: 1.3; }
+  .highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .highlights dt { display: flex; align-items: center; gap: 8px; }
+  .highlights dd { margin-top: 6px; }
+  .specificationGrid > div, .conditionGrid > div { min-width: 0; }
+  .rateGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rateCard { padding: 20px 12px; }
+  .rateCard strong { font-size: 22px; }
+  .conditionGrid { grid-template-columns: minmax(0, 1fr); }
+}

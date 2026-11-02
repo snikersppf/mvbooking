@@ -72,3 +72,9 @@
 .label { white-space: pre-line; }
 
 .frameParent { width: 100%; gap: 8px; }
+
+@media (max-width: 600px) {
+  .rentalStep2 { padding: 16px 12px; }
+  .labelWrapper { font-size: 15px; }
+  .label { line-height: 1.5; overflow-wrap: anywhere; }
+}

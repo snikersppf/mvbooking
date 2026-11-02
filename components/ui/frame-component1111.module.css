@@ -318,3 +318,10 @@
 .faqLayout .eyebrow { color: var(--color-seagreen-200); font-size: 12px; letter-spacing: 1.8px; }
 .faqLayout .faqHeading { font-size: 33px; line-height: 1.25; }
 @media (max-width: 600px) { .faqLayout .faqHeading { font-size: 26px; } }
+
+@media (max-width: 600px) {
+  .questionCard { padding: 16px; }
+  .questionCard > summary { min-height: 44px; gap: 12px; font-size: 15px; }
+  .questionCard p { font-size: 14px; }
+  .faqLayout .telegramSupport { min-height: 44px; display: flex; align-items: center; }
+}

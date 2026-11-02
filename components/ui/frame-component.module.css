@@ -11,3 +11,15 @@
 @media (max-width: 1000px) { .rentalSearchBar { gap: 12px; padding: 16px; } .rentalSearchBar label { gap: 8px; padding-right: 12px; } .rentalSearchBar button { gap: 10px; padding-inline: 16px; font-size: 13px; } }
 @media (max-width: 760px) { .rentalSearchBarWrapper { width: calc(100% - 40px); } .rentalSearchBar { grid-template-columns: 1fr 1fr; } .rentalSearchBar label { border: 0; padding: 0; } .rentalSearchBar button { width: 100%; min-height: 48px; } }
 @media (max-width: 420px) { .rentalSearchBar { grid-template-columns: 1fr; } .rentalSearchBar label { border-bottom: var(--border-3); padding-bottom: 10px; } }
+
+@media (max-width: 900px) {
+  .rentalSearchBarWrapper { width: calc(100% - 32px); margin-top: -32px; }
+  .rentalSearchBar { grid-template-columns: 1fr 1fr; padding: 16px; gap: 16px; }
+  .rentalSearchBar label { border: 0; padding: 0; }
+  .rentalSearchBar.rentalSearchBar input, .rentalSearchBar.rentalSearchBar select { min-height: 44px; font-size: 16px; }
+  .rentalSearchBar button { min-height: 48px; width: 100%; }
+}
+@media (max-width: 480px) {
+  .rentalSearchBar { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .rentalSearchBar label { padding-bottom: 8px; border-bottom: var(--border-3); }
+}
