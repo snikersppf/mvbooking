@@ -42,8 +42,9 @@
   box-shadow: var(--shadow-drop);
 }
 .searchField { display: flex; align-items: center; gap: var(--gap-12); min-width: 0; padding-inline: var(--padding-4) var(--padding-16); border-right: var(--border-3); }
+.dateRange { min-width: 0; grid-column: span 2; }
 .searchField label { flex: 1; min-width: 0; color: var(--color-dimgray); font-size: var(--fs-11); }
-.catalogForm .searchField label input { min-height: 32px; padding: var(--padding-4) 0; border-color: transparent; border-radius: var(--br-8); font-size: var(--fs-13); font-weight: 600; }
+.catalogForm .searchField label :is(input, select) { min-height: 32px; padding: var(--padding-4) 0; border-color: transparent; border-radius: var(--br-8); font-size: var(--fs-13); font-weight: 600; }
 .searchBar .searchButton { gap: var(--gap-20); min-height: 58px; }
 .calendarIcon, .carIcon, .seatsIcon, .gearIcon, .driveIcon { display: inline-block; flex-shrink: 0; width: 24px; height: 24px; background-size: contain; background-position: center; background-repeat: no-repeat; }
 .calendarIcon { background-image: url("/design/Icon-calendar-days.svg"); }
@@ -105,8 +106,7 @@
 .results :global(.empty-state), .results :global(.error-message) { margin: 0; }
 .guidance { display: grid; gap: var(--gap-30); padding-top: 56px; padding-bottom: var(--padding-36); }
 .guide { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: var(--gap-36); padding: var(--padding-20); border-radius: var(--br-16); background: var(--color-mintcream); scroll-margin-top: 112px; }
-.guideIntro { display: grid; grid-template-columns: 34% minmax(0, 1fr); align-items: center; gap: var(--gap-24); }
-.guideImage { width: 100%; height: 310px; border-radius: var(--br-12); object-fit: cover; }
+.guideIntro { min-width: 0; padding: var(--padding-16); }
 .guideIntro h2 { margin: 0; font-size: var(--fs-32); font-weight: 800; }
 .guideIntro p:last-child { color: var(--color-dimgray); font-size: var(--fs-14); line-height: var(--lh-22); }
 .questions { padding: var(--padding-16); border: 0; box-shadow: var(--shadow-drop); }
@@ -162,7 +162,6 @@
   .guideIntro h2 { font-size: var(--fs-24); line-height: var(--lh-30); }
   .guideIntro .eyebrow { font-size: var(--fs-10); }
   .guideIntro p:last-child { font-size: var(--fs-12); line-height: var(--lh-18); }
-  .guideImage { height: 270px; }
   .questions { padding: var(--padding-12); }
   .questions summary { padding-block: var(--padding-10); font-size: var(--fs-11); }
   .questions details p { font-size: var(--fs-11); line-height: var(--lh-18); }
@@ -182,7 +181,6 @@
   .resultSummary h2 { font-size: var(--fs-26); }
   .guide { gap: var(--gap-24); }
   .guideIntro { grid-template-columns: 1fr; }
-  .guideImage { display: none; }
   .guideIntro h2, .tripCopy h2 { font-size: var(--fs-26); }
 }
 @media (max-width: 650px) {
@@ -200,7 +198,7 @@
   .heroDescription { max-width: 85%; }
   .searchBar { grid-template-columns: 1fr; gap: var(--gap-12); }
   .searchField { border-right: 0; border-bottom: var(--border-3); padding-bottom: var(--padding-10); }
-  .catalogForm .searchField label input { font-size: var(--fs-16); }
+  .catalogForm .searchField label :is(input, select) { font-size: var(--fs-16); }
   .catalogLayout { grid-template-columns: 1fr; margin-top: var(--gap-24); }
   .searchBar .searchButton { grid-column: auto; font-size: var(--fs-14); }
   .filterCard { gap: var(--gap-20); }
@@ -268,7 +266,7 @@
   .searchBar { gap: 12px; padding: 16px; }
   .searchField { padding: 0 0 8px; }
   .searchField label { font-size: 12px; }
-  .catalogForm .searchField label input { min-height: 44px; font-size: 16px; }
+  .catalogForm .searchField label :is(input, select) { min-height: 44px; font-size: 16px; }
   .searchBar .searchButton { min-height: 48px; font-size: 14px; }
   .resultSummary h2 { font-size: 26px; line-height: 1.25; }
   .resultSummary p { font-size: 14px; }
@@ -294,3 +292,6 @@
   .searchField { border-right: 0; border-bottom: var(--border-3); padding-bottom: 8px; }
   .searchBar .searchButton { min-height: 48px; }
 }
+
+.vehicleSpecs svg { flex-shrink: 0; color: var(--color-seagreen-200); }
+@media (max-width: 600px) { .dateRange { grid-column: 1 / -1; } }

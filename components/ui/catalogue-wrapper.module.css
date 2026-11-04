@@ -857,3 +857,10 @@
   .route2, .route4 { min-height: 280px; }
   .title, .title3 { font-size: 26px; line-height: 1.2; }
 }
+
+.route:is(:hover, :focus-visible), .route2:is(:hover, :focus-visible), .route4:is(:hover, :focus-visible) { color: white; }
+.route, .route2, .route4 { transition: transform 180ms ease, box-shadow 180ms ease; transform-origin: center; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .route:hover, .route2:hover, .route4:hover { transform: scale(1.008); box-shadow: 0 8px 22px rgb(0 0 0 / 12%); }
+}
+@media (prefers-reduced-motion: reduce) { .route, .route2, .route4 { transition: none; transform: none; } }

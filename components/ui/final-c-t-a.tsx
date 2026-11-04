@@ -34,17 +34,8 @@ const FinalCTA: NextPage<FinalCTAType> = async ({ className = "" }) => {
         {/* TODO: check connection. Add verified contact links when they are provided. */}
         <Link href="/vehicles" className={styles.catalogueAction}>{t("Перейти в каталог →")}</Link>
       </div>
-      <Image
-        className={styles.vehicleOnGraphicBackground}
-        loading="lazy"
-        width={636}
-        height={284}
-        sizes="100vw"
-        alt=""
-        src="/design/Product-photo@2x.png"
-      />
       <div className={styles.container5}>
-        <div className={styles.enquiryForm}><LeadForm /></div>
+        <LeadForm appearance="cta" />
       </div>
     </section>
   );

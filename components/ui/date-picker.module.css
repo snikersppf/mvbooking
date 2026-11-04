@@ -1,0 +1,67 @@
+.trigger.trigger { display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; min-width: 0; min-height: 48px; margin: 0; padding: 12px; border: 1px solid #dce3df; border-radius: 10px; background: white; color: var(--color-gray, #19231e); font: inherit; font-size: 14px; font-weight: 500; text-align: left; cursor: pointer; }
+.range { min-width: 0; width: 100%; container-type: inline-size; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.field { min-width: 0; }
+.range .field > label { display: block; margin: 0 0 6px; padding: 0; border: 0; color: #69766f; font-size: 11px; font-weight: 500; }
+.range[data-with-time="false"] .field > label { font-size: 14px; color: #19231e; }
+.control { display: grid; min-width: 0; }
+.range[data-with-time="true"] .control { grid-template-columns: minmax(0, 1fr) 120px; }
+.range[data-with-time="true"] .trigger { border-radius: 10px 0 0 10px; padding-inline: 10px; gap: 8px; font-size: 12px; }
+.range > input[type="hidden"] { display: none; }
+.trigger > svg { flex-shrink: 0; color: var(--color-seagreen-200, #0b7153); }
+.trigger > span[data-empty="true"] { color: #69766f; }
+.trigger > span:not(.chevron) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chevron { margin-left: auto; color: #69766f; }
+.trigger.trigger:is(:hover, [data-active="true"]) { border-color: #0b7153; background: #f6faf8; color: #19231e; }
+.trigger:focus-visible, .panel button:focus-visible { outline: 2px solid #0b7153; outline-offset: 2px; }
+.panel { position: fixed; z-index: 2000; box-sizing: border-box; padding: 16px 20px; border: 1px solid #dce3df; border-radius: 16px; background: white; color: #19231e; box-shadow: 0 16px 60px rgb(17 44 32 / 18%); overflow-y: auto; overscroll-behavior: contain; font: 14px/1.5 var(--font-manrope, sans-serif); animation: appear 140ms ease-out; }
+.panel button { display: inline-flex; align-items: center; justify-content: center; min-width: 0; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #e8eeea; color: #52635a; font-size: 12px; }
+.toolbar button { width: 32px; height: 32px; font-size: 24px; }
+.selection { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-top: 12px; }
+.selection > button { display: grid; justify-content: start; gap: 4px; min-height: 60px; padding: 8px 12px; border: 1px solid #e4eae6; border-radius: 10px; text-align: left; }
+.selection > button[data-active="true"] { border-color: #0b7153; background: #f0f7f3; }
+.selection span { color: #69766f; font-size: 11px; }
+.selection strong { font-size: 13px; font-weight: 600; }
+.months { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; padding-block: 16px; }
+.month { min-width: 0; }
+.monthHeading { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 16px; }
+.monthHeading h3 { margin: 0; font: 700 15px/1.5 var(--font-manrope, sans-serif); text-transform: capitalize; }
+.monthHeading button { flex: 0 0 32px; height: 32px; font-size: 26px; }
+.month:first-child .next, .month:last-child .previous { visibility: hidden; }
+.weekdays, .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0; text-align: center; }
+.weekdays { margin-bottom: 8px; color: #758078; font-size: 11px; text-transform: uppercase; }
+.days button, .days > span { aspect-ratio: 1; min-height: 36px; }
+.days button { position: relative; border-radius: 0; font-size: 13px; isolation: isolate; }
+.days button[aria-pressed="true"] { z-index: 1; }
+.dayNumber { position: relative; isolation: isolate; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; }
+.dayNumber::before { position: absolute; inset: 0; z-index: -1; border-radius: 50%; content: ""; pointer-events: none; }
+.dayNumber[data-selected="true"] { color: white; font-weight: 700; }
+.dayNumber[data-selected="true"]::before { background: #0b7153; }
+.panel[data-range-complete="true"] [data-range-start="true"]:not([data-range-end="true"]) .dayNumber[data-selected="true"]::before { inset: -1px -12px -1px -1px; background: radial-gradient(ellipse at 18% 50%, #087052 0%, #107c5d 42%, rgb(16 124 93 / 65%) 64%, rgb(16 124 93 / 18%) 82%, rgb(16 124 93 / 0%) 100%); filter: drop-shadow(0 2px 6px rgb(11 113 83 / 12%)); }
+.panel[data-range-complete="true"] [data-range-end="true"]:not([data-range-start="true"]) .dayNumber[data-selected="true"]::before { inset: -1px -1px -1px -12px; background: radial-gradient(ellipse at 82% 50%, #087052 0%, #107c5d 42%, rgb(16 124 93 / 65%) 64%, rgb(16 124 93 / 18%) 82%, rgb(16 124 93 / 0%) 100%); filter: drop-shadow(0 2px 6px rgb(11 113 83 / 12%)); }
+.dayNumber[data-selected="true"][data-animate="true"]::before { animation: selectDate 300ms cubic-bezier(.2,.7,.3,1) both; }
+.rangeBand { position: absolute; inset: 3px 0; z-index: -1; background-image: linear-gradient(90deg, #d9eee4, #e6f3ec 55%, #f0f8f4); background-repeat: no-repeat; transform-origin: left center; }
+.rangeBand[data-animate="true"] { animation: fillRange linear both; }
+.days button:not([data-range-row-end="true"]) .rangeBand { right: -.5px; }
+.days button[data-range-start="true"] .rangeBand { left: calc(50% - 18px); }
+.days button[data-range-end="true"] .rangeBand { right: calc(50% - 18px); }
+.days button[data-range-row-start="true"] .rangeBand { border-radius: 999px 0 0 999px; }
+.days button[data-range-row-end="true"] .rangeBand { border-top-right-radius: 999px; border-bottom-right-radius: 999px; }
+.days button[data-range-start="true"][data-range-end="true"] .rangeBand { display: none; }
+.panel button:hover { background: #edf6f1; color: #07533c; }
+.dayNumber[data-today="true"][data-selected="false"] { box-shadow: inset 0 0 0 1px #a8bbb0; }
+.days button:hover { background: transparent; }
+.days button:hover .dayNumber[data-selected="false"] { background: #edf6f1; }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; border-top: 1px solid #e8eeea; }
+.footer button { padding: 8px 10px; color: #0b7153; font-size: 12px; font-weight: 600; }
+.footer > span { color: #758078; font-size: 10px; text-align: center; }
+.footer .done { padding: 10px 20px; border-radius: 9px; background: #0b7153; color: white; }
+.footer .done:hover { background: #07533c; color: white; }
+@keyframes appear { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes selectDate { from { opacity: .2; transform: scale(.15); } to { opacity: 1; transform: scale(1); } }
+@keyframes fillRange { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@container (max-width: 520px) { .fields { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+@media (max-width: 640px) { .panel { padding: 12px; } .months { grid-template-columns: minmax(0, 1fr); gap: 20px; } .month:first-child .next { visibility: visible; } .month:last-child .next { visibility: hidden; } .days button { min-height: 38px; font-size: 14px; } .range .trigger { font-size: 16px; } .footer > span { max-width: 100px; } .selection { gap: 8px; } .selection > button { padding: 8px; } .selection strong { font-size: 11px; } }
+@media (max-width: 640px) { .range[data-with-time="true"] .trigger { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) { .panel, .rangeBand[data-animate="true"], .dayNumber[data-selected="true"][data-animate="true"]::before { animation: none; } }

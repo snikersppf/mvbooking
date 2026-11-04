@@ -1,3 +1,5 @@
+import { VehicleFeatures } from "./vehicle-features";
+import { VehicleIcon } from "@/components/ui/vehicle-icon";
 import { VehiclePhoto } from "./vehicle-photo";
 import { LeadForm } from "@/components/leads/lead-form";
 import { getTranslations } from "@/lib/i18n/server";
@@ -35,10 +37,10 @@ export async function VehicleDetail({ vehicle }: VehicleDetailProps) {
           <h1 id="vehicle-title">{vehicle.brand} {vehicle.model} {vehicle.year}</h1>
           {vehicle.description ? <p className={styles.description}>{t(vehicle.description)}</p> : null}
           <dl className={styles.highlights}>
-            <div><dt className={styles.seats}><span className={styles.srOnly}>{t("Seats")}</span></dt><dd>{vehicle.seats}</dd></div>
-            <div><dt className={styles.transmission}><span className={styles.srOnly}>{t("Transmission")}</span></dt><dd>{t(vehicle.transmission)}</dd></div>
-            <div><dt className={styles.drive}><span className={styles.srOnly}>{t("Drive")}</span></dt><dd>{t(vehicle.drive)}</dd></div>
-            <div><dt className={styles.fuel}><span className={styles.srOnly}>{t("Fuel")}</span></dt><dd>{t(vehicle.fuel)}</dd></div>
+            <div><dt><VehicleIcon name="seats" /><span className={styles.srOnly}>{t("Seats")}</span></dt><dd>{vehicle.seats}</dd></div>
+            <div><dt><VehicleIcon name="transmission" /><span className={styles.srOnly}>{t("Transmission")}</span></dt><dd>{t(vehicle.transmission)}</dd></div>
+            <div><dt><VehicleIcon name="drive" /><span className={styles.srOnly}>{t("Drive")}</span></dt><dd>{t(vehicle.drive)}</dd></div>
+            <div><dt><VehicleIcon name="fuel" /><span className={styles.srOnly}>{t("Fuel")}</span></dt><dd>{t(vehicle.fuel)}</dd></div>
           </dl>
           {vehicle.pricingRules[0] ? (
             <div className={styles.summaryRate}>
@@ -59,16 +61,7 @@ export async function VehicleDetail({ vehicle }: VehicleDetailProps) {
           <h2>{t("Характеристики автомобиля")}</h2>
         </header>
         <div className={styles.specificationContent}>
-          <dl className={styles.specificationGrid}>
-            <Card as="div"><dt className={styles.year}>{t("Year")}</dt><dd>{vehicle.year}</dd></Card>
-            <Card as="div"><dt className={styles.transmission}>{t("Transmission")}</dt><dd>{t(vehicle.transmission)}</dd></Card>
-            <Card as="div"><dt className={styles.drive}>{t("Drive")}</dt><dd>{t(vehicle.drive)}</dd></Card>
-            <Card as="div"><dt className={styles.fuel}>{t("Fuel")}</dt><dd>{t(vehicle.fuel)}</dd></Card>
-            <Card as="div"><dt className={styles.seats}>{t("Seats")}</dt><dd>{vehicle.seats}</dd></Card>
-            <Card as="div"><dt className={styles.category}>{t("Category")}</dt><dd>{t(vehicle.category)}</dd></Card>
-            <Card as="div"><dt className={styles.engine}>{t("Engine")}</dt><dd>{t(vehicle.engine ?? "Not specified")}</dd></Card>
-            <Card as="div"><dt className={styles.location}>{t("Location")}</dt><dd>{t(vehicle.location)}</dd></Card>
-          </dl>
+          <VehicleFeatures vehicle={vehicle} />
           {vehicle.images.length > 1 ? (
             <VehiclePhoto
               className={styles.specificationPhoto}

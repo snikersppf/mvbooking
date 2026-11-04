@@ -1,0 +1,7 @@
+.features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; align-self: start; gap: 24px 32px; margin: 0; padding: 28px; border: var(--border-3); border-radius: 16px; background: white; }
+.features > div { position: relative; min-width: 0; min-height: 44px; padding-left: 38px; }
+.features dt { color: var(--color-dimgray); font-size: 13px; line-height: 1.5; }
+.features dt > svg { position: absolute; top: 2px; left: 0; color: var(--color-seagreen-200); }
+.features dd { margin: 4px 0 0; color: var(--color-gray); font-size: 16px; line-height: 1.5; font-weight: 600; overflow-wrap: anywhere; }
+@media (max-width: 1100px) { .features { gap: 20px; padding: 20px; } }
+@media (max-width: 400px) { .features { grid-template-columns: minmax(0, 1fr); } }

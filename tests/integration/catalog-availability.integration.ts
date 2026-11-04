@@ -179,7 +179,7 @@ describe("catalog and availability integration", () => {
     const van = await createVehicle(prefix, "van", {
       brand: "Ford",
       category: scopedCategory,
-      seats: 9,
+      seats: 7,
       transmission: "MANUAL",
       fuel: "DIESEL",
       drive: "RWD",
@@ -209,10 +209,16 @@ describe("catalog and availability integration", () => {
       [suv.id, van.id].sort(),
     );
     await expect(
+      listCatalogVehicles({ category: scopedCategory, seats: 5 }, { prisma }),
+    ).resolves.toMatchObject({
+      totalItems: 1,
+      items: [expect.objectContaining({ id: suv.id, seats: 5 })],
+    });
+    await expect(
       listCatalogVehicles(
         {
           category: scopedCategory,
-          seats: 8,
+          seats: 7,
           transmission: "MANUAL",
           fuel: "DIESEL",
           drive: "RWD",

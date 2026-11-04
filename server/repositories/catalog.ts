@@ -79,7 +79,7 @@ export function publicVehicleWhere(
   return {
     status: VehicleStatus.AVAILABLE,
     ...(filters.category ? { category: filters.category } : {}),
-    ...(filters.seats ? { seats: { gte: filters.seats } } : {}),
+    ...(filters.seats ? { seats: filters.seats } : {}),
     ...(filters.transmission
       ? { transmission: filters.transmission }
       : {}),

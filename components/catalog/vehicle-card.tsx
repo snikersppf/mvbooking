@@ -1,3 +1,4 @@
+import { VehicleIcon } from "@/components/ui/vehicle-icon";
 import { VehiclePhoto } from "./vehicle-photo";
 import { getTranslations } from "@/lib/i18n/server";
 import { Card } from "@/components/ui/card";
@@ -31,15 +32,15 @@ export async function VehicleCard({ vehicle }: VehicleCardProps) {
         </h3>
         <dl className={styles.vehicleSpecs}>
           <div>
-            <dt><span className={styles.seatsIcon} aria-hidden="true" /><span className={styles.srOnly}>{t("Seats")}</span></dt>
+            <dt><VehicleIcon name="seats" size={16} /><span className={styles.srOnly}>{t("Seats")}</span></dt>
             <dd>{vehicle.seats} {t(" мест")}</dd>
           </div>
           <div>
-            <dt><span className={styles.gearIcon} aria-hidden="true" /><span className={styles.srOnly}>{t("Transmission")}</span></dt>
+            <dt><VehicleIcon name="transmission" size={16} /><span className={styles.srOnly}>{t("Transmission")}</span></dt>
             <dd>{t(vehicle.transmission)}</dd>
           </div>
           <div>
-            <dt><span className={styles.driveIcon} aria-hidden="true" /><span className={styles.srOnly}>{t("Drive")}</span></dt>
+            <dt><VehicleIcon name="drive" size={16} /><span className={styles.srOnly}>{t("Drive")}</span></dt>
             <dd>{t(vehicle.drive)}</dd>
           </div>
         </dl>

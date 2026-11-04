@@ -7,6 +7,7 @@
 .rentalSearchBar button { display: inline-flex; align-items: center; justify-content: center; gap: 24px; min-height: 56px; white-space: nowrap; }
 .calendarIcon, .carIcon { flex: 0 0 24px; height: 24px; background: center / contain no-repeat; }
 .calendarIcon { background-image: url('/design/Icon-calendar-days.svg'); }
+.dateRange { min-width: 0; grid-column: span 2; }
 .carIcon { background-image: url('/design/Icon-car-front.svg'); }
 @media (max-width: 1000px) { .rentalSearchBar { gap: 12px; padding: 16px; } .rentalSearchBar label { gap: 8px; padding-right: 12px; } .rentalSearchBar button { gap: 10px; padding-inline: 16px; font-size: 13px; } }
 @media (max-width: 760px) { .rentalSearchBarWrapper { width: calc(100% - 40px); } .rentalSearchBar { grid-template-columns: 1fr 1fr; } .rentalSearchBar label { border: 0; padding: 0; } .rentalSearchBar button { width: 100%; min-height: 48px; } }
@@ -21,5 +22,6 @@
 }
 @media (max-width: 480px) {
   .rentalSearchBar { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .dateRange { grid-column: 1 / -1; }
   .rentalSearchBar label { padding-bottom: 8px; border-bottom: var(--border-3); }
 }

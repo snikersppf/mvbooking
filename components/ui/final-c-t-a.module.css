@@ -324,3 +324,8 @@
   .container5 { min-width: 0; }
   .vehicleOnGraphicBackground { width: min(100%, 260px); justify-self: center; }
 }
+
+.container5 { grid-row: 1; align-self: stretch; }
+@media (max-width: 800px) { .container5 { grid-column: 1; grid-row: auto; } }
+
+.catalogueAction:is(:hover, :focus-visible) { color: white; }

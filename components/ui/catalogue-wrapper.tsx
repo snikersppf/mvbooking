@@ -14,22 +14,6 @@ const CatalogueWrapper: NextPage<CatalogueWrapperType> = async ({
   const t = await getTranslations();
   return (
     <div className={[styles.catalogueWrapper, className].join(" ")}>
-      <b className={styles.eyebrow}>{t("НАШ АВТОПАРК")}</b>
-      <section className={styles.catalogueHeader}>
-        <div className={styles.catalogueTitleWrapper}>
-          <h2 className={styles.sectionTitle}>
-            {t("Автомобили для любого маршрута")}</h2>
-          <div className={styles.catalogueLinkWrapper}>
-            <Link href="/vehicles" className={styles.catalogueLink}>{t("Смотреть все автомобили →")}</Link>
-          </div>
-        </div>
-        <div className={styles.sectionDescription}>
-          {t("От города до горных дорог — подберите автомобиль для путешествия по Грузии.")}</div>
-      </section>
-      <Link className={styles.catalogueBanner} href="/vehicles">
-        <Image src="/design/Studio-surface@2x.png" alt={t(t("Автомобиль для путешествия по Грузии"))} width={816} height={348} sizes="(max-width: 600px) 100vw, 408px" />
-        <span><strong>{t("Выберите автомобиль и даты поездки")}</strong><span>{t("Доступные автомобили, характеристики и актуальная стоимость — в каталоге.")}</span><b>{t("Открыть каталог →")}</b></span>
-      </Link>
       <section className={styles.eyebrowParent}>
         <b className={styles.eyebrow}>{t("ПОДБЕРИТЕ ПОД СВОЮ ПОЕЗДКУ")}</b>
         <div className={styles.sectionTitleParent}>

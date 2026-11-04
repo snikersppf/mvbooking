@@ -135,3 +135,9 @@
   .rateCard strong { font-size: 22px; }
   .conditionGrid { grid-template-columns: minmax(0, 1fr); }
 }
+
+.highlights dt::before { content: none; }
+.highlights dt > svg { flex-shrink: 0; color: var(--color-seagreen-200); }
+.specificationContent:has(> button) { align-items: start; }
+.specificationContent > .specificationPhoto { height: auto; align-self: start; }
+@media (max-width: 900px) { .specificationContent:has(> button) { grid-template-columns: minmax(0, 1fr); } }

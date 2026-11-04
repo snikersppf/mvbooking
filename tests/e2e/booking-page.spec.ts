@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { seedBookingFlow } from "./booking-flow.fixture";
+import { selectDate } from "./select-date";
 
 test("public vehicle enquiry validates contacts and dates without requiring sign-in", async ({ page }) => {
   const fixture = await seedBookingFlow();
@@ -34,14 +35,14 @@ test("public vehicle enquiry validates contacts and dates without requiring sign
     expect(requests).toHaveLength(0);
 
     await form.getByLabel("Email", { exact: true }).fill(fixture.customerEmail);
-    await form.getByLabel("Pickup date", { exact: true }).fill(end);
-    await form.getByLabel("Return date", { exact: true }).fill(start);
+    await selectDate(page, "Pickup date", start);
+    await selectDate(page, "Return date", start);
     await submit.click();
     await expect(form.getByRole("alert")).toBeVisible();
     expect(requests).toHaveLength(0);
 
-    await form.getByLabel("Pickup date", { exact: true }).fill(start);
-    await form.getByLabel("Return date", { exact: true }).fill(end);
+    await selectDate(page, "Pickup date", start);
+    await selectDate(page, "Return date", end);
     const accepted = page.waitForResponse((candidate) => new URL(candidate.url()).pathname === "/api/leads" && candidate.request().method() === "POST");
     await submit.click();
     expect((await accepted).status()).toBe(202);

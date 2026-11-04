@@ -1,5 +1,17 @@
 // UI copy only. API values, validation rules and stored data are not translated.
 export const translations: ReadonlyArray<readonly [english: string, russian: string]> = [
+  ["Choose pickup date", "Выберите дату получения"], ["Choose return date", "Выберите дату возврата"],
+  ["Change pickup date", "Изменить дату получения"], ["Change return date", "Изменить дату возврата"],
+  ["Clear dates", "Очистить даты"], ["Done", "Готово"],
+  ["Rental dates selected", "Период аренды выбран"],
+  ["Choose date", "Выберите дату"], ["Close calendar", "Закрыть календарь"],
+  ["Previous month", "Предыдущий месяц"], ["Next month", "Следующий месяц"],
+  ["Clear date", "Очистить дату"], ["Today", "Сегодня"],
+  ["Pickup time", "Время получения"], ["Return time", "Время возврата"],
+  ["Enquiry sent", "Заявка отправлена"],
+  ["A manager will contact you to discuss availability, pricing and your trip.", "Менеджер свяжется с вами, чтобы обсудить доступность автомобиля, стоимость и детали поездки."],
+  ["Your enquiry is with our team. You can continue exploring the fleet.", "Мы получили ваши контакты и пожелания. Пока мы изучаем заявку, вы можете посмотреть другие автомобили."],
+  ["Continue browsing vehicles", "Посмотреть автомобили"],
   ["Enlarge photo", "Увеличить фотографию"], ["Close photo", "Закрыть фотографию"],
   ["Vehicle photos", "Фотографии автомобиля"], ["Vehicle photo", "Фотография автомобиля"], ["Add photos", "Добавить фотографии"],
   ["JPEG, PNG or WebP. Up to 5 MB per photo, 10 photos and 20 MB per request.", "JPEG, PNG или WebP. До 5 МБ на фото, 10 фото и 20 МБ на отправку."],

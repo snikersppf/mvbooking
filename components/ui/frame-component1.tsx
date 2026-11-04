@@ -1,6 +1,6 @@
 import { getTranslations } from "@/lib/i18n/server";
 import type { NextPage } from "next";
-import Image from "next/image";
+import { VehicleIcon } from "./vehicle-icon";
 import styles from "./frame-component1.module.css";
 
 export type FrameComponent1Type = {
@@ -18,14 +18,7 @@ const FrameComponent1: NextPage<FrameComponent1Type> = async ({ className = "" }
       <div className={styles.benefitGrid}>
         <div className={styles.benefit}>
           <div className={styles.benefitContainer}>
-            <Image
-              className={styles.iconCircle}
-              width={72}
-              height={72}
-              sizes="100vw"
-              alt=""
-              src="/design/Icon-circle3.svg"
-            />
+            <span className={styles.iconCircle}><VehicleIcon name="document" size={32} /></span>
           </div>
           <div className={styles.benefitContent}>
             <h3 className={styles.title}>{t("Прозрачная стоимость")}</h3>
@@ -36,14 +29,7 @@ const FrameComponent1: NextPage<FrameComponent1Type> = async ({ className = "" }
         </div>
         <div className={styles.benefit}>
           <div className={styles.benefitContainer}>
-            <Image
-              className={styles.iconCircle}
-              width={72}
-              height={72}
-              sizes="100vw"
-              alt=""
-              src="/design/Icon-headphones.svg"
-            />
+            <span className={styles.iconCircle}><VehicleIcon name="headphones" size={32} /></span>
           </div>
           <div className={styles.benefitContent}>
             <h3 className={styles.title}>{t("Помощь в поездке")}</h3>
@@ -56,14 +42,7 @@ const FrameComponent1: NextPage<FrameComponent1Type> = async ({ className = "" }
       <div className={styles.benefitGrid}>
         <div className={styles.benefit}>
           <div className={styles.benefitContainer}>
-            <Image
-              className={styles.iconCircle}
-              width={72}
-              height={72}
-              sizes="100vw"
-              alt=""
-              src="/design/Icon-circle.svg"
-            />
+            <span className={styles.iconCircle}><VehicleIcon name="car" size={32} /></span>
           </div>
           <div className={styles.benefitContent}>
             <h3 className={styles.title}>{t("Доставка автомобиля")}</h3>
@@ -74,14 +53,7 @@ const FrameComponent1: NextPage<FrameComponent1Type> = async ({ className = "" }
         </div>
         <div className={styles.benefit}>
           <div className={styles.benefitContainer}>
-            <Image
-              className={styles.iconCircle}
-              width={72}
-              height={72}
-              sizes="100vw"
-              alt=""
-              src="/design/Icon-circle2.svg"
-            />
+            <span className={styles.iconCircle}><VehicleIcon name="shield" size={32} /></span>
           </div>
           <div className={styles.benefitContent}>
             <h3 className={styles.title}>{t("Подготовленные автомобили")}</h3>

@@ -1,4 +1,6 @@
-import { CatalogDateInput } from "@/components/catalog/catalog-date-input";
+import { ADMIN_DRIVES, ADMIN_FUELS, ADMIN_TRANSMISSIONS, ADMIN_VEHICLE_CATEGORIES } from "@/lib/admin-input";
+import { CATALOG_SEAT_COUNTS } from "@/lib/catalog-seats";
+import { CatalogDateRange } from "@/components/catalog/catalog-date-input";
 import { MobileFilters } from "./mobile-filters";
 import { getTranslations } from "@/lib/i18n/server";
 import { Button } from "@/components/ui/button";
@@ -18,12 +20,21 @@ type CatalogFilterFormProps = Readonly<{
 
 export async function CatalogFilterForm({ filters, children, summary }: CatalogFilterFormProps) {
   const t = await getTranslations();
-  const categoryField = (
-    <label>
-      {children === undefined ? t("Category") : t("Категория")}
-      <Input name="category" defaultValue={filters.category} placeholder={t("SUV")} />
-    </label>
-  );
+  const selectField = (label: string, name: string, choices: readonly string[], current?: string | number) => {
+    const currentValue = current === undefined ? "" : String(current);
+    const selected = name === "seats" && !choices.includes(currentValue) ? "" : currentValue;
+    // Keep existing bookmarked filters representable, including older catalogue values.
+    const options = selected && !choices.includes(selected) ? [selected, ...choices] : choices;
+    return <label>{t(label)}
+      <Select key={`${name}:${selected}`} name={name} defaultValue={selected}>
+        <option value="">{t("All")}</option>
+        {options.map((value) => <option key={value} value={value}>
+          {t(value)}
+        </option>)}
+      </Select>
+    </label>;
+  };
+  const categoryField = selectField("Category", "category", ADMIN_VEHICLE_CATEGORIES, filters.category);
   const minPriceField = (
     <label>
       {children === undefined ? t("Minimum daily price") : t("От")}
@@ -48,52 +59,13 @@ export async function CatalogFilterForm({ filters, children, summary }: CatalogF
       />
     </label>
   );
-  const seatsField = (
-    <label>
-      {children === undefined ? t("Minimum seats") : t("Количество мест (от)")}
-      <Input
-        name="seats"
-        type="number"
-        min="1"
-        max="100"
-        defaultValue={filters.seats}
-      />
-    </label>
-  );
-  const transmissionField = (
-    <label>
-      {children === undefined ? t("Transmission") : t("Коробка передач")}
-      <Input
-        name="transmission"
-        defaultValue={filters.transmission}
-        placeholder={t("AUTOMATIC")}
-      />
-    </label>
-  );
-  const fuelField = (
-    <label>
-      {children === undefined ? t("Fuel") : t("Тип топлива")}
-      <Input name="fuel" defaultValue={filters.fuel} placeholder={t("PETROL")} />
-    </label>
-  );
-  const driveField = (
-    <label>
-      {children === undefined ? t("Drive") : t("Привод")}
-      <Input name="drive" defaultValue={filters.drive} placeholder={t("AWD")} />
-    </label>
-  );
-  const startDateField = (
-    <label>
-      {children === undefined ? t("Start date with offset") : t("Начало аренды")}
-      <CatalogDateInput key={filters.startDate ?? "startDate"} name="startDate" defaultValue={filters.startDate} />
-    </label>
-  );
-  const endDateField = (
-    <label>
-      {children === undefined ? t("End date with offset") : t("Возврат автомобиля")}
-      <CatalogDateInput key={filters.endDate ?? "endDate"} name="endDate" defaultValue={filters.endDate} />
-    </label>
-  );
+  const seatsField = selectField("Seats", "seats", CATALOG_SEAT_COUNTS.map(String), filters.seats);
+  const transmissionField = selectField("Transmission", "transmission", ADMIN_TRANSMISSIONS, filters.transmission);
+  const fuelField = selectField("Fuel", "fuel", ADMIN_FUELS, filters.fuel);
+  const driveField = selectField("Drive", "drive", ADMIN_DRIVES, filters.drive);
+  const dateRange = <CatalogDateRange idPrefix="catalog" className={styles.dateRange}
+    key={`${filters.startDate ?? ""}:${filters.endDate ?? ""}`}
+    startDate={filters.startDate} endDate={filters.endDate} />;
   const sortField = (
     <label>
       {children === undefined ? t("Sort") : t("Сортировка")}
@@ -129,8 +101,7 @@ export async function CatalogFilterForm({ filters, children, summary }: CatalogF
         {transmissionField}
         {fuelField}
         {driveField}
-        {startDateField}
-        {endDateField}
+        {dateRange}
         {sortField}
         {pageSizeField}
         <div className="catalog-filter-actions">
@@ -144,14 +115,7 @@ export async function CatalogFilterForm({ filters, children, summary }: CatalogF
   return (
     <Form action="/vehicles" className={styles.catalogForm}>
       <div className={styles.searchBar} aria-label={t("Rental search")}>
-        <div className={styles.searchField}>
-          <span className={styles.calendarIcon} aria-hidden="true" />
-          {startDateField}
-        </div>
-        <div className={styles.searchField}>
-          <span className={styles.calendarIcon} aria-hidden="true" />
-          {endDateField}
-        </div>
+        {dateRange}
         <div className={styles.searchField}>
           <span className={styles.carIcon} aria-hidden="true" />
           {categoryField}
@@ -169,7 +133,6 @@ export async function CatalogFilterForm({ filters, children, summary }: CatalogF
               <Link href="/vehicles">{t("Сбросить")}</Link>
             </div>
             <MobileFilters>
-              <p className={styles.availabilityNote}><span aria-hidden="true" />{t("Только доступные")}</p>
               <fieldset className={styles.priceFields}>
                 <legend>{t("Цена за сутки")}</legend>
                 {minPriceField}

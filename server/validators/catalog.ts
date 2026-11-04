@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { CATALOG_SEAT_COUNTS } from "@/lib/catalog-seats";
 
 export const CATALOG_QUERY_LIMITS = Object.freeze({
   filter: 80,
   vehicleId: 128,
   slug: 160,
-  maxSeats: 100,
+  maxSeats: 7,
   maxPage: 100_000,
   maxPageSize: 50,
 });
@@ -50,7 +51,10 @@ const catalogFilterShape = {
   category: optionalFilterSchema,
   minPrice: optionalMoneySchema,
   maxPrice: optionalMoneySchema,
-  seats: optionalPositiveIntegerSchema(CATALOG_QUERY_LIMITS.maxSeats),
+  seats: optionalPositiveIntegerSchema(CATALOG_QUERY_LIMITS.maxSeats).refine(
+    (value) => value === undefined || CATALOG_SEAT_COUNTS.some((count) => count === value),
+    "Choose a supported seat count.",
+  ),
   transmission: optionalFilterSchema,
   fuel: optionalFilterSchema,
   drive: optionalFilterSchema,

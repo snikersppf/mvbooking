@@ -1,6 +1,5 @@
 import { getTranslations } from "@/lib/i18n/server";
 import type { NextPage } from "next";
-import Image from "next/image";
 import Component1111 from "./component1111";
 import styles from "./frame-component11.module.css";
 
@@ -19,64 +18,17 @@ const FrameComponent11: NextPage<FrameComponent11Type> = async ({
         <h2 className={styles.sectionTitle}>
           {t("От выбора автомобиля до начала путешествия")}</h2>
       </div>
-      <div className={styles.list}>
-        <div className={styles.rentalStep1}>
-          <div className={styles.divider}>
-            <h2 className={styles.number}>01</h2>
-          </div>
-          <div className={styles.content}>
-            <div className={styles.iconcarFrontWrapper}>
-              <Image
-                className={styles.iconcarFront}
-                width={38}
-                height={38}
-                sizes="100vw"
-                alt=""
-                src="/design/Icon-car-front.svg"
-              />
-            </div>
-            <div className={styles.label}>
-              {t("Выберите")}<br />
-              {t("автомобиль")}</div>
-          </div>
-        </div>
-        <div className={styles.item}>
-          <div className={styles.divider2} />
-        </div>
-        <Component1111
-          number="02"
-          iconcalendarDays="/design/Icon-calendar-days.svg"
-          label={t(`Укажите
-маршрут и даты`)}
-        />
-        <div className={styles.item}>
-          <div className={styles.divider3} />
-        </div>
-        <Component1111
-          number="03"
-          iconcalendarDays="/design/Icon-file-text.svg"
-          label={t(`Оставьте
-контакты`)}
-        />
-        <div className={styles.item}>
-          <div className={styles.divider4} />
-        </div>
-        <Component1111
-          number="04"
-          iconcalendarDays="/design/Icon-circle-check-big.svg"
-          label={t(`Получите
-подтверждение`)}
-        />
-        <div className={styles.item}>
-          <div className={styles.divider5} />
-        </div>
-        <Component1111
-          number="05"
-          iconcalendarDays="/design/Icon-send.svg"
-          label={t(`Отправляйтесь
-в путь`)}
-        />
-      </div>
+      <ol className={styles.list}>
+        <Component1111 number="01" icon="car" label={`${t("Выберите")}\n${t("автомобиль")}`} />
+        <Component1111 number="02" icon="calendar" label={t(`Укажите
+маршрут и даты`)} />
+        <Component1111 number="03" icon="document" label={t(`Оставьте
+контакты`)} />
+        <Component1111 number="04" icon="check" label={t(`Получите
+подтверждение`)} />
+        <Component1111 number="05" icon="send" label={t(`Отправляйтесь
+в путь`)} />
+      </ol>
     </section>
   );
 };

@@ -1,5 +1,4 @@
 import { getTranslations } from "@/lib/i18n/server";
-import Image from "next/image";
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Card } from "@/components/ui/card";
@@ -29,7 +28,6 @@ export async function CatalogGuidance() {
     <div className={styles.guidance}>
       <section className={styles.guide} id="rental-conditions" aria-labelledby="catalog-guide-title">
         <div className={styles.guideIntro}>
-          <Image src="/design/Editorial-photo3@2x.png" alt={t(t("Горный маршрут в Грузии"))} width={888} height={912} sizes="(max-width: 600px) 100vw, 240px" className={styles.guideImage} />
           <div>
             <p className={styles.eyebrow}>{t("ПОМОЩЬ С ВЫБОРОМ")}</p>
             <h2 id="catalog-guide-title">{t("Что важно учесть")}<br />{t("перед арендой")}</h2>

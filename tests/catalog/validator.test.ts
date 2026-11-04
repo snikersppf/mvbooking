@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { publicVehicleWhere } from "@/server/repositories/catalog";
 import {
   availableVehicleListQuerySchema,
   catalogQuerySchema,
@@ -6,6 +7,15 @@ import {
 } from "@/server/validators/catalog";
 
 describe("catalogQuerySchema", () => {
+  it("accepts only 2, 4, 5, 6 and 7 seats and applies an exact seat count", () => {
+    for (const seats of [2, 4, 5, 6, 7]) {
+      const query = catalogQuerySchema.parse({ seats: String(seats) });
+      expect(publicVehicleWhere({ seats: query.seats })).toMatchObject({ seats });
+    }
+    for (const seats of [1, 3, 8, 9, 20, 100]) {
+      expect(catalogQuerySchema.safeParse({ seats: String(seats) }).success).toBe(false);
+    }
+  });
   it("parses all filters, sorting, dates and pagination", () => {
     const result = catalogQuerySchema.parse({
       category: "SUV",
